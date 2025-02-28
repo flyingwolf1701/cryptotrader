@@ -115,3 +115,39 @@ class BinanceFuturesClient:
       order_status = self.make_request("GET", "/fapi/v1/order", data)
 
       return order_status
+
+    def get_historical_candles(self, symbol, interval):
+      data = dict()
+      data['symbol'] = symbol
+      data['interval'] = interval
+      data['limit'] = 1000
+
+      raw_candles = self.make_request("GET", "/fapi/v1/klines", data)
+
+      candles = []
+
+      if raw_candles is not None:
+          for c in raw_candles:
+              candles.append(c[0], float(c[1]), float(c[2]), float(c[3]), float(c[4]), float(c[5]), float(c[1], ))
+
+      
+      return candles
+
+    def get_contracts_binance():
+      url = "https://fapi.binance.com/fapi/v1/exchangeInfo"
+      response_object = requests.get(url)
+
+      contracts = []
+
+      response_object = requests.get(url)
+      for contract in response_object.json()['symbols']:
+          contracts.append(contract['pair'])
+      return contracts
+
+    def get_contracts_bitmex():
+      contracts = []
+      url = "https://www.bitmex.com/api/v1/instrament/active"
+      response_object = requests.get(url)
+      for contract in response_object.json():
+          contracts.append(contract['symbol'])
+      return contracts
