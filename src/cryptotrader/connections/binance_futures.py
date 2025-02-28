@@ -3,30 +3,44 @@ import requests
 import time
 import hmac
 import hashlib
+import websocket
+import threading
+import json
+
 from urllib.parce import urlencode
 
 logger = logging.getLogger()
 
 class BinanceFuturesClient:
     def __init__(self, public_key, secret_key, testnet):
-      if testnet:
-          self.base_url = "https://testnet.binancefuture.com"
-      else:
-          self.base_url = "https://fapi.binance.com"
-          
-      self.public_key = public_key
-      self.secret_key = secret_key
+        if testnet:
+            self.base_url = "https://testnet.binancefuture.com"
+            self.wss-url = "wss://stream.binancefuture.com/ws"
+        else:
+            self.base_url = "https://fapi.binance.com"
+            self.wss-url = "wss://fstream.binance.com/ws"
 
-      self.headers = {'X-MBX-APIKEY': public_key}
+              
+        self.id = 1    
+        self.public_key = public_key
+        self.secret_key = secret_key
+
+        self.headers = {'X-MBX-APIKEY': public_key}
+        
+        self.prices = dict()
+
+        t = threading.Thread(target=self.start_ws)
+        t.start()
+        self.ws = None
       
-      self.prices = dict()
-      
-      logger.info("Binance Futures Client successfully initialized")
+        logger.info("Binance Futures Client successfully initialized")
       
     def generate_signature( self, data):
-      return hmac.new(self.secret_key.encode(),
-                      urlencode(data).encode(),
-                      hashlib.sha256).hexdigest()
+        return hmac.new(
+            self.secret_key.encode(),
+            urlencode(data).encode(),
+            hashlib.sha256
+            ).hexdigest()
         
     def make_request(self, method, endpoint, data):
       if method == "GET":
@@ -151,3 +165,40 @@ class BinanceFuturesClient:
       for contract in response_object.json():
           contracts.append(contract['symbol'])
       return contracts
+
+    def on_open(self):
+        logger.info("Binance Connection Opened")
+        self.subscribe_channel("BTCUSDT")
+
+    def on_close(self):
+        logger.warning("Binance websocket connection closed")
+
+    def on_error(self, e):
+        logger.error(f"binance connection error {e}")
+
+    def on_message(ws, message):
+        logger.info(f"Received: {message}")
+        data = json.loads(message)
+        if 'e' in data:
+            if data['e'] == "bookTicker":
+                print('placeholder')
+            
+
+    def start_ws(self):
+        self.ws = websocket.WebSocketApp(self.wws_url,
+                              on_open=on_open,
+                              on_message=on_message,
+                              on_error=on_error,
+                              on_close=on_close)
+        self.ws.run_forever()
+
+    def subscribe_channel(self, symbol):
+        data= dict()
+        data["method"] = "SUBSCRIBE"
+        data["params"] = []
+        data["params"].append(symbol.lower() + "@bookTicker")
+        data["id"] = self.id
+
+        self.ws.send(json.dumps(data))
+
+        self.id += 1
