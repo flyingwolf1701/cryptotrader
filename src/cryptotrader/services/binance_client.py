@@ -1,4 +1,3 @@
-
 import logging
 import httpx
 import time
@@ -10,10 +9,153 @@ import threading
 from urllib.parse import urlencode
 from typing import Dict, List, Optional, Any, Union
 import websockets
+from dataclasses import dataclass
 
 from models.binance_models import PriceData, BinanceEndpoints, OrderRequest, Candle
 
 logger = logging.getLogger(__name__)
+
+@dataclass
+class AccountAsset:
+    asset: str
+    walletBalance: float
+    unrealizedProfit: float
+    marginBalance: float
+    maintMargin: float
+    initialMargin: float
+    positionInitialMargin: float
+    openOrderInitialMargin: float
+    maxWithdrawAmount: float
+    crossWalletBalance: float
+    crossUnPnl: float
+    availableBalance: float
+    marginAvailable: bool
+    updateTime: int
+
+    @dataclass
+    class PriceData:
+        bid: float
+        ask: float
+
+    @dataclass
+    class OrderRequest:
+        symbol: str
+        side: str  # "BUY" or "SELL"
+        quantity: float
+        order_type: str  # "LIMIT", "MARKET", etc.
+        price: Optional[float] = None
+        time_in_force: Optional[str] = None  # "GTC", "IOC", "FOK"
+
+    @dataclass
+    class Candle:
+        timestamp: int
+        open_price: float
+        high_price: float
+        low_price: float
+        close_price: float
+        volume: float
+        quote_volume: float
+
+@dataclass
+class AccountBalance:
+    assets: Dict[str, AccountAsset]
+    
+    @classmethod
+    def from_api_response(cls, response: Dict[str, Any]) -> 'AccountBalance':
+        assets = {}
+        for asset_data in response.get('assets', []):
+            asset_name = asset_data['asset']
+            assets[asset_name] = AccountAsset(
+                asset=asset_name,
+                walletBalance=float(asset_data.get('walletBalance', 0)),
+                unrealizedProfit=float(asset_data.get('unrealizedProfit', 0)),
+                marginBalance=float(asset_data.get('marginBalance', 0)),
+                maintMargin=float(asset_data.get('maintMargin', 0)),
+                initialMargin=float(asset_data.get('initialMargin', 0)),
+                positionInitialMargin=float(asset_data.get('positionInitialMargin', 0)),
+                openOrderInitialMargin=float(asset_data.get('openOrderInitialMargin', 0)),
+                maxWithdrawAmount=float(asset_data.get('maxWithdrawAmount', 0)),
+                crossWalletBalance=float(asset_data.get('crossWalletBalance', 0)),
+                crossUnPnl=float(asset_data.get('crossUnPnl', 0)),
+                availableBalance=float(asset_data.get('availableBalance', 0)),
+                marginAvailable=bool(asset_data.get('marginAvailable', False)),
+                updateTime=int(asset_data.get('updateTime', 0))
+            )
+        return cls(assets=assets)
+
+@dataclass
+class OrderStatus:
+    clientOrderId: str
+    cumQty: float
+    cumQuote: float
+    executedQty: float
+    orderId: int
+    avgPrice: float
+    origQty: float
+    price: float
+    reduceOnly: bool
+    side: str
+    positionSide: str
+    status: str
+    stopPrice: float
+    closePosition: bool
+    symbol: str
+    timeInForce: str
+    type: str
+    origType: str
+    updateTime: int
+    workingType: str
+    priceProtect: bool
+    
+    @classmethod
+    def from_api_response(cls, response: Dict[str, Any]) -> 'OrderStatus':
+        return cls(
+            clientOrderId=response.get('clientOrderId', ''),
+            cumQty=float(response.get('cumQty', 0)),
+            cumQuote=float(response.get('cumQuote', 0)),
+            executedQty=float(response.get('executedQty', 0)),
+            orderId=int(response.get('orderId', 0)),
+            avgPrice=float(response.get('avgPrice', 0)),
+            origQty=float(response.get('origQty', 0)),
+            price=float(response.get('price', 0)),
+            reduceOnly=bool(response.get('reduceOnly', False)),
+            side=response.get('side', ''),
+            positionSide=response.get('positionSide', ''),
+            status=response.get('status', ''),
+            stopPrice=float(response.get('stopPrice', 0)),
+            closePosition=bool(response.get('closePosition', False)),
+            symbol=response.get('symbol', ''),
+            timeInForce=response.get('timeInForce', ''),
+            type=response.get('type', ''),
+            origType=response.get('origType', ''),
+            updateTime=int(response.get('updateTime', 0)),
+            workingType=response.get('workingType', ''),
+            priceProtect=bool(response.get('priceProtect', False))
+        )
+
+@dataclass
+class ContractInfo:
+    pair: str
+    baseAsset: str
+    quoteAsset: str
+    marginAsset: str
+    status: str
+    tradingStatus: bool
+    pricePrecision: int
+    quantityPrecision: int
+    
+    @classmethod
+    def from_api_response(cls, response: Dict[str, Any]) -> 'ContractInfo':
+        return cls(
+            pair=response.get('pair', ''),
+            baseAsset=response.get('baseAsset', ''),
+            quoteAsset=response.get('quoteAsset', ''),
+            marginAsset=response.get('marginAsset', ''),
+            status=response.get('status', ''),
+            tradingStatus=bool(response.get('onboardDate', 0) > 0),
+            pricePrecision=int(response.get('pricePrecision', 0)),
+            quantityPrecision=int(response.get('quantityPrecision', 0))
+        )
 
 class Client:
     def __init__(self, public_key: str, secret_key: str):
@@ -49,16 +191,75 @@ class Client:
             hashlib.sha256
         ).hexdigest()
         
-    def make_request(self, method, endpoint, data):
+    def make_request(self, method, endpoint, data, query_params=None, body_params=None):
+        """
+        Makes a request to the Binance API with proper signature handling.
+        
+        Args:
+            method: HTTP method (GET, POST, DELETE)
+            endpoint: API endpoint path
+            data: Parameters for backward compatibility
+            query_params: Parameters to be sent in the URL query string
+            body_params: Parameters to be sent in the request body
+            
+        Returns:
+            API response as dictionary or None if an error occurs
+        """
         url = f"{self.base_url}{endpoint}"
+        
+        # Handle the case where data is provided (for backward compatibility)
+        if query_params is None and body_params is None:
+            if method == "GET" or method == "DELETE":
+                query_params = data
+                body_params = {}
+            elif method == "POST":
+                # For backward compatibility, we'll put everything in query_params
+                # This works for most Binance endpoints
+                query_params = data
+                body_params = {}
+        
+        # Ensure params are initialized
+        if query_params is None:
+            query_params = {}
+        if body_params is None:
+            body_params = {}
+            
+        # Combine parameters for signature calculation
+        all_params = {**query_params, **body_params}
+        
+        # Add timestamp if not already present
+        if 'timestamp' not in all_params:
+            all_params['timestamp'] = int(time.time() * 1000)
+            
+        # Update the original dictionaries with timestamp
+        if method == "GET" or method == "DELETE" or len(body_params) == 0:
+            query_params['timestamp'] = all_params['timestamp']
+        else:
+            # If body_params exist, put timestamp there
+            body_params['timestamp'] = all_params['timestamp']
+            
+        # Generate signature from the combined parameters
+        signature = self.generate_signature(all_params)
+        
+        # Add signature to the appropriate parameter set
+        if method == "GET" or method == "DELETE" or len(body_params) == 0:
+            query_params['signature'] = signature
+        else:
+            # If using both query and body params, put signature in query params
+            query_params['signature'] = signature
         
         try:
             if method == "GET":
-                response = self.client.get(url, params=data, headers=self.headers)
+                response = self.client.get(url, params=query_params, headers=self.headers)
             elif method == "POST":
-                response = self.client.post(url, params=data, headers=self.headers)
+                if len(body_params) == 0:
+                    # If no specific body params, use query params as in original implementation
+                    response = self.client.post(url, params=query_params, headers=self.headers)
+                else:
+                    # Handle the case with both query params and body params
+                    response = self.client.post(url, params=query_params, data=body_params, headers=self.headers)
             elif method == "DELETE":
-                response = self.client.delete(url, params=data, headers=self.headers)
+                response = self.client.delete(url, params=query_params, headers=self.headers)
             else:
                 raise ValueError("Invalid request method")
             
@@ -75,8 +276,8 @@ class Client:
             return None
       
     def get_bid_ask(self, symbol: str) -> Optional[PriceData]:
-        data = {'symbol': symbol}
-        ob_data = self.make_request("GET", "/fapi/v1/ticker/bookTicker", data)
+        query_params = {'symbol': symbol}
+        ob_data = self.make_request("GET", "/fapi/v1/ticker/bookTicker", {}, query_params)
 
         if ob_data is not None:
             # Use PriceData dataclass instead of dict
@@ -89,89 +290,105 @@ class Client:
         
         return self.prices.get(symbol)
     
-    def get_balance(self):
-        data = dict()
-        data['timestamp'] = int(time.time() * 1000)
-        data['signature'] = self.generate_signature(data)
-
-        balance = dict()
-        account_data = self.make_request("GET", "/fapi/v1/account", data)
-       
+    def get_balance(self) -> AccountBalance:
+        # For GET requests, all parameters should be in the query string
+        query_params = {}  # No specific parameters needed for this endpoint
+        
+        # Timestamp and signature will be added by make_request
+        account_data = self.make_request("GET", "/fapi/v1/account", {}, query_params)
+        
         if account_data is not None:
-            for a in account_data['assets']:
-                balance[a['asset']] = a
-
-        return balance
+            return AccountBalance.from_api_response(account_data)
+        
+        # Return empty balance if request failed
+        return AccountBalance(assets={})
     
     def place_order(self, 
                 order_request: Union[OrderRequest, Dict[str, Any]]
-            ) -> Optional[Dict[str, Any]]:
+            ) -> Optional[OrderStatus]:
         """
         Place an order using either an OrderRequest object or a dictionary
+        
+        This method demonstrates using both query parameters and body parameters
+        for Binance API requests, as per their documentation.
         """
         # Handle both OrderRequest objects and dictionaries for flexibility
         if isinstance(order_request, OrderRequest):
-            data = {
+            # For this example, we'll split parameters between query and body
+            # Query parameters - typically symbol and basic info
+            query_params = {
                 'symbol': order_request.symbol,
                 'side': order_request.side,
+                'type': order_request.order_type,
+            }
+            
+            # Body parameters - typically quantity, price, etc.
+            body_params = {
                 'quantity': order_request.quantity,
-                'type': order_request.order_type
             }
             
             if order_request.price is not None:
-                data['price'] = order_request.price
+                body_params['price'] = order_request.price
                 
             if order_request.time_in_force is not None:
-                data['timeInForce'] = order_request.time_in_force
+                body_params['timeInForce'] = order_request.time_in_force
         else:
             # Assume it's a dictionary
-            data = {
+            # For this example, we'll split parameters between query and body
+            query_params = {
                 'symbol': order_request['symbol'],
                 'side': order_request['side'],
+                'type': order_request['type'],
+            }
+            
+            body_params = {
                 'quantity': order_request['quantity'],
-                'type': order_request['type']
             }
             
             if 'price' in order_request and order_request['price'] is not None:
-                data['price'] = order_request['price']
+                body_params['price'] = order_request['price']
                 
             if 'timeInForce' in order_request and order_request['timeInForce'] is not None:
-                data['timeInForce'] = order_request['timeInForce']
+                body_params['timeInForce'] = order_request['timeInForce']
 
-        data['timestamp'] = int(time.time() * 1000)
-        data['signature'] = self.generate_signature(data)
-
-        return self.make_request("POST", "/fapi/v1/order", data)
+        # We don't need to add timestamp or signature here anymore as make_request will handle it
+        response = self.make_request("POST", "/fapi/v1/order", {}, query_params, body_params)
+        if response:
+            return OrderStatus.from_api_response(response)
+        return None
     
-    def cancel_order(self, symbol, order_id):
-        data = dict()
-        data['symbol'] = symbol
-        data['orderId'] = order_id    
-
-        data['timestamp'] = int(time.time() * 1000)
-        data['signature'] = self.generate_signature(data)
-
-        order_status = self.make_request("DELETE", "/fapi/v1/order", data)
-        return order_status
+    def cancel_order(self, symbol, order_id) -> Optional[OrderStatus]:
+        query_params = {
+            'symbol': symbol,
+            'orderId': order_id
+        }
+        
+        # Timestamp and signature will be added by make_request
+        response = self.make_request("DELETE", "/fapi/v1/order", {}, query_params)
+        if response:
+            return OrderStatus.from_api_response(response)
+        return None
     
-    def get_order_status(self, symbol, order_id):
-        data = dict()
-        data['timestamp'] = int(time.time() * 1000)
-        data['symbol'] = symbol
-        data['orderId'] = order_id
-        data['signature'] = self.generate_signature(data)
-
-        order_status = self.make_request("GET", "/fapi/v1/order", data)
-        return order_status
+    def get_order_status(self, symbol, order_id) -> Optional[OrderStatus]:
+        query_params = {
+            'symbol': symbol,
+            'orderId': order_id
+        }
+        
+        # Timestamp and signature will be added by make_request
+        response = self.make_request("GET", "/fapi/v1/order", {}, query_params)
+        if response:
+            return OrderStatus.from_api_response(response)
+        return None
 
     def get_historical_candles(self, symbol: str, interval: str) -> List[Candle]:
-        data = {
+        query_params = {
             'symbol': symbol,
             'interval': interval,
             'limit': 1000
         }
 
-        raw_candles = self.make_request("GET", "/fapi/v1/klines", data)
+        raw_candles = self.make_request("GET", "/fapi/v1/klines", {}, query_params)
         candles = []
 
         if raw_candles is not None:
@@ -190,14 +407,15 @@ class Client:
         return candles
 
     @staticmethod
-    def get_contracts_binance():
+    def get_contracts_binance() -> List[str]:
         try:
             with httpx.Client() as client:
                 response = client.get("https://fapi.binance.com/fapi/v1/exchangeInfo")
                 response.raise_for_status()
+                
                 contracts = []
-                for contract in response.json()['symbols']:
-                    contracts.append(contract['pair'])
+                for contract_data in response.json()['symbols']:
+                    contracts.append(contract_data['pair'])
                 return contracts
         except (httpx.HTTPStatusError, httpx.RequestError) as e:
             logger.error(f"Error fetching Binance contracts: {e}")
