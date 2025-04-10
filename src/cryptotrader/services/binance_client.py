@@ -1,13 +1,15 @@
+
 import logging
-import requests
+import httpx
 import time
 import hmac
 import hashlib
-import websocket
-import threading
 import json
+import asyncio
+import threading
 from urllib.parse import urlencode
 from typing import Dict, List, Optional, Any, Union
+import websockets
 
 from models.binance_models import PriceData, BinanceEndpoints, OrderRequest, Candle
 
@@ -27,10 +29,16 @@ class Client:
         self.headers = {'X-MBX-APIKEY': public_key}
         self.prices: Dict[str, PriceData] = {}
         self.ws = None
+        self.ws_connected = False
+        self.ws_loop = None
+        self.ws_thread = None
+        
+        # Create httpx client
+        self.client = httpx.Client(timeout=30.0)
 
         # Start WebSocket connection in a separate thread
-        t = threading.Thread(target=self.start_ws, daemon=True)  # Use daemon=True for clean exit
-        t.start()
+        self.ws_thread = threading.Thread(target=self.start_ws_thread, daemon=True)
+        self.ws_thread.start()
       
         logger.info("Binance Futures Client successfully initialized")
       
@@ -42,20 +50,28 @@ class Client:
         ).hexdigest()
         
     def make_request(self, method, endpoint, data):
-        if method == "GET":
-            response = requests.get(self.base_url + endpoint, params=data, headers=self.headers)
-        elif method == "POST":
-            response = requests.post(self.base_url + endpoint, params=data, headers=self.headers)
-        elif method == "DELETE":
-            response = requests.delete(self.base_url + endpoint, params=data, headers=self.headers)
-        else:
-            raise ValueError("Invalid request method")
-          
-        if response.status_code == 200:
+        url = f"{self.base_url}{endpoint}"
+        
+        try:
+            if method == "GET":
+                response = self.client.get(url, params=data, headers=self.headers)
+            elif method == "POST":
+                response = self.client.post(url, params=data, headers=self.headers)
+            elif method == "DELETE":
+                response = self.client.delete(url, params=data, headers=self.headers)
+            else:
+                raise ValueError("Invalid request method")
+            
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            
             return response.json()
-        else:
+        except httpx.HTTPStatusError as e:
             logger.error("Error while making %s request to %s: %s (error code %s)", 
-                method, endpoint, response.json(), response.status_code)
+                method, endpoint, e.response.text, e.response.status_code)
+            return None
+        except httpx.RequestError as e:
+            logger.error("Request error while making %s request to %s: %s", 
+                method, endpoint, str(e))
             return None
       
     def get_bid_ask(self, symbol: str) -> Optional[PriceData]:
@@ -175,62 +191,119 @@ class Client:
 
     @staticmethod
     def get_contracts_binance():
-        url = "https://fapi.binance.com/fapi/v1/exchangeInfo"
-        response_object = requests.get(url)
-        contracts = []
+        try:
+            with httpx.Client() as client:
+                response = client.get("https://fapi.binance.com/fapi/v1/exchangeInfo")
+                response.raise_for_status()
+                contracts = []
+                for contract in response.json()['symbols']:
+                    contracts.append(contract['pair'])
+                return contracts
+        except (httpx.HTTPStatusError, httpx.RequestError) as e:
+            logger.error(f"Error fetching Binance contracts: {e}")
+            return []
 
-        for contract in response_object.json()['symbols']:
-            contracts.append(contract['pair'])
-        return contracts
-
-    @staticmethod
-    def get_contracts_bitmex():
-        contracts = []
-        url = "https://www.bitmex.com/api/v1/instrament/active"
-        response_object = requests.get(url)
-        for contract in response_object.json():
-            contracts.append(contract['symbol'])
-        return contracts
-
-    def on_open(self, ws):
-        logger.info("Binance Connection Opened")
-        self.subscribe_channel("BTCUSDT")
-
-    def on_close(self, ws, close_status_code, close_msg):
-        logger.warning("Binance websocket connection closed")
-
-    def on_error(self, ws, error):
-        logger.error(f"Binance connection error {error}")
-
-    def on_message(self, ws, message):
-        logger.info(f"Received: {message}")
-        data = json.loads(message)
-
-        if 'e' in data:
-            if data['e'] == "bookTicker":
-                symbol = data['s']
-                # Use PriceData dataclass
-                self.prices[symbol] = PriceData(
-                    bid=float(data['b']),
-                    ask=float(data['a'])
-                )
+    # WebSocket methods using the websockets library
+    def start_ws_thread(self):
+        """Start the WebSocket connection in a separate thread with its own event loop"""
+        # Create a new event loop for the thread
+        self.ws_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.ws_loop)
+        
+        # Run the WebSocket connection
+        self.ws_loop.run_until_complete(self.ws_handler())
+    
+    async def ws_handler(self):
+        """Main WebSocket connection handler"""
+        while True:
+            try:
+                logger.info("Connecting to Binance WebSocket...")
+                async with websockets.connect(self.wss_url) as websocket:
+                    self.ws = websocket
+                    self.ws_connected = True
+                    logger.info("Binance WebSocket Connection Opened")
+                    
+                    # Subscribe to the default symbol
+                    await self.subscribe_channel("BTCUSDT")
+                    
+                    # Listen for messages
+                    while True:
+                        message = await websocket.recv()
+                        await self.on_message(message)
+                        
+            except websockets.exceptions.ConnectionClosed as e:
+                logger.warning(f"Binance WebSocket connection closed: {e}")
+                self.ws_connected = False
+                self.ws = None
+            except Exception as e:
+                logger.error(f"Binance WebSocket error: {e}")
+                self.ws_connected = False
+                self.ws = None
             
-    def start_ws(self):
-        self.ws = websocket.WebSocketApp(
-            self.wss_url,
-            on_open=lambda ws: self.on_open(ws),
-            on_message=lambda ws, msg: self.on_message(ws, msg),
-            on_error=lambda ws, err: self.on_error(ws, err),
-            on_close=lambda ws, code, msg: self.on_close(ws, code, msg)
-        )
-        self.ws.run_forever()
-
+            # Wait before reconnecting
+            await asyncio.sleep(5)
+    
+    async def on_message(self, message):
+        """Process incoming WebSocket messages"""
+        try:
+            data = json.loads(message)
+            logger.info(f"Received: {message[:100]}...")  # Log first 100 chars to avoid massive logs
+            
+            if 'e' in data:
+                if data['e'] == "bookTicker":
+                    symbol = data['s']
+                    # Use PriceData dataclass
+                    self.prices[symbol] = PriceData(
+                        bid=float(data['b']),
+                        ask=float(data['a'])
+                    )
+        except Exception as e:
+            logger.error(f"Error processing WebSocket message: {e}")
+    
+    async def subscribe_channel(self, symbol):
+        """Subscribe to a WebSocket channel"""
+        if not self.ws_connected or not self.ws:
+            logger.warning("Cannot subscribe: WebSocket not connected")
+            return
+        
+        data = {
+            "method": "SUBSCRIBE",
+            "params": [f"{symbol.lower()}@bookTicker"],
+            "id": self.id
+        }
+        
+        try:
+            await self.ws.send(json.dumps(data))
+            self.id += 1
+            logger.info(f"Subscribed to {symbol} channel")
+        except Exception as e:
+            logger.error(f"Error subscribing to channel: {e}")
+    
     def subscribe_channel(self, symbol):
-        data = dict()
-        data["method"] = "SUBSCRIBE"
-        data["params"] = []
-        data["params"].append(symbol.lower() + "@bookTicker")
-        data["id"] = self.id
-
-        self.ws.send(json.dumps(data))
-        self.id += 1
+        """Synchronous wrapper for subscribe_channel to maintain API compatibility"""
+        if self.ws_loop and self.ws_connected:
+            asyncio.run_coroutine_threadsafe(
+                self.subscribe_channel(symbol), 
+                self.ws_loop
+            )
+        else:
+            logger.warning(f"Cannot subscribe to {symbol}: WebSocket not ready")
+        
+    def __del__(self):
+        """Cleanup resources when instance is being destroyed"""
+        if hasattr(self, 'client') and self.client:
+            self.client.close()
+        
+        # Close the WebSocket connection and event loop
+        if self.ws_loop and self.ws_loop.is_running():
+            asyncio.run_coroutine_threadsafe(
+                self.cleanup_ws(), 
+                self.ws_loop
+            )
+    
+    async def cleanup_ws(self):
+        """Cleanup WebSocket resources"""
+        if self.ws and self.ws_connected:
+            await self.ws.close()
+            self.ws_connected = False
+            self.ws = None
