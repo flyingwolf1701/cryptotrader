@@ -35,6 +35,11 @@ env.bak/
 venv.bak
 .venv/
 
+# Environment variables - protect API keys
+.env
+src/cryptotrader/.env
+*/.env
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
