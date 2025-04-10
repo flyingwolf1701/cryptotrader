@@ -1,16 +1,9 @@
-import tkinter as tk
-from connectors.binance_futures import BinanceFuturesClient
+from app import create_app
 
-import logging
+app = create_app()
 
-logger = logging.getlogger()
-
-if __name__ == 'main':
-  binance = BinanceFuturesClient(True)
-
-  root = tk.Tk()
-
-  root.mainloop
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
 
