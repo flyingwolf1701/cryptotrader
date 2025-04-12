@@ -2,24 +2,19 @@ import httpx
 import time
 import hmac
 import hashlib
-import json
-import asyncio
-import threading
-import logging
 from urllib.parse import urlencode
 from typing import Dict, List, Optional, Any, Union, Tuple
-import websockets
-from datetime import datetime, timedelta
 
 from cryptotrader.services.binance.binance_models import (
     PriceData, BinanceEndpoints, OrderRequest, Candle,
-    AccountAsset, AccountBalance, OrderStatusResponse, SymbolInfo,
+    AccountBalance, OrderStatusResponse, SymbolInfo,
     RateLimit, RateLimitType, RateLimitInterval, OrderType, 
     TimeInForce, OrderSide, KlineInterval
 )
 
 from cryptotrader.config import get_logger
 logger = get_logger(__name__)
+
 
 class RateLimiter:
     """Rate limiter for Binance API"""
@@ -215,185 +210,13 @@ class BinanceAPIRequest:
             return None
 
 
-class WebSocketManager:
-    """Manages WebSocket connections and subscriptions"""
-    
-    def __init__(self, client):
-        self.client = client
-        self.ws = None
-        self.ws_connected = False
-        self.ws_loop = None
-        self.ws_thread = None
-        self.id = 1
-        self.subscriptions = set()
-        self.last_ping = 0
-        
-    def start(self):
-        """Start the WebSocket connection in a background thread"""
-        self.ws_thread = threading.Thread(target=self._start_ws_thread, daemon=True)
-        self.ws_thread.start()
-        
-    def _start_ws_thread(self):
-        """Thread function that runs the WebSocket event loop"""
-        self.ws_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.ws_loop)
-        self.ws_loop.run_until_complete(self._ws_handler())
-        
-    async def _ws_handler(self):
-        """Main WebSocket connection handler"""
-        while True:
-            try:
-                logger.info("Connecting to Binance WebSocket...")
-                async with websockets.connect(self.client.wss_url) as websocket:
-                    self.ws = websocket
-                    self.ws_connected = True
-                    logger.info("Binance WebSocket Connection Opened")
-                    
-                    # Resubscribe to existing channels
-                    for symbol in self.subscriptions:
-                        await self.subscribe(symbol)
-                    
-                    # Keep track of last ping time for connection health
-                    self.last_ping = time.time()
-                    
-                    # Setup ping task
-                    ping_task = asyncio.create_task(self._ping_websocket())
-                    
-                    # Listen for messages
-                    try:
-                        while True:
-                            message = await websocket.recv()
-                            await self._on_message(message)
-                    finally:
-                        ping_task.cancel()
-                        
-            except websockets.exceptions.ConnectionClosed as e:
-                logger.warning(f"Binance WebSocket connection closed: {e}")
-                self.ws_connected = False
-                self.ws = None
-            except Exception as e:
-                logger.error(f"Binance WebSocket error: {e}")
-                self.ws_connected = False
-                self.ws = None
-            
-            # Wait before reconnecting
-            await asyncio.sleep(5)
-    
-    async def _ping_websocket(self):
-        """Send periodic pings to keep WebSocket connection alive"""
-        while True:
-            try:
-                if self.ws_connected and self.ws:
-                    # Send ping every 30 seconds
-                    if time.time() - self.last_ping > 30:
-                        await self.ws.ping()
-                        self.last_ping = time.time()
-                        logger.debug("Sent WebSocket ping")
-            except Exception as e:
-                logger.error(f"Error in WebSocket ping: {e}")
-            
-            await asyncio.sleep(15)
-    
-    async def _on_message(self, message):
-        """Process incoming WebSocket messages"""
-        try:
-            data = json.loads(message)
-            logger.debug(f"Received WS: {message[:100]}...")
-            
-            # Handle different message types
-            if isinstance(data, dict) and 'e' in data:
-                event_type = data['e']
-                
-                if event_type == "bookTicker":
-                    symbol = data['s']
-                    self.client.prices[symbol] = PriceData(
-                        bid=float(data['b']),
-                        ask=float(data['a'])
-                    )
-                    logger.debug(f"Updated price for {symbol}: bid=${data['b']}, ask=${data['a']}")
-                elif event_type == "kline":
-                    symbol = data['s']
-                    k = data['k']
-                    candle = Candle(
-                        timestamp=k['t'],
-                        open_price=float(k['o']),
-                        high_price=float(k['h']),
-                        low_price=float(k['l']),
-                        close_price=float(k['c']),
-                        volume=float(k['v']),
-                        quote_volume=float(k['q'])
-                    )
-                    # Store the candle
-                    interval = k['i']
-                    if symbol not in self.client.candles:
-                        self.client.candles[symbol] = {}
-                    if interval not in self.client.candles[symbol]:
-                        self.client.candles[symbol][interval] = []
-                    
-                    # Add candle if it's a new one or update the last one if it's still the same interval
-                    if (not self.client.candles[symbol][interval] or 
-                        candle.timestamp != self.client.candles[symbol][interval][-1].timestamp):
-                        self.client.candles[symbol][interval].append(candle)
-                    else:
-                        self.client.candles[symbol][interval][-1] = candle
-        except Exception as e:
-            logger.error(f"Error processing WebSocket message: {e}")
-    
-    async def subscribe(self, symbol, streams=None):
-        """Subscribe to WebSocket channels for a symbol"""
-        if not self.ws_connected or not self.ws:
-            logger.warning("Cannot subscribe: WebSocket not connected")
-            return
-        
-        if streams is None:
-            # Default to book ticker stream
-            streams = ["bookTicker"]
-        
-        params = [f"{symbol.lower()}@{stream}" for stream in streams]
-        
-        data = {
-            "method": "SUBSCRIBE",
-            "params": params,
-            "id": self.id
-        }
-        
-        try:
-            await self.ws.send(json.dumps(data))
-            self.id += 1
-            
-            # Add to subscription list for reconnection
-            self.subscriptions.add(symbol)
-            
-            logger.info(f"Subscribed to {symbol} channels: {streams}")
-        except Exception as e:
-            logger.error(f"Error subscribing to channel: {e}")
-    
-    def subscribe_sync(self, symbol, streams=None):
-        """Synchronous wrapper for subscribe"""
-        if self.ws_loop and self.ws_connected:
-            asyncio.run_coroutine_threadsafe(
-                self.subscribe(symbol, streams), 
-                self.ws_loop
-            )
-        else:
-            logger.warning(f"Cannot subscribe to {symbol}: WebSocket not ready")
-            
-    async def cleanup(self):
-        """Cleanup WebSocket resources"""
-        if self.ws and self.ws_connected:
-            await self.ws.close()
-            self.ws_connected = False
-            self.ws = None
-
-
-class Client:
-    """Binance API client with improved OOP structure"""
+class RestClient:
+    """Binance REST API client"""
     
     def __init__(self, public_key: str, secret_key: str):
         # Initialize endpoints
         endpoints = BinanceEndpoints()
         self.base_url = endpoints.base_url
-        self.wss_url = endpoints.wss_url
         
         # API credentials
         self.public_key = public_key
@@ -402,7 +225,6 @@ class Client:
         
         # State
         self.prices: Dict[str, PriceData] = {}
-        self.candles: Dict[str, Dict[str, List[Candle]]] = {}
         self.exchange_info = None
         
         # Rate limiter
@@ -414,11 +236,7 @@ class Client:
         # Initialize rate limits - fetch exchange info
         self._init_exchange_info()
         
-        # WebSocket manager
-        self.ws_manager = WebSocketManager(self)
-        self.ws_manager.start()
-        
-        logger.info("Binance Client successfully initialized")
+        logger.info("Binance REST Client successfully initialized")
     
     def _init_exchange_info(self):
         """Initialize exchange info and rate limits"""
@@ -620,11 +438,6 @@ class Client:
                     quote_volume=float(c[7])
                 )
                 candles.append(candle)
-                
-            # Cache the candles
-            if symbol not in self.candles:
-                self.candles[symbol] = {}
-            self.candles[symbol][interval] = candles
         
         return candles
     
@@ -666,17 +479,6 @@ class Client:
             logger.error(f"Error fetching Binance symbols: {e}")
             return []
     
-    def subscribe_channel(self, symbol: str, streams: Optional[List[str]] = None):
-        """
-        Subscribe to WebSocket channels for a symbol
-        
-        Args:
-            symbol: Symbol to subscribe to (e.g. "BTCUSDT")
-            streams: List of stream types to subscribe to. Default is ["bookTicker"]
-                     Options include: "bookTicker", "kline_1m", "kline_5m", etc.
-        """
-        self.ws_manager.subscribe_sync(symbol, streams)
-    
     def get_server_time(self) -> int:
         """Get current server time"""
         response = self.request("GET", "/api/v3/time").execute()
@@ -699,10 +501,3 @@ class Client:
         """Cleanup resources when instance is being destroyed"""
         if hasattr(self, 'http') and self.http:
             self.http.close()
-        
-        # Close the WebSocket connection
-        if hasattr(self, 'ws_manager') and self.ws_manager.ws_loop and self.ws_manager.ws_loop.is_running():
-            asyncio.run_coroutine_threadsafe(
-                self.ws_manager.cleanup(), 
-                self.ws_manager.ws_loop
-            )
