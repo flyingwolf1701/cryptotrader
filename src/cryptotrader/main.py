@@ -1,15 +1,12 @@
 import uvicorn
-import logging
 import os
 # Import the FastAPI app
 from app import app
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from config import Config, get_logger
+
+# Get logger for this module
+logger = get_logger(__name__)
 
 # Load environment variables if dotenv is available
 try:
