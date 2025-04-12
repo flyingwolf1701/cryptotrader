@@ -10,7 +10,7 @@ from urllib.parse import urlencode
 from typing import Dict, List, Optional, Any, Union
 import websockets
 
-from models.binance_models import (
+from cryptotrader.services.binance.binance_models import (
     PriceData, BinanceEndpoints, OrderRequest, Candle,
     AccountAsset, AccountBalance, OrderStatus, SymbolInfo
 )
