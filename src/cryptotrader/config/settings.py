@@ -3,15 +3,12 @@ Configuration module for the CryptoTrader application.
 """
 
 import os
-import logging
 from dotenv import load_dotenv
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from .logging import get_logger
+
+# Get a logger for this module
+logger = get_logger(__name__)
 
 # Load environment variables from .env file
 load_dotenv()

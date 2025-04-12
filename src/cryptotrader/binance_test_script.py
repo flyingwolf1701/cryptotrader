@@ -5,12 +5,9 @@ Binance API Test Script
 Tests the Binance API client to verify connectivity and data retrieval.
 """
 
-import os
 import logging
 import sys
 from pathlib import Path
-from dotenv import load_dotenv
-from pprint import pprint
 
 # Configure logging
 logging.basicConfig(
@@ -19,52 +16,39 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Specify the path to your .env file - CHANGE THIS PATH TO YOUR ACTUAL .ENV LOCATION
-ENV_PATH = "path/to/your/.env"  # Update this with your actual .env file path
-
-# Load environment variables from the specified .env file
-if os.path.exists(ENV_PATH):
-    load_dotenv(dotenv_path=ENV_PATH)
-    logger.info(f"Environment variables loaded from .env file at: {ENV_PATH}")
-else:
-    logger.warning(f".env file not found at: {ENV_PATH}")
-    # Try to find .env in standard locations
-    potential_paths = [
-        Path(__file__).parent / ".env",                  # Same directory as script
-        Path(__file__).parent.parent / ".env",           # Parent directory
-        Path(__file__).parent.parent.parent / ".env",    # Project root
-        Path.cwd() / ".env",                             # Current working directory
-    ]
-    
-    for path in potential_paths:
-        if path.exists():
-            load_dotenv(dotenv_path=path)
-            logger.info(f"Environment variables loaded from .env file found at: {path}")
-            break
-    else:
-        logger.warning("Could not find .env file in standard locations")
-
-# Debug .env loading
-api_key = os.getenv("BINANCE_API_KEY")
-api_secret = os.getenv("BINANCE_API_SECRET")
-logger.info(f"API Key loaded: {'Yes' if api_key else 'No'}")
-logger.info(f"API Secret loaded: {'Yes' if api_secret else 'No'}")
-
 def main():
-    # Get API credentials
-    api_key = os.getenv("BINANCE_API_KEY")
-    api_secret = os.getenv("BINANCE_API_SECRET")
-    
-    if not api_key or not api_secret:
-        logger.error("API credentials not found. Please set BINANCE_API_KEY and BINANCE_API_SECRET in your .env file")
-        return
-    
     # Add the project root to the Python path
     # This ensures we can import our modules regardless of where the script is run from
     project_root = Path(__file__).parent.parent  # src directory
     sys.path.insert(0, str(project_root))
     
     logger.info(f"Added {project_root} to Python path")
+    
+    # Import configuration
+    try:
+        from cryptotrader.config import Config
+        logger.info("Successfully imported Config from cryptotrader.config")
+    except ImportError as e:
+        logger.error(f"Config import failed: {e}")
+        try:
+            # Try relative import
+            from config import Config
+            logger.info("Successfully imported Config from config")
+        except ImportError as e:
+            logger.error(f"All config import attempts failed: {e}")
+            logger.error("Check your directory structure and make sure config.py is properly installed")
+            return
+    
+    # Get API credentials from Config
+    api_key = Config.BINANCE_API_KEY
+    api_secret = Config.BINANCE_API_SECRET
+    
+    logger.info(f"API Key loaded: {'Yes' if api_key else 'No'}")
+    logger.info(f"API Secret loaded: {'Yes' if api_secret else 'No'}")
+    
+    if not api_key or not api_secret:
+        logger.error("API credentials not found. Please set BINANCE_API_KEY and BINANCE_API_SECRET in your .env file")
+        return
     
     # Import our client
     try:
@@ -81,7 +65,7 @@ def main():
             # Try one more path
             try:
                 # If running from within the cryptotrader directory
-                sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+                sys.path.insert(0, str(Path(__file__).parent))
                 from services.binance_client import Client
                 logger.info("Successfully imported Client after path adjustment")
             except ImportError as e:
