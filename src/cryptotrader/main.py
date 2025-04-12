@@ -1,6 +1,8 @@
-from app import create_app
-import os
+import uvicorn
 import logging
+import os
+# Import the FastAPI app
+from app import app
 
 # Set up logging
 logging.basicConfig(
@@ -17,10 +19,20 @@ try:
 except ImportError:
     logger.info("python-dotenv not installed, using system environment variables")
 
-app = create_app()
+# Get port from environment or use default
+port = int(os.getenv("PORT", 8000))
+debug = os.getenv("DEBUG", "false").lower() == "true"
 
 if __name__ == "__main__":
-    app.run(debug=app.config.get('DEBUG', False), port=app.config.get('PORT', 5000))
+    logger.info(f"Starting FastAPI server on port {port} (debug={debug})")
+    # Run the application with uvicorn
+    uvicorn.run(
+        "main:app", 
+        host="0.0.0.0", 
+        port=port, 
+        reload=debug,
+        log_level="info"
+    )
 
 
 
