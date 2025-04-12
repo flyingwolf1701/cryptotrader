@@ -7,6 +7,6 @@ This package contains all configuration-related modules:
 """
 
 from .settings import Config
-from .logging import setup_logging, get_logger
+from .logging import get_logger
 
-__all__ = ['Config', 'setup_logging', 'get_logger']
+__all__ = ['Config', 'get_logger']

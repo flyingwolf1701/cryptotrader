@@ -52,13 +52,13 @@ def main():
     
     # Import our client
     try:
-        from cryptotrader.services.binance_client import Client
+        from cryptotrader.services.binance.binance_client import Client
         logger.info("Successfully imported Client from cryptotrader.services.binance_client")
     except ImportError as e:
         logger.error(f"First import attempt failed: {e}")
         try:
             # Try relative import path
-            from services.binance_client import Client
+            from cryptotrader.services.binance.binance_client import Client
             logger.info("Successfully imported Client from services.binance_client")
         except ImportError as e:
             logger.error(f"Second import attempt failed: {e}")
@@ -66,7 +66,7 @@ def main():
             try:
                 # If running from within the cryptotrader directory
                 sys.path.insert(0, str(Path(__file__).parent))
-                from services.binance_client import Client
+                from cryptotrader.services.binance.binance_client import Client
                 logger.info("Successfully imported Client after path adjustment")
             except ImportError as e:
                 logger.error(f"All import attempts failed. Last error: {e}")
