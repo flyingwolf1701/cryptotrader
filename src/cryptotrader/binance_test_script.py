@@ -5,41 +5,22 @@ Binance API Test Script
 Tests the Binance API client to verify connectivity and data retrieval.
 """
 
-import logging
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Add the project root to the Python path
+# This ensures we can import our modules regardless of where the script is run from
+project_root = Path(__file__).parent.parent  # src directory
+sys.path.insert(0, str(project_root))
+
+# Import our standardized logger
+from cryptotrader.config import get_logger, Config
+logger = get_logger(__name__)
 
 def main():
-    # Add the project root to the Python path
-    # This ensures we can import our modules regardless of where the script is run from
-    project_root = Path(__file__).parent.parent  # src directory
-    sys.path.insert(0, str(project_root))
-    
     logger.info(f"Added {project_root} to Python path")
     
-    # Import configuration
-    try:
-        from cryptotrader.config import Config
-        logger.info("Successfully imported Config from cryptotrader.config")
-    except ImportError as e:
-        logger.error(f"Config import failed: {e}")
-        try:
-            # Try relative import
-            from config import Config
-            logger.info("Successfully imported Config from config")
-        except ImportError as e:
-            logger.error(f"All config import attempts failed: {e}")
-            logger.error("Check your directory structure and make sure config.py is properly installed")
-            return
-    
-    # Get API credentials from Config
+    # Get API credentials from Config 
     api_key = Config.BINANCE_API_KEY
     api_secret = Config.BINANCE_API_SECRET
     
@@ -53,25 +34,10 @@ def main():
     # Import our client
     try:
         from cryptotrader.services.binance.binance_client import Client
-        logger.info("Successfully imported Client from cryptotrader.services.binance_client")
+        logger.info("Successfully imported Client")
     except ImportError as e:
-        logger.error(f"First import attempt failed: {e}")
-        try:
-            # Try relative import path
-            from cryptotrader.services.binance.binance_client import Client
-            logger.info("Successfully imported Client from services.binance_client")
-        except ImportError as e:
-            logger.error(f"Second import attempt failed: {e}")
-            # Try one more path
-            try:
-                # If running from within the cryptotrader directory
-                sys.path.insert(0, str(Path(__file__).parent))
-                from cryptotrader.services.binance.binance_client import Client
-                logger.info("Successfully imported Client after path adjustment")
-            except ImportError as e:
-                logger.error(f"All import attempts failed. Last error: {e}")
-                logger.error("Check your directory structure and make sure binance_client.py is properly installed")
-                return
+        logger.error(f"Import attempt failed: {e}")
+        return
     
     logger.info("Initializing Binance client...")
     client = Client(api_key, api_secret)

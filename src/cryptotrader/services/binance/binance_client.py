@@ -1,4 +1,3 @@
-import logging
 import httpx
 import time
 import hmac
@@ -15,7 +14,8 @@ from cryptotrader.services.binance.binance_models import (
     AccountAsset, AccountBalance, OrderStatus, SymbolInfo
 )
 
-logger = logging.getLogger(__name__)
+from cryptotrader.config import get_logger
+logger = get_logger(__name__)
 
 class BinanceAPIRequest:
     """Handles API request preparation and execution"""
