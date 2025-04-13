@@ -1,3 +1,20 @@
+"""
+Binance API Data Models
+
+This module defines the data structures and enumerations used by the Binance API client.
+It provides strongly-typed models for requests and responses to improve type safety
+and code readability.
+
+Key components:
+- Enumerations for API constants (OrderType, OrderSide, etc.)
+- Data classes for request and response objects
+- Type conversion and validation logic for API responses
+- Convenience properties and utility methods
+
+These models are used by both the REST and WebSocket clients to ensure
+consistent handling of Binance API data across the application.
+"""
+
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Dict, List, Optional, Any
@@ -7,7 +24,9 @@ class OrderType(str, Enum):
     """Order types supported by Binance API"""
     LIMIT = "LIMIT"
     MARKET = "MARKET"
+    STOP_LOSS = "STOP_LOSS"
     STOP_LOSS_LIMIT = "STOP_LOSS_LIMIT"
+    TAKE_PROFIT = "TAKE_PROFIT"
     TAKE_PROFIT_LIMIT = "TAKE_PROFIT_LIMIT"
     LIMIT_MAKER = "LIMIT_MAKER"
 
@@ -56,6 +75,13 @@ class OrderStatus(str, Enum):
     EXPIRED_IN_MATCH = "EXPIRED_IN_MATCH"  # Canceled by the exchange due to STP
 
 
+class SelfTradePreventionMode(str, Enum):
+    """Self-trade prevention modes supported by Binance API"""
+    EXPIRE_MAKER = "EXPIRE_MAKER"  # Expire the maker order
+    EXPIRE_TAKER = "EXPIRE_TAKER"  # Expire the taker order
+    EXPIRE_BOTH = "EXPIRE_BOTH"  # Expire both orders
+
+
 class SymbolStatus(str, Enum):
     """Symbol statuses returned by Binance API"""
     PRE_TRADING = "PRE_TRADING"
@@ -76,9 +102,10 @@ class RateLimitType(str, Enum):
 
 class RateLimitInterval(str, Enum):
     """Rate limit intervals used by Binance API"""
-    SECOND = "SECOND"
-    MINUTE = "MINUTE"
-    DAY = "DAY"
+    SECOND = "SECOND"  # Corresponds to 'S' in headers
+    MINUTE = "MINUTE"  # Corresponds to 'M' in headers
+    HOUR = "HOUR"      # Corresponds to 'H' in headers
+    DAY = "DAY"        # Corresponds to 'D' in headers
 
 
 @dataclass
@@ -88,6 +115,32 @@ class RateLimit:
     interval: RateLimitInterval
     interval_num: int
     limit: int
+
+
+@dataclass
+class SystemStatus:
+    """System status information"""
+    status_code: int  # 0: normal, 1: system maintenance, -1: unknown
+    
+    @property
+    def is_normal(self) -> bool:
+        """Check if system status is normal"""
+        return self.status_code == 0
+    
+    @property
+    def is_maintenance(self) -> bool:
+        """Check if system is under maintenance"""
+        return self.status_code == 1
+    
+    @property
+    def status_description(self) -> str:
+        """Get human-readable status description"""
+        if self.status_code == 0:
+            return "Normal"
+        elif self.status_code == 1:
+            return "System Maintenance"
+        else:
+            return "Unknown"
 
 
 @dataclass
@@ -117,6 +170,7 @@ class OrderRequest:
     stop_price: Optional[float] = None
     iceberg_qty: Optional[float] = None
     new_client_order_id: Optional[str] = None
+    self_trade_prevention_mode: Optional[str] = None
 
 
 @dataclass
