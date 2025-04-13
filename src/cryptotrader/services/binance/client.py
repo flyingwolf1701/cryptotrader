@@ -34,7 +34,9 @@ from typing import Dict, List, Optional, Any, Union, Callable
 
 from cryptotrader.services.binance.binance_models import (
     PriceData, OrderRequest, Candle, AccountBalance, 
-    OrderStatusResponse, SymbolInfo, SystemStatus, SelfTradePreventionMode
+    OrderStatusResponse, SymbolInfo, SystemStatus, SelfTradePreventionMode,
+    Trade, AggTrade, OrderBook, OrderBookEntry, TickerPrice,
+    AvgPrice, PriceStatsMini, PriceStats, RollingWindowStatsMini, RollingWindowStats
 )
 from cryptotrader.services.binance.binance_rest_client import RestClient
 from cryptotrader.services.binance.binance_ws_client import WebSocketClient
@@ -153,6 +155,133 @@ class Client:
             symbol, interval, limit, start_time, end_time
         )
     
+    def get_recent_trades(self, symbol: str, limit: int = 500) -> List[Trade]:
+        """
+        Get recent trades for a symbol.
+        
+        Args:
+            symbol: Symbol to get trades for (e.g. "BTCUSDT")
+            limit: Number of trades to return (default 500, max 1000)
+            
+        Returns:
+            List of Trade objects
+        """
+        return self.rest_client.get_recent_trades(symbol, limit)
+    
+    def get_historical_trades(self, symbol: str, limit: int = 500, 
+                             from_id: Optional[int] = None) -> List[Trade]:
+        """
+        Get older trades for a symbol.
+        
+        Args:
+            symbol: Symbol to get trades for (e.g. "BTCUSDT")
+            limit: Number of trades to return (default 500, max 1000)
+            from_id: TradeId to fetch from (optional)
+            
+        Returns:
+            List of Trade objects
+        """
+        return self.rest_client.get_historical_trades(symbol, limit, from_id)
+    
+    def get_aggregate_trades(self, symbol: str, limit: int = 500,
+                            from_id: Optional[int] = None,
+                            start_time: Optional[int] = None,
+                            end_time: Optional[int] = None) -> List[AggTrade]:
+        """
+        Get compressed, aggregate trades. Trades that fill at the same time, from the same order, 
+        with the same price, will have the quantity aggregated.
+        
+        Args:
+            symbol: Symbol to get trades for (e.g. "BTCUSDT")
+            limit: Number of trades to return (default 500, max 1000)
+            from_id: ID to get aggregate trades from INCLUSIVE (optional)
+            start_time: Timestamp in ms to get aggregate trades from INCLUSIVE (optional)
+            end_time: Timestamp in ms to get aggregate trades until INCLUSIVE (optional)
+            
+        Returns:
+            List of AggTrade objects
+        """
+        return self.rest_client.get_aggregate_trades(
+            symbol, limit, from_id, start_time, end_time
+        )
+    
+    def get_order_book(self, symbol: str, limit: int = 100) -> Optional[OrderBook]:
+        """
+        Get order book (market depth) for a symbol.
+        
+        Args:
+            symbol: Symbol to get order book for (e.g. "BTCUSDT")
+            limit: Number of price levels to return. Default 100; max 5000.
+                
+        Returns:
+            OrderBook object with bids and asks, or None if request fails
+        """
+        return self.rest_client.get_order_book(symbol, limit)
+    
+    def get_ticker_price(self, symbol: Optional[str] = None) -> Union[TickerPrice, List[TickerPrice], None]:
+        """
+        Get live ticker price for a symbol or for all symbols.
+        
+        Args:
+            symbol: Symbol to get price for (e.g. "BTCUSDT").
+                   If None, prices for all symbols will be returned.
+            
+        Returns:
+            TickerPrice object if symbol is provided, or list of TickerPrice objects for all symbols
+        """
+        return self.rest_client.get_ticker_price(symbol)
+    
+    def get_avg_price(self, symbol: str) -> Optional[AvgPrice]:
+        """
+        Get current average price for a symbol.
+        
+        Args:
+            symbol: Symbol to get average price for (e.g. "BTCUSDT")
+            
+        Returns:
+            AvgPrice object with average price information
+        """
+        return self.rest_client.get_avg_price(symbol)
+    
+    def get_24h_stats(self, symbol: Optional[str] = None, symbols: Optional[List[str]] = None, 
+                     type: Optional[str] = None) -> Union[Union[PriceStats, PriceStatsMini], 
+                                                      List[Union[PriceStats, PriceStatsMini]], None]:
+        """
+        Get 24-hour price change statistics for a symbol, multiple symbols, or all symbols.
+        
+        Args:
+            symbol: Symbol to get statistics for (e.g. "BTCUSDT")
+            symbols: List of symbols to get statistics for. Cannot be used with 'symbol'.
+            type: Response type ("FULL" or "MINI").
+                  MINI omits fields: priceChangePercent, weightedAvgPrice, 
+                  bidPrice, bidQty, askPrice, askQty, lastQty
+            
+        Returns:
+            PriceStats/PriceStatsMini object or list of objects
+        """
+        return self.rest_client.get_24h_stats(symbol, symbols, type)
+    
+    def get_rolling_window_stats(self, symbol: str, window_size: Optional[str] = None, 
+                               type: Optional[str] = None) -> Optional[Union[RollingWindowStats, 
+                                                                         RollingWindowStatsMini]]:
+        """
+        Get price change statistics within a requested window of time.
+        
+        Args:
+            symbol: Symbol to get statistics for (e.g. "BTCUSDT")
+            window_size: Size of the rolling window. Default 1d if not provided.
+                        Supported values:
+                        - "1m", "2m" ... "59m" for minutes
+                        - "1h", "2h" ... "23h" for hours
+                        - "1d" ... "7d" for days
+            type: Response type ("FULL" or "MINI").
+                 MINI omits fields: priceChangePercent, weightedAvgPrice
+            
+        Returns:
+            RollingWindowStats/RollingWindowStatsMini object with price statistics
+        """
+        return self.rest_client.get_rolling_window_stats(symbol, window_size, type)
+    
     #
     # Account methods
     #
@@ -179,7 +308,7 @@ class Client:
         return self.rest_client.place_order(order_request)
     
     def cancel_order(self, symbol: str, order_id: Optional[int] = None, 
-                   client_order_id: Optional[str] = None) -> Optional[OrderStatusResponse]:
+                    client_order_id: Optional[str] = None) -> Optional[OrderStatusResponse]:
         """
         Cancel an existing order.
         
@@ -194,7 +323,7 @@ class Client:
         return self.rest_client.cancel_order(symbol, order_id, client_order_id)
     
     def get_order_status(self, symbol: str, order_id: Optional[int] = None, 
-                       client_order_id: Optional[str] = None) -> Optional[OrderStatusResponse]:
+                        client_order_id: Optional[str] = None) -> Optional[OrderStatusResponse]:
         """
         Get status of an existing order.
         
