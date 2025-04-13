@@ -1,5 +1,8 @@
 from .client import Client
-from .binance_models import OrderRequest, OrderType, OrderSide, TimeInForce, KlineInterval
+from .binance_models import (
+    OrderRequest, OrderType, OrderSide, TimeInForce, KlineInterval,
+    SymbolStatus, SystemStatus, SelfTradePreventionMode
+)
 
 __all__ = [
     'Client',
@@ -7,5 +10,8 @@ __all__ = [
     'OrderType',
     'OrderSide',
     'TimeInForce',
-    'KlineInterval'
+    'KlineInterval',
+    'SymbolStatus',
+    'SystemStatus',
+    'SelfTradePreventionMode'
 ]

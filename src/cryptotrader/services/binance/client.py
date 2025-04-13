@@ -1,15 +1,40 @@
 """
-Binance Client Interface
+Binance Unified Client
 
-This module provides a unified client that combines the REST and WebSocket
-clients for Binance API access.
+This module provides a high-level client that combines both REST and WebSocket
+functionality for interacting with the Binance API.
+
+The unified client serves as the main entry point for applications using this library,
+offering access to all Binance API features through a single, consistent interface.
+
+Key features:
+- Combined REST and WebSocket access
+- Automatic fallback from WebSocket to REST when needed
+- Simplified API for common trading operations
+- Comprehensive error handling and retry logic
+- Rate limit management and optimization
+
+This class follows the facade pattern, providing a simpler interface to the
+underlying REST and WebSocket clients while handling the coordination between them.
+
+Usage:
+    client = Client(api_key, api_secret)
+    
+    # Get real-time price updates
+    client.subscribe_channel("BTCUSDT", ["bookTicker"])
+    
+    # Place an order
+    client.place_order(OrderRequest(...))
+    
+    # Check system status
+    status = client.get_system_status()
 """
 
 from typing import Dict, List, Optional, Any, Union, Callable
 
 from cryptotrader.services.binance.binance_models import (
     PriceData, OrderRequest, Candle, AccountBalance, 
-    OrderStatusResponse, SymbolInfo
+    OrderStatusResponse, SymbolInfo, SystemStatus, SelfTradePreventionMode
 )
 from cryptotrader.services.binance.binance_rest_client import RestClient
 from cryptotrader.services.binance.binance_ws_client import WebSocketClient
@@ -187,14 +212,21 @@ class Client:
     # Exchange information methods
     #
     
-    def get_exchange_info(self) -> Dict[str, Any]:
+    def get_exchange_info(self, symbol: Optional[str] = None,
+                         symbols: Optional[List[str]] = None,
+                         permissions: Optional[List[str]] = None) -> Dict[str, Any]:
         """
         Get exchange information.
         
+        Args:
+            symbol: Single symbol to get info for
+            symbols: Multiple symbols to get info for
+            permissions: Permissions to filter by (e.g. ["SPOT"])
+            
         Returns:
             Dictionary containing exchange information
         """
-        return self.rest_client.get_exchange_info()
+        return self.rest_client.get_exchange_info(symbol, symbols, permissions)
     
     def get_symbol_info(self, symbol: str) -> Optional[SymbolInfo]:
         """
@@ -235,6 +267,33 @@ class Client:
             Time difference in milliseconds
         """
         return self.rest_client.check_server_time()
+    
+    def get_system_status(self) -> SystemStatus:
+        """
+        Get system status.
+        
+        Returns:
+            SystemStatus object with status code (0: normal, 1: maintenance)
+        """
+        return self.rest_client.get_system_status()
+    
+    def get_self_trade_prevention_modes(self) -> Dict[str, Any]:
+        """
+        Get self-trade prevention modes from exchange info.
+        
+        Returns:
+            Dictionary with default and allowed modes
+        """
+        return self.rest_client.get_self_trade_prevention_modes()
+    
+    def get_rate_limit_usage(self) -> Dict[str, int]:
+        """
+        Get current rate limit usage information.
+        
+        Returns:
+            Dictionary with rate limit usage details
+        """
+        return self.rest_client.rate_limiter.get_rate_limit_usage()
     
     def __del__(self):
         """Cleanup resources when instance is being destroyed"""

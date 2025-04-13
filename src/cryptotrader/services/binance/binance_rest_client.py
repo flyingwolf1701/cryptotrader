@@ -1,7 +1,39 @@
+"""
+Binance REST API Client
+
+This module provides a robust client for interacting with the Binance REST API.
+It handles authentication, rate limiting, and request retries according to Binance's specifications.
+
+Key features:
+- Automatic signature generation for authenticated endpoints
+- Comprehensive rate limit tracking and throttling
+- Response header processing for rate limit management
+- Exponential backoff and retry mechanism
+- Support for all major Binance REST API endpoints
+- System status monitoring
+- Self-trade prevention mode support
+
+The client maintains state between requests to optimize rate limit usage and
+provides detailed logging for debugging API interactions.
+
+Usage:
+    client = RestClient(api_key, api_secret)
+    
+    # Market data
+    btc_price = client.get_bid_ask("BTCUSDT")
+    
+    # Account data (authenticated)
+    balance = client.get_balance()
+    
+    # Trading (authenticated)
+    order = client.place_order(OrderRequest(...))
+"""
+
 import httpx
 import time
 import hmac
 import hashlib
+import json
 from urllib.parse import urlencode
 from typing import Dict, List, Optional, Any, Union, Tuple
 
@@ -9,7 +41,8 @@ from cryptotrader.services.binance.binance_models import (
     PriceData, BinanceEndpoints, OrderRequest, Candle,
     AccountBalance, OrderStatusResponse, SymbolInfo,
     RateLimit, RateLimitType, RateLimitInterval, OrderType, 
-    TimeInForce, OrderSide, KlineInterval
+    TimeInForce, OrderSide, KlineInterval,
+    SystemStatus, SelfTradePreventionMode
 )
 
 from cryptotrader.config import get_logger
@@ -22,6 +55,7 @@ class RateLimiter:
     def __init__(self):
         self.rate_limits: List[RateLimit] = []
         self.request_counts: Dict[Tuple[RateLimitType, RateLimitInterval, int], List[float]] = {}
+        self.order_counts: Dict[str, int] = {}  # Track order counts for different intervals
         
     def update_rate_limits(self, rate_limits: List[Dict[str, Any]]):
         """Update rate limits from exchange info"""
@@ -34,6 +68,39 @@ class RateLimiter:
                 limit=limit['limit']
             ))
         logger.debug(f"Updated rate limits: {self.rate_limits}")
+    
+    def update_counts_from_headers(self, headers: Dict[str, str]):
+        """Update rate limit counts from response headers"""
+        current_time = time.time()
+        
+        # Process weight headers (X-MBX-USED-WEIGHT-*)
+        for header, value in headers.items():
+            if header.startswith('X-MBX-USED-WEIGHT-'):
+                # Extract interval info from header: X-MBX-USED-WEIGHT-(intervalNum)(intervalLetter)
+                interval_info = header.replace('X-MBX-USED-WEIGHT-', '')
+                if len(interval_info) >= 2:
+                    # Extract interval number and letter
+                    interval_num = int(interval_info[:-1])
+                    interval_letter = interval_info[-1]
+                    
+                    # Map interval letter to RateLimitInterval
+                    if interval_letter == 'S':
+                        interval = RateLimitInterval.SECOND
+                    elif interval_letter == 'M':
+                        interval = RateLimitInterval.MINUTE
+                    elif interval_letter == 'D':
+                        interval = RateLimitInterval.DAY
+                    else:
+                        continue  # Unknown interval
+                    
+                    logger.debug(f"Current {interval.value} weight usage: {value}")
+            
+            # Process order count headers (X-MBX-ORDER-COUNT-*)
+            elif header.startswith('X-MBX-ORDER-COUNT-'):
+                # Extract interval info from header
+                interval_info = header.replace('X-MBX-ORDER-COUNT-', '')
+                self.order_counts[interval_info] = int(value)
+                logger.debug(f"Current order count for {interval_info}: {value}")
     
     def check_rate_limit(self, limit_type: RateLimitType, weight: int = 1) -> bool:
         """Check if request can be executed without hitting rate limit"""
@@ -93,6 +160,34 @@ class RateLimiter:
             # Add timestamps for this request
             for _ in range(weight):
                 self.request_counts[key].append(current_time)
+                
+    def get_rate_limit_usage(self):
+        """Get current rate limit usage information"""
+        usage = {}
+        current_time = time.time()
+        
+        for key, timestamps in self.request_counts.items():
+            limit_type, interval, interval_num = key
+            
+            # Remove timestamps outside window
+            if interval == RateLimitInterval.SECOND:
+                window_seconds = interval_num
+            elif interval == RateLimitInterval.MINUTE:
+                window_seconds = interval_num * 60
+            elif interval == RateLimitInterval.DAY:
+                window_seconds = interval_num * 86400
+            else:
+                continue
+                
+            # Update counts removing expired entries
+            active_timestamps = [ts for ts in timestamps if current_time - ts < window_seconds]
+            self.request_counts[key] = active_timestamps
+            
+            # Calculate usage
+            usage_key = f"{limit_type.value}_{interval_num}{interval.value[0]}"
+            usage[usage_key] = len(active_timestamps)
+            
+        return usage
 
 
 class BinanceAPIRequest:
@@ -106,6 +201,8 @@ class BinanceAPIRequest:
         self.body_params = {}
         self.limit_type = limit_type
         self.weight = weight
+        self.max_retries = 3
+        self.retry_delay = 1  # Starting retry delay in seconds
         
     def with_query_params(self, **params):
         """Add query parameters"""
@@ -146,68 +243,90 @@ class BinanceAPIRequest:
         """Execute the request and return the response"""
         url = f"{self.client.base_url}{self.endpoint}"
         
-        # Check rate limit
-        if not self.client.rate_limiter.check_rate_limit(self.limit_type, self.weight):
-            logger.warning(f"Request would exceed rate limit for {self.limit_type}. Waiting...")
-            time.sleep(1)  # Simple backoff strategy
-            
-            # Check again after waiting
+        for retry_count in range(self.max_retries):
+            # Check rate limit
             if not self.client.rate_limiter.check_rate_limit(self.limit_type, self.weight):
-                logger.error(f"Still exceeding rate limit after waiting. Request aborted.")
-                return None
-        
-        try:
-            if self.method == "GET":
-                response = self.client.http.get(url, params=self.query_params, headers=self.client.headers)
-            elif self.method == "POST":
-                if not self.body_params:
-                    response = self.client.http.post(url, params=self.query_params, headers=self.client.headers)
-                else:
-                    response = self.client.http.post(
-                        url, 
-                        params=self.query_params, 
-                        data=self.body_params, 
-                        headers=self.client.headers
-                    )
-            elif self.method == "DELETE":
-                response = self.client.http.delete(url, params=self.query_params, headers=self.client.headers)
-            else:
-                raise ValueError(f"Unsupported HTTP method: {self.method}")
+                logger.warning(f"Request would exceed rate limit for {self.limit_type}. Waiting...")
+                time.sleep(self.retry_delay)  # Backoff strategy
+                self.retry_delay *= 2  # Exponential backoff
                 
-            response.raise_for_status()
-            
-            # Record the request for rate limiting
-            self.client.rate_limiter.record_request(self.limit_type, self.weight)
-            
-            # Update API limits if present in headers
-            if 'X-MBX-USED-WEIGHT-1M' in response.headers:
-                logger.debug(f"Used weight: {response.headers['X-MBX-USED-WEIGHT-1M']}")
-            
-            return response.json()
-            
-        except httpx.HTTPStatusError as e:
-            # Handle specific error codes
-            if e.response.status_code == 429:
-                logger.error("Rate limit exceeded!")
-                # Extract retry-after if available
-                retry_after = int(e.response.headers.get('Retry-After', 30))
-                logger.info(f"Retry after {retry_after} seconds")
-                return {"error": "Rate limit exceeded", "retry_after": retry_after}
-            elif e.response.status_code == 418:
-                logger.error("IP has been auto-banned for repeated violations!")
-                return {"error": "IP banned"}
-            
-            logger.error(
-                "Error while making %s request to %s: %s (error code %s)", 
-                self.method, self.endpoint, e.response.text, e.response.status_code
-            )
-            return None
-        except httpx.RequestError as e:
-            logger.error(
-                "Request error while making %s request to %s: %s", 
-                self.method, self.endpoint, str(e)
-            )
-            return None
+                # Check again after waiting
+                if not self.client.rate_limiter.check_rate_limit(self.limit_type, self.weight):
+                    logger.error(f"Still exceeding rate limit after waiting. Request aborted.")
+                    return None
+        
+            try:
+                if self.method == "GET":
+                    response = self.client.http.get(url, params=self.query_params, headers=self.client.headers)
+                elif self.method == "POST":
+                    if not self.body_params:
+                        response = self.client.http.post(url, params=self.query_params, headers=self.client.headers)
+                    else:
+                        response = self.client.http.post(
+                            url, 
+                            params=self.query_params, 
+                            data=self.body_params, 
+                            headers=self.client.headers
+                        )
+                elif self.method == "DELETE":
+                    response = self.client.http.delete(url, params=self.query_params, headers=self.client.headers)
+                else:
+                    raise ValueError(f"Unsupported HTTP method: {self.method}")
+                    
+                response.raise_for_status()
+                
+                # Record the request for rate limiting
+                self.client.rate_limiter.record_request(self.limit_type, self.weight)
+                
+                # Update counts from headers
+                self.client.rate_limiter.update_counts_from_headers(response.headers)
+                
+                return response.json()
+                
+            except httpx.HTTPStatusError as e:
+                # Handle specific error codes
+                if e.response.status_code == 429:
+                    logger.error("Rate limit exceeded!")
+                    # Extract retry-after if available
+                    retry_after = int(e.response.headers.get('Retry-After', self.retry_delay))
+                    logger.info(f"Retry after {retry_after} seconds")
+                    
+                    if retry_count < self.max_retries - 1:
+                        logger.info(f"Retrying in {retry_after} seconds (attempt {retry_count + 1}/{self.max_retries})")
+                        time.sleep(retry_after)
+                        continue
+                    
+                    return {"error": "Rate limit exceeded", "retry_after": retry_after}
+                elif e.response.status_code == 418:
+                    logger.error("IP has been auto-banned for repeated violations!")
+                    retry_after = int(e.response.headers.get('Retry-After', 300))  # Default to 5 minutes
+                    logger.info(f"IP banned. Retry after {retry_after} seconds")
+                    
+                    if retry_count < self.max_retries - 1:
+                        logger.info(f"Retrying in {retry_after} seconds (attempt {retry_count + 1}/{self.max_retries})")
+                        time.sleep(retry_after)
+                        continue
+                        
+                    return {"error": "IP banned", "retry_after": retry_after}
+                
+                logger.error(
+                    "Error while making %s request to %s: %s (error code %s)", 
+                    self.method, self.endpoint, e.response.text, e.response.status_code
+                )
+                return None
+            except httpx.RequestError as e:
+                logger.error(
+                    "Request error while making %s request to %s: %s", 
+                    self.method, self.endpoint, str(e)
+                )
+                
+                if retry_count < self.max_retries - 1:
+                    backoff_time = self.retry_delay * (2 ** retry_count)  # Exponential backoff
+                    logger.info(f"Retrying in {backoff_time} seconds (attempt {retry_count + 1}/{self.max_retries})")
+                    time.sleep(backoff_time)
+                    continue
+                    
+                return None
 
 
 class RestClient:
@@ -226,6 +345,8 @@ class RestClient:
         # State
         self.prices: Dict[str, PriceData] = {}
         self.exchange_info = None
+        self.self_trade_prevention_modes = []
+        self.default_self_trade_prevention_mode = None
         
         # Rate limiter
         self.rate_limiter = RateLimiter()
@@ -247,6 +368,16 @@ class RestClient:
                 if 'rateLimits' in response:
                     self.rate_limiter.update_rate_limits(response['rateLimits'])
                     logger.info("Rate limits initialized")
+                    
+                # Process self-trade prevention modes
+                if 'defaultSelfTradePreventionMode' in response:
+                    self.default_self_trade_prevention_mode = response['defaultSelfTradePreventionMode']
+                    
+                if 'allowedSelfTradePreventionModes' in response:
+                    self.self_trade_prevention_modes = response['allowedSelfTradePreventionModes']
+                    
+                logger.info(f"Self-trade prevention: Default={self.default_self_trade_prevention_mode}, "
+                           f"Allowed={self.self_trade_prevention_modes}")
         except Exception as e:
             logger.warning(f"Error initializing exchange info: {e}")
     
@@ -328,6 +459,10 @@ class RestClient:
                 
             if order_request.new_client_order_id is not None:
                 params["newClientOrderId"] = order_request.new_client_order_id
+                
+            # Add self-trade prevention mode if specified
+            if hasattr(order_request, 'self_trade_prevention_mode') and order_request.self_trade_prevention_mode:
+                params["selfTradePreventionMode"] = order_request.self_trade_prevention_mode
                 
             request.with_query_params(**params)
         else:
@@ -441,18 +576,114 @@ class RestClient:
         
         return candles
     
-    def get_exchange_info(self) -> Dict[str, Any]:
-        """Get exchange information"""
-        if self.exchange_info is None:
-            response = self.request("GET", "/api/v3/exchangeInfo", weight=10).execute()
-            if response:
-                self.exchange_info = response
+    def get_exchange_info(self, symbol: Optional[str] = None, 
+                     symbols: Optional[List[str]] = None,
+                     permissions: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        Get exchange information
+        
+        Args:
+            symbol: Single symbol to get info for
+            symbols: Multiple symbols to get info for
+            permissions: Permissions to filter by (e.g. ["SPOT"])
+            
+        Returns:
+            Exchange information dictionary
+        """
+        # TODO: Implement proper URL encoding for multi-symbol requests
+        # The Binance API expects a specific format for the 'symbols' parameter that our current
+        # implementation struggles with. The current workaround is to fetch all symbols and filter
+        # client-side, which is less efficient but more reliable.
+        # 
+        # Future improvement:
+        # - Research exact format required by Binance API for array parameters
+        # - Implement proper encoding that matches Binance's expectations
+        # - Add test cases to verify the encoding works consistently
+        
+        # Create request with the optional parameters
+        request = self.request("GET", "/api/v3/exchangeInfo", weight=10)
+        
+        if symbol:
+            request.with_query_params(symbol=symbol)
+        elif symbols:
+            # Use a single symbol approach if the multi-symbol approach fails
+            if len(symbols) == 1:
+                request.with_query_params(symbol=symbols[0])
+            else:
+                logger.warning(
+                    "Using inefficient workaround for multi-symbol exchange info request. "
+                    f"Fetching all symbols and filtering for {len(symbols)} symbols client-side. "
+                    "This may impact performance if called frequently."
+                )
+                
+                # Get full exchange info and filter manually
+                response = request.execute()
+                
+                if response and 'symbols' in response:
+                    # Filter symbols
+                    filtered_symbols = [s for s in response['symbols'] if s['symbol'] in symbols]
+                    
+                    # Create a filtered response
+                    filtered_response = {**response}
+                    filtered_response['symbols'] = filtered_symbols
+                    
+                    self.exchange_info = filtered_response
+                    
+                    # Update self-trade prevention modes
+                    if 'defaultSelfTradePreventionMode' in response:
+                        self.default_self_trade_prevention_mode = response['defaultSelfTradePreventionMode']
+                        
+                    if 'allowedSelfTradePreventionModes' in response:
+                        self.self_trade_prevention_modes = response['allowedSelfTradePreventionModes']
+                    
+                    return filtered_response
+                
+                return self.exchange_info or {}
+                
+        elif permissions:
+            # Just use a simple permission string for now
+            if len(permissions) == 1:
+                request.with_query_params(permissions=permissions[0])
+            else:
+                logger.warning(
+                    "Using inefficient workaround for multi-permission exchange info request. "
+                    "Fetching all exchange info without filtering."
+                )
+                
+                # Get full exchange info and return as is
+                response = request.execute()
+                
+                if response:
+                    self.exchange_info = response
+                    
+                    # Update self-trade prevention modes
+                    if 'defaultSelfTradePreventionMode' in response:
+                        self.default_self_trade_prevention_mode = response['defaultSelfTradePreventionMode']
+                        
+                    if 'allowedSelfTradePreventionModes' in response:
+                        self.self_trade_prevention_modes = response['allowedSelfTradePreventionModes']
+                
+                return self.exchange_info or {}
+        
+        # Execute the request (for cases other than multi-symbol handling)
+        response = request.execute()
+        
+        if response:
+            self.exchange_info = response
+            
+            # Update self-trade prevention modes
+            if 'defaultSelfTradePreventionMode' in response:
+                self.default_self_trade_prevention_mode = response['defaultSelfTradePreventionMode']
+                
+            if 'allowedSelfTradePreventionModes' in response:
+                self.self_trade_prevention_modes = response['allowedSelfTradePreventionModes']
         
         return self.exchange_info or {}
     
     def get_symbol_info(self, symbol: str) -> Optional[SymbolInfo]:
         """Get information for a specific symbol"""
-        exchange_info = self.get_exchange_info()
+        # Use the more efficient direct API call for a single symbol
+        exchange_info = self.get_exchange_info(symbol=symbol)
         
         if 'symbols' in exchange_info:
             for symbol_data in exchange_info['symbols']:
@@ -460,6 +691,40 @@ class RestClient:
                     return SymbolInfo.from_api_response(symbol_data)
         
         return None
+    
+    def get_system_status(self) -> SystemStatus:
+        """
+        Get system status
+        
+        Returns:
+            SystemStatus object with status code (0: normal, 1: maintenance)
+        """
+        response = self.request("GET", "/sapi/v1/system/status") \
+            .with_timestamp() \
+            .sign() \
+            .execute()
+            
+        if response is not None and 'status' in response:
+            return SystemStatus(status_code=response['status'])
+        
+        # Default to unknown status if API call fails
+        return SystemStatus(status_code=-1)
+    
+    def get_self_trade_prevention_modes(self) -> Dict[str, Any]:
+        """
+        Get self-trade prevention modes from exchange info
+        
+        Returns:
+            Dictionary with default and allowed modes
+        """
+        # Ensure exchange info is loaded
+        if not self.exchange_info:
+            self.get_exchange_info()
+            
+        return {
+            "default": self.default_self_trade_prevention_mode,
+            "allowed": self.self_trade_prevention_modes
+        }
     
     @staticmethod
     def get_symbols_binance() -> List[str]:

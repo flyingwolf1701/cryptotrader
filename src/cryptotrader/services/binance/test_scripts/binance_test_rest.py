@@ -4,6 +4,10 @@ Binance REST Client Test Script
 -------------------------------
 Tests the Binance REST API client to verify connectivity and data retrieval.
 
+This script tests both core and extended functionality of the Binance REST client,
+including new features like system status, self-trade prevention modes, and
+advanced rate limit handling.
+
 Usage:
     To run this script from the project root directory:
     python src/cryptotrader/services/binance/test_scripts/binance_test_rest.py
@@ -13,6 +17,7 @@ This script focuses on testing the RestClient directly rather than the unified C
 
 import sys
 from pathlib import Path
+import time
 
 # Add the src directory to the Python path
 project_root = Path(__file__).parent.parent.parent.parent.parent  # src directory
@@ -116,6 +121,81 @@ def main():
         logger.info(f"Available Order Types: {[ot for ot in symbol_info.orderTypes]}")
     else:
         logger.error("Failed to retrieve symbol info for BTCUSDT")
+    
+    # Test 8: Get system status - NEW TEST
+    logger.info("\nTest 8: Checking system status...")
+    system_status = rest_client.get_system_status()
+    logger.info(f"System status: {system_status.status_description} (code: {system_status.status_code})")
+    logger.info(f"Is normal: {system_status.is_normal}")
+    logger.info(f"Is maintenance: {system_status.is_maintenance}")
+    
+    # Test 9: Get self-trade prevention modes - NEW TEST
+    logger.info("\nTest 9: Getting self-trade prevention modes...")
+    stp_modes = rest_client.get_self_trade_prevention_modes()
+    logger.info(f"Default mode: {stp_modes['default']}")
+    logger.info(f"Allowed modes: {stp_modes['allowed']}")
+    
+    # Test 10: Get filtered exchange info - NEW TEST
+    logger.info("\nTest 10: Getting filtered exchange info...")
+    eth_info = rest_client.get_exchange_info(symbol="ETHUSDT")
+    if 'symbols' in eth_info and len(eth_info['symbols']) > 0:
+        logger.info(f"ETHUSDT symbol info retrieved successfully")
+        eth_symbol = eth_info['symbols'][0]
+        logger.info(f"Symbol: {eth_symbol['symbol']}")
+        logger.info(f"Status: {eth_symbol['status']}")
+    else:
+        logger.error("Failed to retrieve ETHUSDT exchange info")
+        
+    # Test multiple symbols
+    multi_symbols = rest_client.get_exchange_info(symbols=["BTCUSDT", "ETHUSDT"])
+    if 'symbols' in multi_symbols:
+        logger.info(f"Multi-symbol info retrieved successfully with {len(multi_symbols['symbols'])} symbols")
+    else:
+        logger.error("Failed to retrieve multi-symbol exchange info")
+        
+    # Test with permissions
+    spot_symbols = rest_client.get_exchange_info(permissions=["SPOT"])
+    if 'symbols' in spot_symbols:
+        logger.info(f"SPOT permissions info retrieved with {len(spot_symbols['symbols'])} symbols")
+    else:
+        logger.error("Failed to retrieve SPOT permissions exchange info")
+    
+    # Test 11: Rate limit usage - NEW TEST
+    logger.info("\nTest 11: Checking rate limit usage...")
+    usage = rest_client.rate_limiter.get_rate_limit_usage()
+    logger.info("Current rate limit usage:")
+    for limit_key, count in usage.items():
+        logger.info(f"  {limit_key}: {count}")
+    
+    # Test 12: Order with self-trade prevention - NEW TEST (simulation only)
+    logger.info("\nTest 12: Simulating an order with self-trade prevention mode...")
+    # We won't actually place this order, just show how it would be created
+    order_request = OrderRequest(
+        symbol="BTCUSDT",
+        side=OrderSide.BUY,
+        quantity=0.001,
+        order_type=OrderType.LIMIT,
+        price=10000.0,  # Unrealistic price to ensure it doesn't execute
+        time_in_force=TimeInForce.GTC,
+        self_trade_prevention_mode="EXPIRE_MAKER"  # Using the new field
+    )
+    logger.info(f"Order request created with self-trade prevention mode: {order_request.self_trade_prevention_mode}")
+    logger.info("(Order not actually placed to avoid accidental execution)")
+    
+    # Test 13: Retry mechanism with delay - NEW TEST
+    logger.info("\nTest 13: Testing retry mechanism (simulation)...")
+    logger.info("In a real scenario, retries would happen automatically on 429/418 responses")
+    logger.info("The client would honor the Retry-After header and use exponential backoff")
+    
+    # Demonstrate rate limiting by making rapid requests
+    logger.info("\nMaking multiple rapid requests to demonstrate rate limit awareness...")
+    for i in range(5):
+        logger.info(f"Request {i+1}/5: Getting server time")
+        start_time = time.time()
+        server_time = rest_client.get_server_time()
+        end_time = time.time()
+        logger.info(f"Request completed in {(end_time - start_time)*1000:.2f}ms")
+        # No sleep to demonstrate rate limit awareness
 
 if __name__ == "__main__":
     main()
