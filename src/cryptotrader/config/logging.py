@@ -8,29 +8,18 @@ output and configuration options that can be adjusted through environment variab
 import os
 import sys
 import logging
+from colorama import Fore, Style, init
 
-# Define ANSI color codes for colored terminal output
-COLORS = {
-    'RESET': '\033[0m',
-    'BLACK': '\033[30m',
-    'RED': '\033[31m',
-    'GREEN': '\033[32m',
-    'YELLOW': '\033[33m',
-    'BLUE': '\033[34m',
-    'MAGENTA': '\033[35m',
-    'CYAN': '\033[36m',
-    'WHITE': '\033[37m',
-    'BOLD': '\033[1m',
-    'UNDERLINE': '\033[4m',
-}
+# Initialize colorama (required for Windows compatibility)
+init()
 
-# Define color mapping for different log levels
+# Define color mapping for different log levels directly using colorama
 LEVEL_COLORS = {
-    logging.DEBUG: COLORS['BLUE'],
-    logging.INFO: COLORS['GREEN'],
-    logging.WARNING: COLORS['YELLOW'],
-    logging.ERROR: COLORS['RED'],
-    logging.CRITICAL: COLORS['BOLD'] + COLORS['RED'],
+    logging.DEBUG: Fore.BLUE,
+    logging.INFO: Fore.GREEN,
+    logging.WARNING: Fore.YELLOW,
+    logging.ERROR: Fore.RED,
+    logging.CRITICAL: Style.BRIGHT + Fore.RED,
 }
 
 class ColoredFormatter(logging.Formatter):
@@ -41,7 +30,7 @@ class ColoredFormatter(logging.Formatter):
         orig_levelname = record.levelname
         # Add color to levelname based on log level
         if record.levelno in LEVEL_COLORS:
-            record.levelname = f"{LEVEL_COLORS[record.levelno]}{record.levelname}{COLORS['RESET']}"
+            record.levelname = f"{LEVEL_COLORS[record.levelno]}{record.levelname}{Style.RESET_ALL}"
         
         # Format the message
         result = super().format(record)

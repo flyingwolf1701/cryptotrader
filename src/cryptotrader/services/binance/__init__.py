@@ -1,7 +1,9 @@
 from .client import Client
 from .binance_models import (
     OrderRequest, OrderType, OrderSide, TimeInForce, KlineInterval,
-    SymbolStatus, SystemStatus, SelfTradePreventionMode
+    SymbolStatus, SystemStatus, SelfTradePreventionMode,
+    Trade, AggTrade, OrderBook, OrderBookEntry, TickerPrice, 
+    AvgPrice, PriceStatsMini, PriceStats, RollingWindowStatsMini, RollingWindowStats
 )
 
 __all__ = [
@@ -13,5 +15,15 @@ __all__ = [
     'KlineInterval',
     'SymbolStatus',
     'SystemStatus',
-    'SelfTradePreventionMode'
+    'SelfTradePreventionMode',
+    'Trade',
+    'AggTrade',
+    'OrderBook',
+    'OrderBookEntry',
+    'TickerPrice',
+    'AvgPrice',
+    'PriceStatsMini',
+    'PriceStats',
+    'RollingWindowStatsMini',
+    'RollingWindowStats'
 ]
