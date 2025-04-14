@@ -18,9 +18,9 @@ from typing import Dict, List, Optional, Any, Union, Tuple
 
 import httpx
 
-from cryptotrader.config import get_logger, settings
+from cryptotrader.config import get_logger, Config
 from cryptotrader.services.binance.binance_models import (
-    RateLimit, RateLimitType, RateLimitInterval, BinanceEndpoints
+    RateLimit, RateLimitType, RateLimitInterval
 )
 
 logger = get_logger(__name__)
@@ -32,42 +32,33 @@ class BinanceAPIRequest:
     Handles authentication, signing, parameter formatting, and error handling.
     Includes integrated rate limiting to prevent API request limit violations.
     """
-    whatsYourSecre = settings.Secrets.BINANCE_API_KEY
     
     def __init__(self, method: str, endpoint: str, 
-                public_key: str = settings.Secrets.BINANCE_API_KEY, 
-                secret_key: str = settings.Secrets.BINANCE_API_SECRET, 
-                limit_type: RateLimitType = RateLimitType.REQUEST_WEIGHT,
-                weight: int = 1,
-                base_url: str = "https://api.binance.us/",
-                timeout: int = 10):
+                limit_type: Optional[RateLimitType] = None,
+                weight: int = 1):
         """
         Initialize a new API request.
         
         Args:
             method: HTTP method (GET, POST, DELETE)
             endpoint: API endpoint path
-            public_key: Binance API key for authentication
-            secret_key: Binance API secret for signing
-            limit_type: Type of rate limit for this request
+            limit_type: Type of rate limit for this request (defaults to REQUEST_WEIGHT)
             weight: Weight of this request for rate limiting
-            base_url: Base URL for Binance API
-            timeout: Request timeout in seconds
         """
         self.method = method
         self.endpoint = endpoint
-        self.public_key = public_key
-        self.secret_key = secret_key
-        self.limit_type = limit_type
+        self.public_key = Config.BINANCE_API_KEY
+        self.secret_key = Config.BINANCE_API_SECRET
+        self.limit_type = limit_type or RateLimitType.REQUEST_WEIGHT
         self.weight = weight
-        self.base_url = base_url
-        self.timeout = timeout
+        self.base_url = "https://api.binance.us/"
+        self.timeout = 10
         
         # Initialize internal rate limiter
         self.rate_limiter = RateLimiter()
         
         self.params = {}
-        self.needs_signature = public_key is not None and secret_key is not None
+        self.needs_signature = self.public_key is not None and self.secret_key is not None
     
     def with_query_params(self, **kwargs) -> 'BinanceAPIRequest':
         """
@@ -220,6 +211,7 @@ class BinanceAPIRequest:
         """
         return self.rate_limiter.get_rate_limit_usage()
 
+
 class RateLimiter:
     """
     Manages rate limits for Binance API requests.
@@ -336,6 +328,3 @@ class RateLimiter:
             Dictionary with rate limit usage
         """
         return self.usage
-
-    # Create a request to extract rate limit info if needed
-        self._rate_limit_request = self.request("GET", "/api/v3/time")
