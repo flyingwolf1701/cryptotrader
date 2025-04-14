@@ -6,7 +6,7 @@ This package contains all configuration-related modules:
 - logging: Logging configuration
 """
 
-from .settings import Config
+from .settings import Secrets
 from .logging import get_logger
 
-__all__ = ['Config', 'get_logger']
+__all__ = ['Secrets', 'get_logger']
