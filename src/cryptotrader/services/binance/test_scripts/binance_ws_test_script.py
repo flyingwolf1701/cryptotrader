@@ -23,7 +23,7 @@ sys.path.insert(0, str(project_root))
 
 # Import our modules
 from cryptotrader.config import get_logger, Config
-from cryptotrader.services.binance.binance_ws_client import WebSocketClient
+from cryptotrader.utils.binance_ws_client import WebSocketClient
 
 logger = get_logger(__name__)
 
