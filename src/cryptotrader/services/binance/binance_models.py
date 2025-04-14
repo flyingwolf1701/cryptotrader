@@ -147,7 +147,6 @@ class SystemStatus:
 class BinanceEndpoints:
     """Endpoints for Binance API"""
     # Binance US endpoints
-    base_url: str = "https://api.binance.us"
     wss_url: str = "wss://stream.binance.us:9443/ws"
 
 

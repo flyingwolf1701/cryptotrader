@@ -13,8 +13,8 @@ logger = get_logger(__name__)
 # Load environment variables from .env file
 load_dotenv()
 
-class Config:
-    """Configuration settings for the CryptoTrader application."""
+class Secrets:
+    """Secrets settings for the CryptoTrader application."""
     
     # General application settings
     DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
