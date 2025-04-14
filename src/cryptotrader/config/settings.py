@@ -35,4 +35,4 @@ class Secrets:
 
 # Just run the print_config when this file is executed directly
 if __name__ == "__main__":
-    Config.print_config()
+    Secrets.print_config()
