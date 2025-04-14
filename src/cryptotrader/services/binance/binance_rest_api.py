@@ -9,7 +9,7 @@ Key features:
 - Market data retrieval (prices, trades, order books, etc.)
 - Account information and balance retrieval
 - Order placement and management
-- System status and exchange information
+- Exchange information
 
 Each method is designed to map directly to a specific Binance API endpoint,
 with appropriate parameter handling and response transformation.
@@ -17,7 +17,9 @@ with appropriate parameter handling and response transformation.
 
 import json
 import time
-from typing import Dict, List, Optional, Any, Union, Tuple
+from typing import Dict, List, Optional, Any, Union
+
+import httpx
 
 from cryptotrader.config import get_logger
 from cryptotrader.services.binance.binance_base_operations import BinanceAPIRequest
@@ -30,8 +32,6 @@ from cryptotrader.services.binance.binance_models import (
     AvgPrice, PriceStatsMini, PriceStats, RollingWindowStatsMini, RollingWindowStats
 )
 
-import httpx
-
 logger = get_logger(__name__)
 
 
@@ -43,33 +43,158 @@ class RestClient:
     with automatic response parsing and error handling.
     """
     
-    def __init__(self):
+    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
         """
         Initialize the REST client.
         """
     
     def request(self, method: str, endpoint: str, 
-               limit_type: RateLimitType = RateLimitType.REQUEST_WEIGHT,
+               limit_type: Optional[RateLimitType] = None,
                weight: int = 1) -> BinanceAPIRequest:
         """
         Create a new API request.
-        
-        Args:
-            method: HTTP method (GET, POST, DELETE)
-            endpoint: API endpoint path
-            limit_type: Type of rate limit for this request
-            weight: Weight of this request for rate limiting
-            
-        Returns:
-            BinanceAPIRequest object for chaining
         """
+        
         return BinanceAPIRequest(
-            method=method,
+            method=method, 
             endpoint=endpoint,
             limit_type=limit_type,
-            weight=weight,
+            weight=weight
         )
-       
+    
+    #
+    # Account endpoints
+    #
+    
+    def get_balance(self) -> Optional[AccountBalance]:
+        """
+        Get account information including balances.
+        
+        Weight: 10
+        
+        Returns:
+            AccountBalance object with asset balances
+        """
+        response = self.request("GET", "/api/v3/account", weight=10).execute()
+        if response:
+            return AccountBalance.from_api_response(response)
+        return None
+    
+    def place_order(self, order_request: Union[OrderRequest, Dict[str, Any]]) -> Optional[OrderStatusResponse]:
+        """
+        Place a new order.
+        
+        Weight: 1
+        
+        Args:
+            order_request: The order details as OrderRequest object or dictionary
+            
+        Returns:
+            OrderStatusResponse object with order status details, or None if failed
+        """
+        # Convert OrderRequest to dictionary if needed
+        if isinstance(order_request, OrderRequest):
+            params = {
+                'symbol': order_request.symbol,
+                'side': order_request.side.value,
+                'type': order_request.order_type.value,
+                'quantity': order_request.quantity
+            }
+            
+            # Add optional parameters
+            if order_request.price is not None:
+                params['price'] = order_request.price
+            
+            if order_request.time_in_force is not None:
+                params['timeInForce'] = order_request.time_in_force.value
+            
+            if order_request.stop_price is not None:
+                params['stopPrice'] = order_request.stop_price
+            
+            if order_request.iceberg_qty is not None:
+                params['icebergQty'] = order_request.iceberg_qty
+                
+            if order_request.new_client_order_id is not None:
+                params['newClientOrderId'] = order_request.new_client_order_id
+                
+            if order_request.self_trade_prevention_mode is not None:
+                params['selfTradePreventionMode'] = order_request.self_trade_prevention_mode
+        else:
+            # Already a dictionary
+            params = order_request
+        
+        response = self.request("POST", "/api/v3/order", RateLimitType.ORDERS, 1) \
+            .with_query_params(**params) \
+            .execute()
+            
+        if response:
+            return OrderStatusResponse.from_api_response(response)
+        return None
+    
+    def cancel_order(self, symbol: str, order_id: Optional[int] = None, 
+                client_order_id: Optional[str] = None) -> Optional[OrderStatusResponse]:
+        """
+        Cancel an existing order.
+        
+        Weight: 1
+        
+        Args:
+            symbol: The symbol for the order (e.g. "BTCUSDT")
+            order_id: The order ID assigned by Binance
+            client_order_id: The client order ID if used when placing the order
+            
+        Returns:
+            OrderStatusResponse object with order status details, or None if failed
+        """
+        request = self.request("DELETE", "/api/v3/order") \
+            .with_query_params(symbol=symbol)
+            
+        if order_id:
+            request.with_query_params(orderId=order_id)
+        elif client_order_id:
+            request.with_query_params(origClientOrderId=client_order_id)
+        else:
+            logger.error("Either order_id or client_order_id must be provided to cancel an order")
+            return None
+            
+        response = request.execute()
+        
+        if response:
+            return OrderStatusResponse.from_api_response(response)
+        return None
+    
+    def get_order_status(self, symbol: str, order_id: Optional[int] = None, 
+                    client_order_id: Optional[str] = None) -> Optional[OrderStatusResponse]:
+        """
+        Get status of an existing order.
+        
+        Weight: 2
+        
+        Args:
+            symbol: The symbol for the order (e.g. "BTCUSDT")
+            order_id: The order ID assigned by Binance
+            client_order_id: The client order ID if used when placing the order
+            
+        Returns:
+            OrderStatusResponse object with order status details, or None if failed
+        """
+        request = self.request("GET", "/api/v3/order", weight=2) \
+            .with_query_params(symbol=symbol)
+            
+        if order_id:
+            request.with_query_params(orderId=order_id)
+        elif client_order_id:
+            request.with_query_params(origClientOrderId=client_order_id)
+        else:
+            logger.error("Either order_id or client_order_id must be provided to get order status")
+            return None
+            
+        response = request.execute()
+        
+        if response:
+            return OrderStatusResponse.from_api_response(response)
+        return None
+    
     #
     # System endpoints
     #
@@ -83,23 +208,10 @@ class RestClient:
         Returns:
             Server time in milliseconds
         """
-        response = self.request("GET", "/api/v3/time", RateLimitType.REQUEST_WEIGHT, 1).execute()
+        response = self.request("GET", "/api/v3/time").execute()
         if response:
             return response["serverTime"]
         return int(time.time() * 1000)  # Fallback to local time
-    
-    def check_server_time(self) -> int:
-        """
-        Check time difference between local and server time.
-        
-        Weight: 1
-        
-        Returns:
-            Time difference in milliseconds (negative if server is behind local)
-        """
-        local_time = int(time.time() * 1000)
-        server_time = self.get_server_time()
-        return server_time - local_time
     
     def get_system_status(self) -> SystemStatus:
         """
@@ -110,7 +222,7 @@ class RestClient:
         Returns:
             SystemStatus object (0: normal, 1: maintenance)
         """
-        response = self.request("GET", "/sapi/v1/system/status", RateLimitType.REQUEST_WEIGHT, 1).execute()
+        response = self.request("GET", "/sapi/v1/system/status").execute()
         if response:
             return SystemStatus(status_code=response.get("status", -1))
         return SystemStatus(status_code=-1)  # Unknown status
@@ -135,7 +247,7 @@ class RestClient:
         Returns:
             Dictionary containing exchange information
         """
-        request = self.request("GET", "/api/v3/exchangeInfo", RateLimitType.REQUEST_WEIGHT, 1)
+        request = self.request("GET", "/api/v3/exchangeInfo")
         
         if symbol:
             request.with_query_params(symbol=symbol)
@@ -220,7 +332,7 @@ class RestClient:
         Returns:
             PriceData object with bid and ask prices, or None if not available
         """
-        response = self.request("GET", "/api/v3/ticker/bookTicker", RateLimitType.REQUEST_WEIGHT, 1) \
+        response = self.request("GET", "/api/v3/ticker/bookTicker") \
             .with_query_params(symbol=symbol) \
             .execute()
             
@@ -250,7 +362,7 @@ class RestClient:
         Returns:
             List of Candle objects
         """
-        request = self.request("GET", "/api/v3/klines", RateLimitType.REQUEST_WEIGHT, 1) \
+        request = self.request("GET", "/api/v3/klines") \
             .with_query_params(
                 symbol=symbol,
                 interval=interval,
@@ -292,7 +404,7 @@ class RestClient:
         Returns:
             List of Trade objects
         """
-        response = self.request("GET", "/api/v3/trades", RateLimitType.REQUEST_WEIGHT, 1) \
+        response = self.request("GET", "/api/v3/trades") \
             .with_query_params(
                 symbol=symbol,
                 limit=min(limit, 1000)  # Ensure limit doesn't exceed API max
@@ -361,7 +473,7 @@ class RestClient:
         Returns:
             List of AggTrade objects
         """
-        request = self.request("GET", "/api/v3/aggTrades", RateLimitType.REQUEST_WEIGHT, 1) \
+        request = self.request("GET", "/api/v3/aggTrades") \
             .with_query_params(
                 symbol=symbol,
                 limit=min(limit, 1000)  # Ensure limit doesn't exceed API max
@@ -411,7 +523,7 @@ class RestClient:
         if limit > 1000:
             weight = 50
             
-        response = self.request("GET", "/api/v3/depth", RateLimitType.REQUEST_WEIGHT, weight) \
+        response = self.request("GET", "/api/v3/depth", weight=weight) \
             .with_query_params(
                 symbol=symbol,
                 limit=min(limit, 5000)  # Ensure limit doesn't exceed API max
@@ -443,7 +555,7 @@ class RestClient:
         if symbol is None:
             weight = 2
             
-        request = self.request("GET", "/api/v3/ticker/price", RateLimitType.REQUEST_WEIGHT, weight)
+        request = self.request("GET", "/api/v3/ticker/price", weight=weight)
         
         if symbol is not None:
             request.with_query_params(symbol=symbol)
@@ -470,7 +582,7 @@ class RestClient:
         Returns:
             AvgPrice object with average price information
         """
-        response = self.request("GET", "/api/v3/avgPrice", RateLimitType.REQUEST_WEIGHT, 1) \
+        response = self.request("GET", "/api/v3/avgPrice") \
             .with_query_params(symbol=symbol) \
             .execute()
             
@@ -514,7 +626,7 @@ class RestClient:
             elif symbols_count > 20:
                 weight = 20
             
-        request = self.request("GET", "/api/v3/ticker/24hr", RateLimitType.REQUEST_WEIGHT, weight)
+        request = self.request("GET", "/api/v3/ticker/24hr", weight=weight)
         
         if symbol is not None:
             request.with_query_params(symbol=symbol)
@@ -564,7 +676,7 @@ class RestClient:
         """
         weight = 2
         
-        request = self.request("GET", "/api/v3/ticker", RateLimitType.REQUEST_WEIGHT, weight)
+        request = self.request("GET", "/api/v3/ticker", weight=weight)
         request.with_query_params(symbol=symbol)
             
         if window_size is not None:
@@ -583,136 +695,3 @@ class RestClient:
         model_class = RollingWindowStatsMini if is_mini else RollingWindowStats
             
         return model_class.from_api_response(response)
-    
-    #
-    # Account endpoints
-    #
-    
-    def get_balance(self) -> Optional[AccountBalance]:
-        """
-        Get account information including balances.
-        
-        Weight: 10
-        
-        Returns:
-            AccountBalance object with asset balances
-        """
-        response = self.request("GET", "/api/v3/account", RateLimitType.REQUEST_WEIGHT, 10).execute()
-        if response:
-            return AccountBalance.from_api_response(response)
-        return None
-    
-    def place_order(self, order_request: Union[OrderRequest, Dict[str, Any]]) -> Optional[OrderStatusResponse]:
-        """
-        Place a new order.
-        
-        Weight: 1
-        
-        Args:
-            order_request: The order details as OrderRequest object or dictionary
-            
-        Returns:
-            OrderStatusResponse object with order status details, or None if failed
-        """
-        # Convert OrderRequest to dictionary if needed
-        if isinstance(order_request, OrderRequest):
-            params = {
-                'symbol': order_request.symbol,
-                'side': order_request.side.value,
-                'type': order_request.order_type.value,
-                'quantity': order_request.quantity
-            }
-            
-            # Add optional parameters
-            if order_request.price is not None:
-                params['price'] = order_request.price
-            
-            if order_request.time_in_force is not None:
-                params['timeInForce'] = order_request.time_in_force.value
-            
-            if order_request.stop_price is not None:
-                params['stopPrice'] = order_request.stop_price
-            
-            if order_request.iceberg_qty is not None:
-                params['icebergQty'] = order_request.iceberg_qty
-                
-            if order_request.new_client_order_id is not None:
-                params['newClientOrderId'] = order_request.new_client_order_id
-                
-            if order_request.self_trade_prevention_mode is not None:
-                params['selfTradePreventionMode'] = order_request.self_trade_prevention_mode
-        else:
-            # Already a dictionary
-            params = order_request
-        
-        response = self.request("POST", "/api/v3/order", RateLimitType.ORDERS, 1) \
-            .with_query_params(**params) \
-            .execute()
-            
-        if response:
-            return OrderStatusResponse.from_api_response(response)
-        return None
-    
-    def cancel_order(self, symbol: str, order_id: Optional[int] = None, 
-                client_order_id: Optional[str] = None) -> Optional[OrderStatusResponse]:
-        """
-        Cancel an existing order.
-        
-        Weight: 1
-        
-        Args:
-            symbol: The symbol for the order (e.g. "BTCUSDT")
-            order_id: The order ID assigned by Binance
-            client_order_id: The client order ID if used when placing the order
-            
-        Returns:
-            OrderStatusResponse object with order status details, or None if failed
-        """
-        request = self.request("DELETE", "/api/v3/order", RateLimitType.REQUEST_WEIGHT, 1) \
-            .with_query_params(symbol=symbol)
-            
-        if order_id:
-            request.with_query_params(orderId=order_id)
-        elif client_order_id:
-            request.with_query_params(origClientOrderId=client_order_id)
-        else:
-            logger.error("Either order_id or client_order_id must be provided to cancel an order")
-            return None
-            
-        response = request.execute()
-        
-        if response:
-            return OrderStatusResponse.from_api_response(response)
-        return None
-    
-    def get_order_status(self, symbol: str, order_id: Optional[int] = None, 
-                    client_order_id: Optional[str] = None) -> Optional[OrderStatusResponse]:
-        """
-        Get status of an existing order.
-        
-        Weight: 2
-        
-        Args:
-            symbol: The symbol for the order (e.g. "BTCUSDT")
-            order_id: The order ID assigned by Binance
-            client_order_id: The client order ID if used when placing the order
-            
-        Returns:
-            OrderStatusResponse object with order status details, or None if failed
-        """
-        request = self.request("GET", "/api/v3/order", RateLimitType.REQUEST_WEIGHT, 2) \
-            .with_query_params(symbol=symbol)
-            
-        if order_id:
-            request.with_query_params(orderId=order_id)
-        elif client_order_id:
-            request.with_query_params(origClientOrderId=client_order_id)
-        else:
-            logger.error("Either order_id or client_order_id must be provided to get order status")
-            return None
-            
-        response = request.execute()
-        
-        if response:
-            return OrderStatusResponse.from_api_response(response)
-        return None
