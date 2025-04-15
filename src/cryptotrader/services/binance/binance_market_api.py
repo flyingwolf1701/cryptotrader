@@ -1,18 +1,16 @@
 """
-Binance REST API Client
+Binance Market Data API Client
 
-This module provides a client for interacting with the Binance REST API.
-It builds on the base operations infrastructure to provide a comprehensive set
-of methods for accessing Binance API endpoints.
+This module provides a client for interacting with the Binance market data API endpoints.
+It includes functionality for:
+- Price retrieval (ticker, average price, etc.)
+- Order book (market depth) retrieval
+- Trade history retrieval
+- Candlestick/kline data retrieval
+- 24-hour statistics and rolling window statistics
 
-Key features:
-- Market data retrieval (prices, trades, order books, etc.)
-- Account information and balance retrieval
-- Order placement and management
-- Exchange information
-
-Each method is designed to map directly to a specific Binance API endpoint,
-with appropriate parameter handling and response transformation.
+These endpoints provide market data that traders can use to inform their
+trading decisions and strategies.
 """
 
 import json
@@ -22,194 +20,37 @@ from typing import Dict, List, Optional, Any, Union
 from cryptotrader.config import get_logger
 from cryptotrader.services.binance.binance_base_operations import BinanceAPIRequest
 from cryptotrader.services.binance.binance_models import (
-    PriceData, Candle,
-    AccountBalance, SymbolInfo, RateLimitType,
-    SystemStatus, Trade, AggTrade, 
-    OrderBook, TickerPrice, AvgPrice, 
+    PriceData, Candle, RateLimitType,
+    Trade, AggTrade, OrderBook, TickerPrice, AvgPrice, 
     PriceStatsMini, PriceStats, RollingWindowStatsMini, 
     RollingWindowStats
 )
 
 logger = get_logger(__name__)
 
-class RestClient:
+class MarketClient:
     """
-    Binance REST API client implementation.
+    Binance market data API client implementation.
     
-    Provides methods for interacting with various Binance API endpoints,
-    with automatic response parsing and error handling.
+    Provides methods for retrieving various market data from the Binance API,
+    including prices, order books, trades, and statistical information.
     """
     
     def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
-        """
-        Initialize the REST client.
-        
-        Args:
-            api_key: Binance API key
-            api_secret: Binance API secret
-        """
+        """Initialize the Market Data client."""
         self.api_key = api_key
         self.api_secret = api_secret
     
     def request(self, method: str, endpoint: str, 
                limit_type: Optional[RateLimitType] = None,
                weight: int = 1) -> BinanceAPIRequest:
-        """
-        Create a new API request.
-        
-        Args:
-            method: HTTP method (GET, POST, DELETE)
-            endpoint: API endpoint path
-            limit_type: Type of rate limit for this request
-            weight: Weight of this request for rate limiting
-            
-        Returns:
-            BinanceAPIRequest object for building and executing the request
-        """
+        """Create a new API request."""
         return BinanceAPIRequest(
             method=method, 
             endpoint=endpoint,
             limit_type=limit_type,
             weight=weight
         )
-    
-    #
-    # Account endpoints - Require authentication
-    #
-    
-    def get_balance(self) -> Optional[AccountBalance]:
-        """
-        Get account information including balances.
-        
-        Weight: 10
-        
-        Returns:
-            AccountBalance object with asset balances
-        """
-        response = self.request("GET", "/api/v3/account", weight=10).requires_auth(True).execute()
-        if response:
-            return AccountBalance.from_api_response(response)
-        return None
-    
-    #
-    # System endpoints - No authentication needed
-    #
-    
-    def get_server_time(self) -> int:
-        """
-        Get current server time from Binance API.
-        
-        Weight: 1
-        
-        Returns:
-            Server time in milliseconds
-        """
-        response = self.request("GET", "/api/v3/time").requires_auth(False).execute()
-        if response:
-            return response["serverTime"]
-        return int(time.time() * 1000)  # Fallback to local time
-    
-    def get_system_status(self) -> SystemStatus:
-        """
-        Get system status.
-        
-        Weight: 1
-        
-        Returns:
-            SystemStatus object (0: normal, 1: maintenance)
-        """
-        response = self.request("GET", "/sapi/v1/system/status").requires_auth(False).execute()
-        if response:
-            return SystemStatus(status_code=response.get("status", -1))
-        return SystemStatus(status_code=-1)  # Unknown status
-    
-    #
-    # Market data endpoints - No authentication needed
-    #
-    
-    def get_exchange_info(self, symbol: Optional[str] = None,
-                        symbols: Optional[List[str]] = None,
-                        permissions: Optional[List[str]] = None) -> Dict[str, Any]:
-        """
-        Get exchange information.
-        
-        Weight: 1 for a single symbol, 10 for all symbols
-        
-        Args:
-            symbol: Single symbol to get info for
-            symbols: Multiple symbols to get info for
-            permissions: Permissions to filter by (e.g. ["SPOT"])
-            
-        Returns:
-            Dictionary containing exchange information
-        """
-        request = self.request("GET", "/api/v3/exchangeInfo").requires_auth(False)
-        
-        if symbol:
-            request.with_query_params(symbol=symbol)
-        elif symbols:
-            symbols_str = json.dumps(symbols)
-            request.with_query_params(symbols=symbols_str)
-        elif permissions:
-            permissions_str = json.dumps(permissions)
-            request.with_query_params(permissions=permissions_str)
-        
-        response = request.execute()
-        return response if response else {}
-    
-    def get_symbol_info(self, symbol: str) -> Optional[SymbolInfo]:
-        """
-        Get information for a specific symbol.
-        
-        Weight: 1
-        
-        Args:
-            symbol: The symbol to get information for (e.g. "BTCUSDT")
-            
-        Returns:
-            SymbolInfo object with symbol details, or None if not found
-        """
-        exchange_info = self.get_exchange_info(symbol=symbol)
-        if 'symbols' in exchange_info and exchange_info['symbols']:
-            symbol_data = exchange_info['symbols'][0]
-            return SymbolInfo.from_api_response(symbol_data)
-        return None
-    
-    def get_self_trade_prevention_modes(self) -> Dict[str, Any]:
-        """
-        Get self-trade prevention modes from exchange info.
-        
-        Weight: 1
-        
-        Returns:
-            Dictionary with default and allowed modes
-        """
-        exchange_info = self.get_exchange_info()
-        if 'selfTradePreventionModes' in exchange_info:
-            stp_modes = {'allowed': exchange_info['selfTradePreventionModes']}
-            if 'defaultSelfTradePreventionMode' in exchange_info:
-                stp_modes['default'] = exchange_info['defaultSelfTradePreventionMode']
-            return stp_modes
-        return {'default': 'NONE', 'allowed': []}
-    
-    @staticmethod
-    def get_symbols_binance() -> List[str]:
-        """
-        Get available trading symbols.
-        
-        Weight: 10
-        
-        Returns:
-            List of available trading symbols
-        """
-        client = RestClient()
-        response = client.request("GET", "/api/v3/exchangeInfo").requires_auth(False).execute()
-        
-        symbols = []
-        if response and 'symbols' in response:
-            symbols = [s['symbol'] for s in response['symbols'] 
-                    if s['status'] == 'TRADING']
-        return symbols
     
     def get_bid_ask(self, symbol: str) -> Optional[PriceData]:
         """
@@ -326,7 +167,7 @@ class RestClient:
             List of Trade objects
         """
         request = self.request("GET", "/api/v3/historicalTrades", RateLimitType.REQUEST_WEIGHT, 5) \
-            .requires_auth(True) \
+            .requires_api_key(True) \
             .with_query_params(
                 symbol=symbol,
                 limit=min(limit, 1000)  # Ensure limit doesn't exceed API max

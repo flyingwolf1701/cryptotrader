@@ -1,4 +1,3 @@
-
 from .binance_models import (
     OrderRequest, OrderType, OrderSide, TimeInForce, KlineInterval,
     SymbolStatus, SystemStatus, SelfTradePreventionMode,
@@ -6,8 +5,14 @@ from .binance_models import (
     AvgPrice, PriceStatsMini, PriceStats, RollingWindowStatsMini, RollingWindowStats
 )
 
+from .binance_rest_api import RestClient as Client
+from .binance_base_operations import BinanceAPIRequest
+from .binance_rest_order import OrderOperations
+
 __all__ = [
     'Client',
+    'BinanceAPIRequest',
+    'OrderOperations',
     'OrderRequest',
     'OrderType',
     'OrderSide',
