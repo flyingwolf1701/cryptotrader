@@ -17,7 +17,7 @@ sys.path.insert(0, str(project_root))
 
 # Import our modules
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.binance_market_api import MarketClient
+from cryptotrader.services.binance.market_api import MarketClient
 
 logger = get_logger(__name__)
 

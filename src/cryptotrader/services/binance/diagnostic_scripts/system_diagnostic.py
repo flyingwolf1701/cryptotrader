@@ -19,7 +19,7 @@ sys.path.insert(0, str(project_root))
 
 # Import our modules
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.binance_system_api import SystemClient
+from cryptotrader.services.binance.system_api import SystemClient
 
 logger = get_logger(__name__)
 

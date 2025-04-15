@@ -17,7 +17,7 @@ sys.path.insert(0, str(project_root))
 
 # Import our modules
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.binance_subaccount_api import SubAccountClient
+from cryptotrader.services.binance.subaccount_api import SubAccountClient
 
 logger = get_logger(__name__)
 

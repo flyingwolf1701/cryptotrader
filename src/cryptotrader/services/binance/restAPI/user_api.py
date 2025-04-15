@@ -17,14 +17,14 @@ import json
 from typing import Dict, List, Optional, Any, Union
 
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.binance_base_operations import BinanceAPIRequest
+from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
 from cryptotrader.services.binance.models.base_models import (
     AccountBalance, RateLimitType
 )
 
 logger = get_logger(__name__)
 
-class UserClient:
+class UserOperations:
     """
     Binance user account API client implementation.
     
