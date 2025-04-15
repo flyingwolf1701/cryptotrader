@@ -39,6 +39,7 @@ TEST_SYMBOL = "BTCUSDT"
 # Small quantities for test scenarios (not actually placing orders)
 TEST_QUANTITY = 0.001
 TEST_PRICE = 10000.0  # Placeholder price for limit orders
+TEST_STOP_PRICE = 9000.0  # Placeholder stop price for OCO orders
 
 def print_test_header(test_name):
     """Print a test header in cyan color"""
@@ -182,15 +183,77 @@ def main():
         logger.error(f"{Fore.RED}Error retrieving prevented matches: {str(e)}")
         logger.debug(traceback.format_exc())
     
-    # Test 7: Cancel Order Simulation
+    # New Test 7: Get Open OCO Orders
+    print_test_header("Getting Open OCO Orders")
+    try:
+        open_oco_orders = client.get_open_oco_orders()
+        logger.info(f"Retrieved open OCO orders")
+        logger.info(f"Number of open OCO orders: {len(open_oco_orders) if open_oco_orders else 0}")
+        
+        if open_oco_orders and len(open_oco_orders) > 0:
+            logger.info(f"First OCO order details:")
+            logger.info(f"  Order List ID: {open_oco_orders[0].orderListId}")
+            logger.info(f"  Symbol: {open_oco_orders[0].symbol}")
+            logger.info(f"  Status: {open_oco_orders[0].listOrderStatus}")
+            logger.info(f"  Contains {len(open_oco_orders[0].orders)} orders")
+        else:
+            logger.info(f"{Fore.YELLOW}No open OCO orders found")
+    except Exception as e:
+        logger.error(f"{Fore.RED}Error retrieving open OCO orders: {str(e)}")
+        logger.debug(traceback.format_exc())
+    
+    # New Test 8: Get All OCO Orders History
+    print_test_header("Getting OCO Order History")
+    try:
+        # Get OCO orders for the past week
+        end_time = int(time.time() * 1000)
+        start_time = end_time - (7 * 24 * 60 * 60 * 1000)  # 7 days ago
+        
+        all_oco_orders = client.get_all_oco_orders(start_time=start_time, end_time=end_time, limit=10)
+        
+        if all_oco_orders:
+            logger.info(f"{Fore.GREEN}Retrieved {len(all_oco_orders)} OCO orders from history")
+            logger.info("Recent OCO order history:")
+            
+            for i, oco_order in enumerate(all_oco_orders[:5]):  # Show up to 5 OCO orders
+                order_time = datetime.fromtimestamp(oco_order.transactionTime / 1000).strftime('%Y-%m-%d %H:%M:%S')
+                logger.info(f"  OCO {i+1}: ID {oco_order.orderListId} - Status: {oco_order.listOrderStatus}, Time: {order_time}")
+        else:
+            logger.info(f"{Fore.YELLOW}No OCO order history found or authentication required")
+    except Exception as e:
+        logger.error(f"{Fore.RED}Error retrieving OCO order history: {str(e)}")
+        logger.debug(traceback.format_exc())
+    
+    # New Test 9: OCO Order Simulation
+    print_test_header("OCO Order Simulation (No Actual Orders)")
+    try:
+        # Describe a sample OCO order
+        logger.info("Would place an OCO order with the following parameters:")
+        logger.info(f"  Symbol: {TEST_SYMBOL}")
+        logger.info(f"  Side: SELL")
+        logger.info(f"  Quantity: {TEST_QUANTITY}")
+        logger.info(f"  Limit Price: {TEST_PRICE}")
+        logger.info(f"  Stop Price: {TEST_STOP_PRICE}")
+        logger.info(f"{Fore.YELLOW}NOTE: No actual OCO orders will be placed during diagnostic")
+        
+        logger.info("\nOCO orders combine two orders - typically a limit order and a stop order:")
+        logger.info("- When one leg executes, the other is automatically canceled")
+        logger.info("- This allows setting both take-profit and stop-loss levels in one request")
+        logger.info("- Each OCO order counts as 2 orders against rate limits")
+    except Exception as e:
+        logger.error(f"{Fore.RED}Error during OCO order simulation: {str(e)}")
+        logger.debug(traceback.format_exc())
+    
+    # Original Test 7 becomes Test 10: Cancel Order Simulation
     print_test_header("Cancel Order Simulation (No Actual Cancellation)")
     logger.info("This test would demonstrate order cancellation functionality")
     logger.info(f"{Fore.YELLOW}For safety, we're not actually cancelling any orders during diagnostics")
     logger.info("To cancel orders, you would use:")
     logger.info("  client.cancel_order(symbol, order_id) - for a single order")
     logger.info("  client.cancel_all_orders(symbol) - for all orders on a symbol")
+    logger.info("  client.cancel_oco_order(symbol, order_list_id) - for an OCO order")
     
-    # Test 8: Cancel-Replace Simulation
+    # Original Test 8 becomes Test 11: Cancel-Replace Simulation
     print_test_header("Cancel-Replace Order Simulation (No Actual Orders)")
     logger.info("This test would demonstrate cancel-replace functionality")
     logger.info(f"{Fore.YELLOW}For safety, we're not actually replacing any orders during diagnostics")
@@ -207,8 +270,11 @@ def main():
     logger.info("4. Getting trade history")
     logger.info("5. Getting order history")
     logger.info("6. Getting prevented matches")
-    logger.info("7. Cancel order simulation (no actual cancellation)")
-    logger.info("8. Cancel-replace simulation (no actual orders)")
+    logger.info("7. Getting open OCO orders")
+    logger.info("8. Getting OCO order history")
+    logger.info("9. OCO order simulation (no actual orders)")
+    logger.info("10. Cancel order simulation (no actual cancellation)")
+    logger.info("11. Cancel-replace simulation (no actual orders)")
     
     logger.info(f"\n{Fore.YELLOW}Note: This diagnostic only tested read-only operations and API connectivity.")
     logger.info(f"{Fore.YELLOW}No orders were placed, canceled, or modified during this test.")
