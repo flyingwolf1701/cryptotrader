@@ -257,30 +257,30 @@ class RateLimitInfo:
             count=int(response['count'])
         )
     
-    @dataclass
-    class OcoOrderResponse:
-        """Response data for OCO order creation or query"""
-        orderListId: int
-        contingencyType: str
-        listStatusType: str
-        listOrderStatus: str
-        listClientOrderId: str
-        transactionTime: int
-        symbol: str
-        orders: List[Dict[str, Any]]
-        orderReports: Optional[List[Dict[str, Any]]] = None
-        
-        @classmethod
-        def from_api_response(cls, response: Dict[str, Any]) -> 'OcoOrderResponse':
-            return cls(
-                orderListId=int(response.get('orderListId', 0)),
-                contingencyType=response.get('contingencyType', ''),
-                listStatusType=response.get('listStatusType', ''),
-                listOrderStatus=response.get('listOrderStatus', ''),
-                listClientOrderId=response.get('listClientOrderId', ''),
-                transactionTime=int(response.get('transactionTime', 0)),
-                symbol=response.get('symbol', ''),
-                orders=response.get('orders', []),
-                orderReports=response.get('orderReports', None)
-            )
+@dataclass
+class OcoOrderResponse:
+    """Response data for OCO order creation or query"""
+    orderListId: int
+    contingencyType: str
+    listStatusType: str
+    listOrderStatus: str
+    listClientOrderId: str
+    transactionTime: int
+    symbol: str
+    orders: List[Dict[str, Any]]
+    orderReports: Optional[List[Dict[str, Any]]] = None
+    
+    @classmethod
+    def from_api_response(cls, response: Dict[str, Any]) -> 'OcoOrderResponse':
+        return cls(
+            orderListId=int(response.get('orderListId', 0)),
+            contingencyType=response.get('contingencyType', ''),
+            listStatusType=response.get('listStatusType', ''),
+            listOrderStatus=response.get('listOrderStatus', ''),
+            listClientOrderId=response.get('listClientOrderId', ''),
+            transactionTime=int(response.get('transactionTime', 0)),
+            symbol=response.get('symbol', ''),
+            orders=response.get('orders', []),
+            orderReports=response.get('orderReports', None)
+        )
         
