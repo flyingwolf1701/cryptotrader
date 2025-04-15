@@ -80,6 +80,7 @@ class OrderOperations:
             params = order_request
         
         response = self.request("POST", "/api/v3/order", RateLimitType.ORDERS, 1) \
+            .requires_auth(True) \
             .with_query_params(**params) \
             .execute()
             
@@ -103,6 +104,7 @@ class OrderOperations:
             OrderStatusResponse object with order status details, or None if failed
         """
         request = self.request("DELETE", "/api/v3/order", RateLimitType.REQUEST_WEIGHT, 1) \
+            .requires_auth(True) \
             .with_query_params(symbol=symbol)
             
         if order_id:
@@ -135,6 +137,7 @@ class OrderOperations:
             OrderStatusResponse object with order status details, or None if failed
         """
         request = self.request("GET", "/api/v3/order", RateLimitType.REQUEST_WEIGHT, 2) \
+            .requires_auth(True) \
             .with_query_params(symbol=symbol)
             
         if order_id:

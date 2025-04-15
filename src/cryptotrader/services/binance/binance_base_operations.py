@@ -51,14 +51,27 @@ class BinanceAPIRequest:
         self.secret_key = Secrets.BINANCE_API_SECRET
         self.limit_type = limit_type or RateLimitType.REQUEST_WEIGHT
         self.weight = weight
-        self.base_url = "https://api.binance.us/"
+        self.base_url = "https://api.binance.us"  # Remove trailing slash
         self.timeout = 10
         
         # Initialize internal rate limiter
         self.rate_limiter = RateLimiter()
         
         self.params = {}
-        self.needs_signature = self.public_key is not None and self.secret_key is not None
+        self.needs_signature = False  # Default to unauthenticated
+    
+    def requires_auth(self, needed: bool = True) -> 'BinanceAPIRequest':
+        """
+        Set whether this request requires authentication.
+        
+        Args:
+            needed: Whether to add timestamp and signature
+            
+        Returns:
+            Self for method chaining
+        """
+        self.needs_signature = needed and self.public_key is not None and self.secret_key is not None
+        return self
     
     def with_query_params(self, **kwargs) -> 'BinanceAPIRequest':
         """
@@ -133,7 +146,7 @@ class BinanceAPIRequest:
                 
                 # Set up headers
                 headers = {}
-                if self.public_key:
+                if self.public_key and self.needs_signature:
                     headers['X-MBX-APIKEY'] = self.public_key
                 
                 # Execute the request
@@ -328,3 +341,4 @@ class RateLimiter:
             Dictionary with rate limit usage
         """
         return self.usage
+    
