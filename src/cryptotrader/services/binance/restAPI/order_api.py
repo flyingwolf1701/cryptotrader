@@ -19,8 +19,11 @@ from typing import Dict, List, Optional, Any, Union
 
 from cryptotrader.config import get_logger
 from cryptotrader.services.binance.models import (
-    OrderRequest, OrderStatusResponse, RateLimitType
+    OrderRequest, OrderStatusResponse, RateLimitType, OrderResponseFull,
+    OrderResponseResult, OrderResponseAck, CancelReplaceResponse,
+    OrderTrade, PreventedMatch, RateLimitInfo
 )
+from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
 
 logger = get_logger(__name__)
 
@@ -31,19 +34,37 @@ class OrderOperations:
     Provides methods for managing orders via the Binance API.
     """
     
-    def __init__(self, request_builder):
+    def __init__(self):
+        """Initialize the Order operations client."""
+        pass
+    
+    def request(self, method: str, endpoint: str, 
+               limit_type: Optional[RateLimitType] = None,
+               weight: int = 1) -> BinanceAPIRequest:
         """
-        Initialize order operations with a request builder function.
+        Create a new API request.
         
         Args:
-            request_builder: Function to create API requests
+            method: HTTP method (GET, POST, DELETE)
+            endpoint: API endpoint path
+            limit_type: Type of rate limit for this request
+            weight: Weight of this request for rate limiting
+            
+        Returns:
+            BinanceAPIRequest object for building and executing the request
         """
-        self.request = request_builder
+        return BinanceAPIRequest(
+            method=method, 
+            endpoint=endpoint,
+            limit_type=limit_type,
+            weight=weight
+        )
     
     def place_order(self, order_request: Union[OrderRequest, Dict[str, Any]]) -> Optional[OrderStatusResponse]:
         """
         Place a new order.
         
+        POST /api/v3/order
         Weight: 1
         
         Args:
@@ -96,6 +117,7 @@ class OrderOperations:
         """
         Test new order creation without actually placing an order.
         
+        POST /api/v3/order/test
         Weight: 1
         
         Args:
@@ -150,6 +172,7 @@ class OrderOperations:
         """
         Cancel an existing order.
         
+        DELETE /api/v3/order
         Weight: 1
         
         Args:
@@ -190,6 +213,7 @@ class OrderOperations:
         """
         Cancel all active orders on a symbol.
         
+        DELETE /api/v3/openOrders
         Weight: 1
         
         Args:
@@ -212,6 +236,7 @@ class OrderOperations:
         """
         Get status of an existing order.
         
+        GET /api/v3/order
         Weight: 2
         
         Args:
@@ -244,6 +269,7 @@ class OrderOperations:
         """
         Get all open orders on a symbol or all symbols.
         
+        GET /api/v3/openOrders
         Weight: 
         - 3 for a single symbol
         - 40 when the symbol parameter is omitted
@@ -278,6 +304,7 @@ class OrderOperations:
         """
         Get all orders (active, canceled, or filled) for a specific symbol.
         
+        GET /api/v3/allOrders
         Weight: 10
         
         Args:
@@ -312,27 +339,31 @@ class OrderOperations:
             return [OrderStatusResponse.from_api_response(order) for order in response]
         return []
     
-    def get_order_rate_limits(self) -> List[Dict[str, Any]]:
+    def get_order_rate_limits(self) -> List[RateLimitInfo]:
         """
         Get the current order rate limits for all time intervals.
         
+        GET /api/v3/rateLimit/order
         Weight: 20
         
         Returns:
-            List of rate limit information
+            List of RateLimitInfo objects with rate limit details
         """
         response = self.request("GET", "/api/v3/rateLimit/order", RateLimitType.REQUEST_WEIGHT, 20) \
             .requires_auth(True) \
             .execute()
-            
-        return response if response else []
+        
+        if response:
+            return [RateLimitInfo.from_api_response(limit) for limit in response]
+        return []
     
     def get_my_trades(self, symbol: str, order_id: Optional[int] = None,
                     start_time: Optional[int] = None, end_time: Optional[int] = None,
-                    from_id: Optional[int] = None, limit: int = 500) -> List[Dict[str, Any]]:
+                    from_id: Optional[int] = None, limit: int = 500) -> List[OrderTrade]:
         """
         Get trades for a specific symbol.
         
+        GET /api/v3/myTrades
         Weight: 10
         
         Args:
@@ -344,7 +375,7 @@ class OrderOperations:
             limit: Maximum number of trades to return (default 500, max 1000)
             
         Returns:
-            List of trade information
+            List of OrderTrade objects with trade details
         """
         request = self.request("GET", "/api/v3/myTrades", RateLimitType.REQUEST_WEIGHT, 10) \
             .requires_auth(True) \
@@ -367,16 +398,19 @@ class OrderOperations:
             
         response = request.execute()
         
-        return response if response else []
+        if response:
+            return [OrderTrade.from_api_response(trade) for trade in response]
+        return []
     
     def cancel_replace_order(self, symbol: str, cancel_replace_mode: str, 
                            side: str, type: str, 
                            cancel_order_id: Optional[int] = None,
                            cancel_client_order_id: Optional[str] = None,
-                           **kwargs) -> Dict[str, Any]:
+                           **kwargs) -> Optional[CancelReplaceResponse]:
         """
         Cancel an existing order and place a new one.
         
+        POST /api/v3/order/cancelReplace
         Weight: 1
         
         Args:
@@ -389,11 +423,11 @@ class OrderOperations:
             **kwargs: Additional parameters for the new order
             
         Returns:
-            Response containing cancellation and new order status
+            CancelReplaceResponse containing cancellation and new order status
         """
         if not cancel_order_id and not cancel_client_order_id:
             logger.error("Either cancel_order_id or cancel_client_order_id must be provided")
-            return {}
+            return None
             
         params = {
             'symbol': symbol,
@@ -417,15 +451,18 @@ class OrderOperations:
             .with_query_params(**params) \
             .execute()
             
-        return response if response else {}
+        if response:
+            return CancelReplaceResponse.from_api_response(response)
+        return None
     
     def get_prevented_matches(self, symbol: str, prevented_match_id: Optional[int] = None,
                             order_id: Optional[int] = None, 
                             from_prevented_match_id: Optional[int] = None,
-                            limit: int = 500) -> List[Dict[str, Any]]:
+                            limit: int = 500) -> List[PreventedMatch]:
         """
         Get orders that were expired because of self-trade prevention.
         
+        GET /api/v3/myPreventedMatches
         Weight: 
         - 1 for invalid symbol
         - 1 when querying by preventedMatchId
@@ -439,9 +476,14 @@ class OrderOperations:
             limit: Maximum number of matches to return (default 500, max 1000)
             
         Returns:
-            List of prevented match information
+            List of PreventedMatch objects with match details
         """
-        request = self.request("GET", "/api/v3/myPreventedMatches", RateLimitType.REQUEST_WEIGHT, 10) \
+        # Default weight to 10 (worst case)
+        weight = 10
+        if prevented_match_id is not None:
+            weight = 1
+        
+        request = self.request("GET", "/api/v3/myPreventedMatches", RateLimitType.REQUEST_WEIGHT, weight) \
             .requires_auth(True) \
             .with_query_params(
                 symbol=symbol,
@@ -459,4 +501,6 @@ class OrderOperations:
             
         response = request.execute()
         
-        return response if response else []
+        if response:
+            return [PreventedMatch.from_api_response(match) for match in response]
+        return []

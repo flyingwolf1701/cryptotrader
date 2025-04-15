@@ -30,15 +30,25 @@ class SubAccountOperations:
     Provides methods for managing and retrieving information about sub-accounts.
     """
     
-    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
+    def __init__(self):
         """Initialize the Sub-Account client."""
-        self.api_key = api_key
-        self.api_secret = api_secret
+        pass
     
     def request(self, method: str, endpoint: str, 
                limit_type: Optional[RateLimitType] = None,
                weight: int = 1) -> BinanceAPIRequest:
-        """Create a new API request."""
+        """
+        Create a new API request.
+        
+        Args:
+            method: HTTP method (GET, POST, DELETE)
+            endpoint: API endpoint path
+            limit_type: Type of rate limit for this request
+            weight: Weight of this request for rate limiting
+            
+        Returns:
+            BinanceAPIRequest object for building and executing the request
+        """
         return BinanceAPIRequest(
             method=method, 
             endpoint=endpoint,
@@ -54,6 +64,7 @@ class SubAccountOperations:
         """
         Get sub-account list.
         
+        GET /sapi/v3/sub-account/list
         Weight: 1
         
         Args:
@@ -91,6 +102,7 @@ class SubAccountOperations:
         """
         Get sub-account transfer history.
         
+        GET /sapi/v3/sub-account/transfer/history
         Weight: 1
         
         Args:
@@ -128,6 +140,7 @@ class SubAccountOperations:
         """
         Execute a sub-account transfer.
         
+        POST /sapi/v3/sub-account/transfer
         Weight: 1
         
         Args:
@@ -161,6 +174,7 @@ class SubAccountOperations:
         """
         Get sub-account assets.
         
+        GET /sapi/v3/sub-account/assets
         Weight: 1
         
         Args:
@@ -188,6 +202,7 @@ class SubAccountOperations:
         """
         Get master account's total USD value.
         
+        GET /sapi/v1/sub-account/spotSummary
         Weight: 1
         
         Args:
@@ -218,6 +233,7 @@ class SubAccountOperations:
         """
         Get sub-account status list.
         
+        GET /sapi/v1/sub-account/status
         Weight: 1
         
         Args:

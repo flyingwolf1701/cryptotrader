@@ -12,7 +12,7 @@ than specific market data or trading operations.
 """
 
 import json
-import time  # Need to add this for the fallback time function
+import time
 from typing import Dict, List, Optional, Any, Union
 
 from cryptotrader.config import get_logger
@@ -31,15 +31,25 @@ class SystemOperations:
     and retrieving exchange information.
     """
     
-    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
+    def __init__(self):
         """Initialize the System client."""
-        self.api_key = api_key
-        self.api_secret = api_secret
+        pass
     
     def request(self, method: str, endpoint: str, 
                limit_type: Optional[RateLimitType] = None,
                weight: int = 1) -> BinanceAPIRequest:
-        """Create a new API request."""
+        """
+        Create a new API request.
+        
+        Args:
+            method: HTTP method (GET, POST, DELETE)
+            endpoint: API endpoint path
+            limit_type: Type of rate limit for this request
+            weight: Weight of this request for rate limiting
+            
+        Returns:
+            BinanceAPIRequest object for building and executing the request
+        """
         return BinanceAPIRequest(
             method=method, 
             endpoint=endpoint,
@@ -51,6 +61,7 @@ class SystemOperations:
         """
         Get current server time from Binance API.
         
+        GET /api/v3/time
         Weight: 1
         
         Returns:
@@ -65,13 +76,14 @@ class SystemOperations:
         """
         Get system status.
         
+        GET /sapi/v1/system/status
         Weight: 1
         
         Returns:
             SystemStatus object (0: normal, 1: maintenance)
         """
-        # FIX: Changed requires_api_key to requires_auth
-        response = self.request("GET", "/sapi/v1/system/status").requires_auth(True).execute()
+        # Fixed: Changed requires_auth to False as this is a public endpoint
+        response = self.request("GET", "/sapi/v1/system/status").requires_auth(False).execute()
         if response:
             return SystemStatus(status_code=response.get("status", -1))
         return SystemStatus(status_code=-1)  # Unknown status
@@ -82,6 +94,7 @@ class SystemOperations:
         """
         Get exchange information.
         
+        GET /api/v3/exchangeInfo
         Weight: 1 for a single symbol, 10 for all symbols
         
         Args:
@@ -110,6 +123,7 @@ class SystemOperations:
         """
         Get information for a specific symbol.
         
+        Uses GET /api/v3/exchangeInfo
         Weight: 1
         
         Args:
@@ -128,6 +142,7 @@ class SystemOperations:
         """
         Get self-trade prevention modes from exchange info.
         
+        Uses GET /api/v3/exchangeInfo
         Weight: 1
         
         Returns:
@@ -141,18 +156,18 @@ class SystemOperations:
             return stp_modes
         return {'default': 'NONE', 'allowed': []}
     
-    @staticmethod
-    def get_symbols_binance() -> List[str]:
+    def get_symbols(self) -> List[str]:
         """
         Get available trading symbols.
         
+        Uses GET /api/v3/exchangeInfo
         Weight: 10
         
         Returns:
             List of available trading symbols
         """
-        client = SystemClient()
-        response = client.request("GET", "/api/v3/exchangeInfo").requires_auth(False).execute()
+        # Fixed: Removed static method and SystemClient reference
+        response = self.request("GET", "/api/v3/exchangeInfo").requires_auth(False).execute()
         
         symbols = []
         if response and 'symbols' in response:
