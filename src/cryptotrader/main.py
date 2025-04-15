@@ -1,14 +1,14 @@
 
 import uvicorn
 from app import app
-from config import Config, get_logger
+from config import Secrets, get_logger
 
 # Get logger for this module
 logger = get_logger(__name__)
 
-# Get port from Config or use default
-port = int(getattr(Config, 'PORT', 8000))
-debug = Config.DEBUG
+# Get port from Secrets or use default
+port = int(getattr(Secrets, 'PORT', 8000))
+debug = Secrets.DEBUG
 
 if __name__ == "__main__":
     logger.info(f"Starting FastAPI server on port {port} (debug={debug})")
