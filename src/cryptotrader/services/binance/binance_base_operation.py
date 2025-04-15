@@ -18,7 +18,7 @@ from typing import Dict, List, Optional, Any, Union, Tuple
 
 import httpx
 
-from cryptotrader.config import get_logger, Config
+from cryptotrader.config import get_logger, Secrets
 from cryptotrader.services.binance.binance_models import (
     RateLimit, RateLimitType, RateLimitInterval
 )
@@ -47,8 +47,8 @@ class BinanceAPIRequest:
         """
         self.method = method
         self.endpoint = endpoint
-        self.public_key = Config.BINANCE_API_KEY
-        self.secret_key = Config.BINANCE_API_SECRET
+        self.public_key = Secrets.BINANCE_API_KEY
+        self.secret_key = Secrets.BINANCE_API_SECRET
         self.limit_type = limit_type or RateLimitType.REQUEST_WEIGHT
         self.weight = weight
         self.base_url = "https://api.binance.us/"
