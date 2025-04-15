@@ -9,7 +9,6 @@ including market data, trading operations, and system information.
 from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
 
 # Import API operation classes
-from cryptotrader.services.binance.restAPI.general_api import GeneralOperations
 from cryptotrader.services.binance.restAPI.market_api import MarketOperations
 from cryptotrader.services.binance.restAPI.order_api import OrderOperations
 from cryptotrader.services.binance.restAPI.system_api import SystemOperations
@@ -27,7 +26,6 @@ __all__ = [
     'SubAccountOperations',
     
     # API Functions with endpoint paths in comments
-    'get_balance',           # GET /api/v3/account
     'get_server_time',       # GET /api/v3/time
     'get_system_status',     # GET /sapi/v1/system/status
     'get_exchange_info',     # GET /api/v3/exchangeInfo
