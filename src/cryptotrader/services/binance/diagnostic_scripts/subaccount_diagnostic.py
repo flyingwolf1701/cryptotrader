@@ -5,11 +5,16 @@ Tests the Binance Sub-Account API client to verify connectivity and functionalit
 
 Usage:
     To run this script from the project root directory:
-    python src/cryptotrader/services/binance/diagnostic_scripts/b_subaccount_diagnostic.py
+    python src/cryptotrader/services/binance/diagnostic_scripts/subaccount_diagnostic.py
 """
 
 import sys
+import traceback
 from pathlib import Path
+from colorama import Fore, Style, init
+
+# Initialize colorama
+init(autoreset=True)
 
 # Add the src directory to the Python path
 project_root = Path(__file__).parent.parent.parent.parent.parent  # src directory
@@ -17,23 +22,27 @@ sys.path.insert(0, str(project_root))
 
 # Import our modules
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.subaccount_api import SubAccountClient
+from cryptotrader.services.binance.restAPI.subaccount_api import SubAccountOperations
 
 logger = get_logger(__name__)
+
+def print_test_header(test_name):
+    """Print a test header in cyan color"""
+    logger.info(f"\n{Fore.CYAN}Test: {test_name}{Style.RESET_ALL}")
 
 def main():
     logger.info(f"Added {project_root} to Python path")
     
     logger.info("Initializing Binance Sub-Account client...")
-    client = SubAccountClient()  # No need to pass API credentials, handled by base operations
+    client = SubAccountOperations()  # No need to pass API credentials
     
     # Test 1: Get sub-account list
-    logger.info("\nTest 1: Getting sub-account list...")
+    print_test_header("Getting sub-account list")
     try:
         subaccount_list = client.get_subaccount_list()
         if subaccount_list and subaccount_list.get('success'):
             sub_accounts = subaccount_list.get('subAccounts', [])
-            logger.info(f"Retrieved {len(sub_accounts)} sub-accounts")
+            logger.info(f"{Fore.GREEN}Retrieved {len(sub_accounts)} sub-accounts")
             
             if sub_accounts:
                 logger.info("First sub-account details:")
@@ -45,17 +54,18 @@ def main():
             else:
                 logger.info("No sub-accounts found")
         else:
-            logger.warning("No sub-account list retrieved or empty response")
+            logger.warning(f"{Fore.YELLOW}No sub-account list retrieved or empty response")
     except Exception as e:
-        logger.error(f"Error retrieving sub-account list: {str(e)}")
+        logger.error(f"{Fore.RED}Error retrieving sub-account list: {str(e)}")
+        logger.debug(traceback.format_exc())
     
     # Test 2: Get sub-account transfer history
-    logger.info("\nTest 2: Getting sub-account transfer history...")
+    print_test_header("Getting sub-account transfer history")
     try:
         transfer_history = client.get_subaccount_transfer_history()
         if transfer_history and transfer_history.get('success'):
             transfers = transfer_history.get('transfers', [])
-            logger.info(f"Retrieved {len(transfers)} transfer records")
+            logger.info(f"{Fore.GREEN}Retrieved {len(transfers)} transfer records")
             
             if transfers:
                 logger.info("Recent transfer details:")
@@ -68,26 +78,24 @@ def main():
             else:
                 logger.info("No transfer records found")
         else:
-            logger.warning("No transfer history retrieved or empty response")
+            logger.warning(f"{Fore.YELLOW}No transfer history retrieved or empty response")
     except Exception as e:
-        logger.error(f"Error retrieving sub-account transfer history: {str(e)}")
+        logger.error(f"{Fore.RED}Error retrieving sub-account transfer history: {str(e)}")
+        logger.debug(traceback.format_exc())
     
-    # Note: For the following tests, we need actual sub-account emails
-    # Since we can't know these in advance, we'll just log test information
-    # and expect errors in most cases
-    
-    logger.info("\nNote: The following tests require specific sub-account emails.")
-    logger.info("Since these are specific to your account, most tests will show errors.")
-    logger.info("This is expected behavior without valid email addresses.")
+    # Note about sub-account tests requiring specific emails
+    logger.info(f"\n{Fore.YELLOW}Note: The following tests require specific sub-account emails.")
+    logger.info(f"{Fore.YELLOW}Since these are specific to your account, tests will show errors without valid email addresses.")
+    logger.info(f"{Fore.YELLOW}This is expected behavior without valid email addresses.")
     
     # Test 3: Get sub-account assets (would require a valid email)
-    logger.info("\nTest 3: Getting sub-account assets...")
+    print_test_header("Getting sub-account assets")
     try:
         # Using a placeholder email - this will likely fail
         assets = client.get_subaccount_assets(email="example@example.com")
         if assets and assets.get('success'):
             balances = assets.get('balances', [])
-            logger.info(f"Retrieved {len(balances)} asset balances")
+            logger.info(f"{Fore.GREEN}Retrieved {len(balances)} asset balances")
             
             if balances:
                 logger.info("Asset balances:")
@@ -96,12 +104,13 @@ def main():
             else:
                 logger.info("No asset balances found")
         else:
-            logger.warning("No sub-account assets retrieved or empty response")
+            logger.warning(f"{Fore.YELLOW}No sub-account assets retrieved or empty response")
     except Exception as e:
-        logger.error(f"Error retrieving sub-account assets: {str(e)}")
+        logger.error(f"{Fore.RED}Error retrieving sub-account assets: {str(e)}")
+        logger.debug(traceback.format_exc())
     
     # Test 4: Get master account total value
-    logger.info("\nTest 4: Getting master account total value...")
+    print_test_header("Getting master account total value")
     try:
         total_value = client.get_master_account_total_value()
         if total_value:
@@ -116,17 +125,18 @@ def main():
             else:
                 logger.info("No sub-account asset information found")
         else:
-            logger.warning("No master account total value retrieved or empty response")
+            logger.warning(f"{Fore.YELLOW}No master account total value retrieved or empty response")
     except Exception as e:
-        logger.error(f"Error retrieving master account total value: {str(e)}")
+        logger.error(f"{Fore.RED}Error retrieving master account total value: {str(e)}")
+        logger.debug(traceback.format_exc())
     
     # Test 5: Get sub-account status list (would require a valid email)
-    logger.info("\nTest 5: Getting sub-account status list...")
+    print_test_header("Getting sub-account status list")
     try:
         # Using a placeholder email - this will likely fail
         status_list = client.get_subaccount_status_list(email="example@example.com")
         if status_list:
-            logger.info(f"Retrieved {len(status_list)} status records")
+            logger.info(f"{Fore.GREEN}Retrieved {len(status_list)} status records")
             
             if len(status_list) > 0:
                 logger.info("Status details:")
@@ -138,16 +148,30 @@ def main():
             else:
                 logger.info("No status records found")
         else:
-            logger.warning("No sub-account status list retrieved or empty response")
+            logger.warning(f"{Fore.YELLOW}No sub-account status list retrieved or empty response")
     except Exception as e:
-        logger.error(f"Error retrieving sub-account status list: {str(e)}")
+        logger.error(f"{Fore.RED}Error retrieving sub-account status list: {str(e)}")
+        logger.debug(traceback.format_exc())
     
-    # Note: We're not testing the execute_subaccount_transfer method
-    # as it would involve actual asset transfers
-    logger.info("\nNote: The execute_subaccount_transfer method is not tested")
-    logger.info("      as it would involve actual asset transfers.")
+    # Note about transfer execution
+    logger.info(f"\n{Fore.YELLOW}Note: The execute_subaccount_transfer method is not tested")
+    logger.info(f"{Fore.YELLOW}as it would involve actual asset transfers.")
     
-    logger.info("\nSub-Account API diagnostic completed.")
+    # Summary
+    logger.info("\nSub-Account API Diagnostic Summary:")
+    logger.info("----------------------------")
+    logger.info("The following tests were performed:")
+    logger.info("1. Getting sub-account list")
+    logger.info("2. Getting sub-account transfer history")
+    logger.info("3. Getting sub-account assets (using placeholder email)")
+    logger.info("4. Getting master account total value")
+    logger.info("5. Getting sub-account status list (using placeholder email)")
+    
+    logger.info("\nNote: Tests 3 and 5 are expected to fail without valid sub-account emails.")
+    logger.info("These tests are included to demonstrate the API functionality but require")
+    logger.info("valid sub-account emails to work properly.")
+    
+    logger.info("\nSub-Account API diagnostic completed. Check the logs above for any errors.")
 
 if __name__ == "__main__":
     main()
