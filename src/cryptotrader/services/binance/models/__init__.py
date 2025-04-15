@@ -21,7 +21,8 @@ from .base_models import (
 from .order_models import (
     CancelReplaceMode, NewOrderResponseType, CancelRestriction,
     Fill, OrderResponseFull, OrderResponseResult, OrderResponseAck,
-    CancelReplaceResponse, OrderTrade, PreventedMatch, RateLimitInfo
+    CancelReplaceResponse, OrderTrade, PreventedMatch, RateLimitInfo,
+    OcoOrderResponse
 )
 
 __all__ = [
@@ -38,5 +39,6 @@ __all__ = [
     # Order Models
     'CancelReplaceMode', 'NewOrderResponseType', 'CancelRestriction',
     'Fill', 'OrderResponseFull', 'OrderResponseResult', 'OrderResponseAck',
-    'CancelReplaceResponse', 'OrderTrade', 'PreventedMatch', 'RateLimitInfo'
+    'CancelReplaceResponse', 'OrderTrade', 'PreventedMatch', 'RateLimitInfo',
+    'OcoOrderResponse'
 ]

@@ -504,3 +504,240 @@ class OrderOperations:
         if response:
             return [PreventedMatch.from_api_response(match) for match in response]
         return []
+    
+    def place_oco_order(self, symbol: str, side: str, quantity: float, price: float, 
+                  stop_price: float, stop_limit_price: Optional[float] = None,
+                  stop_limit_time_in_force: Optional[str] = None,
+                  list_client_order_id: Optional[str] = None,
+                  limit_client_order_id: Optional[str] = None,
+                  limit_iceberg_qty: Optional[float] = None,
+                  trailing_delta: Optional[int] = None,
+                  stop_client_order_id: Optional[str] = None,
+                  stop_iceberg_qty: Optional[float] = None,
+                  new_order_resp_type: Optional[str] = None,
+                  self_trade_prevention_mode: Optional[str] = None) -> Optional[OcoOrderResponse]:
+        """
+        Place a new OCO (One-Cancels-the-Other) order.
+        
+        OCO orders consist of a pair of orders: a limit maker and a stop loss/stop loss limit order.
+        When one order executes, the other is automatically canceled.
+        
+        POST /api/v3/order/oco
+        Weight: 1
+        
+        Args:
+            symbol: Symbol to place order for (e.g. "BTCUSDT")
+            side: Order side (e.g. "BUY", "SELL")
+            quantity: Order quantity
+            price: Limit order price
+            stop_price: Stop price
+            stop_limit_price: Stop limit price, if provided stop_limit_time_in_force is required
+            stop_limit_time_in_force: Time in force for stop limit price (GTC/FOK/IOC)
+            list_client_order_id: A unique ID for the entire orderList
+            limit_client_order_id: A unique ID for the limit order
+            limit_iceberg_qty: Iceberg quantity for the limit order
+            trailing_delta: Trailing delta for orders
+            stop_client_order_id: A unique ID for the stop loss/stop loss limit leg
+            stop_iceberg_qty: Iceberg quantity for the stop loss/stop loss limit leg
+            new_order_resp_type: Set the response JSON
+            self_trade_prevention_mode: Self trade prevention mode (default is EXPIRE_MAKER)
+            
+        Returns:
+            OcoOrderResponse object with order details, or None if failed
+        
+        Notes:
+            - Price Restrictions:
+            - SELL: Limit Price > Last Price > Stop Price
+            - BUY: Limit Price < Last Price < Stop Price
+            - Quantity Restrictions:
+            - Both legs must have the same quantity
+            - ICEBERG quantities however do not have to be the same
+            - OCO counts as 2 orders against the order rate limit
+        """
+        params = {
+            'symbol': symbol,
+            'side': side,
+            'quantity': quantity,
+            'price': price,
+            'stopPrice': stop_price
+        }
+        
+        # Add optional parameters
+        if stop_limit_price is not None:
+            params['stopLimitPrice'] = stop_limit_price
+            
+        if stop_limit_time_in_force is not None:
+            params['stopLimitTimeInForce'] = stop_limit_time_in_force
+            
+        if list_client_order_id is not None:
+            params['listClientOrderId'] = list_client_order_id
+            
+        if limit_client_order_id is not None:
+            params['limitClientOrderId'] = limit_client_order_id
+            
+        if limit_iceberg_qty is not None:
+            params['limitIcebergQty'] = limit_iceberg_qty
+            
+        if trailing_delta is not None:
+            params['trailingDelta'] = trailing_delta
+            
+        if stop_client_order_id is not None:
+            params['stopClientOrderId'] = stop_client_order_id
+            
+        if stop_iceberg_qty is not None:
+            params['stopIcebergQty'] = stop_iceberg_qty
+            
+        if new_order_resp_type is not None:
+            params['newOrderRespType'] = new_order_resp_type
+            
+        if self_trade_prevention_mode is not None:
+            params['selfTradePreventionMode'] = self_trade_prevention_mode
+        
+        response = self.request("POST", "/api/v3/order/oco", RateLimitType.ORDERS, 1) \
+            .requires_auth(True) \
+            .with_query_params(**params) \
+            .execute()
+            
+        if response:
+            return OcoOrderResponse.from_api_response(response)
+        return None
+
+    def get_oco_order(self, order_list_id: Optional[int] = None, 
+                    orig_client_order_id: Optional[str] = None) -> Optional[OcoOrderResponse]:
+        """
+        Get a specific OCO order status.
+        
+        GET /api/v3/orderList
+        Weight: 2
+        
+        Args:
+            order_list_id: ID of the OCO order list
+            orig_client_order_id: Original client order ID
+            
+        Returns:
+            OcoOrderResponse object with order details, or None if not found
+            
+        Notes:
+            Either order_list_id or orig_client_order_id must be provided
+        """
+        if not order_list_id and not orig_client_order_id:
+            logger.error("Either order_list_id or orig_client_order_id must be provided to get OCO order")
+            return None
+            
+        request = self.request("GET", "/api/v3/orderList", RateLimitType.REQUEST_WEIGHT, 2) \
+            .requires_auth(True)
+            
+        if order_list_id:
+            request.with_query_params(orderListId=order_list_id)
+        elif orig_client_order_id:
+            request.with_query_params(origClientOrderId=orig_client_order_id)
+            
+        response = request.execute()
+        
+        if response:
+            return OcoOrderResponse.from_api_response(response)
+        return None
+
+    def get_all_oco_orders(self, from_id: Optional[int] = None,
+                        start_time: Optional[int] = None, 
+                        end_time: Optional[int] = None,
+                        limit: int = 500) -> List[OcoOrderResponse]:
+        """
+        Get all OCO orders based on provided parameters.
+        
+        GET /api/v3/allOrderList
+        Weight: 10
+        
+        Args:
+            from_id: If supplied, neither start_time nor end_time can be provided
+            start_time: Start time in milliseconds
+            end_time: End time in milliseconds
+            limit: Maximum number of orders to return (default 500, max 1000)
+            
+        Returns:
+            List of OcoOrderResponse objects with order details
+            
+        Notes:
+            - If from_id is supplied, neither start_time nor end_time can be provided
+        """
+        request = self.request("GET", "/api/v3/allOrderList", RateLimitType.REQUEST_WEIGHT, 10) \
+            .requires_auth(True) \
+            .with_query_params(
+                limit=min(limit, 1000)  # Ensure limit doesn't exceed API max
+            )
+            
+        if from_id is not None:
+            request.with_query_params(fromId=from_id)
+        else:
+            if start_time is not None:
+                request.with_query_params(startTime=start_time)
+            if end_time is not None:
+                request.with_query_params(endTime=end_time)
+                
+        response = request.execute()
+        
+        if response:
+            return [OcoOrderResponse.from_api_response(order) for order in response]
+        return []
+
+    def get_open_oco_orders(self) -> List[OcoOrderResponse]:
+        """
+        Get all open OCO orders.
+        
+        GET /api/v3/openOrderList
+        Weight: 3
+        
+        Returns:
+            List of OcoOrderResponse objects with order details
+        """
+        response = self.request("GET", "/api/v3/openOrderList", RateLimitType.REQUEST_WEIGHT, 3) \
+            .requires_auth(True) \
+            .execute()
+            
+        if response:
+            return [OcoOrderResponse.from_api_response(order) for order in response]
+        return []
+
+    def cancel_oco_order(self, symbol: str, order_list_id: Optional[int] = None,
+                    list_client_order_id: Optional[str] = None,
+                    new_client_order_id: Optional[str] = None) -> Optional[OcoOrderResponse]:
+        """
+        Cancel an entire OCO order list.
+        
+        DELETE /api/v3/orderList
+        Weight: 1
+        
+        Args:
+            symbol: Symbol for the orders (e.g. "BTCUSDT")
+            order_list_id: ID of the OCO order list
+            list_client_order_id: Original client order ID for the OCO order list
+            new_client_order_id: Used to uniquely identify this cancel
+            
+        Returns:
+            OcoOrderResponse object with details of the canceled orders, or None if failed
+            
+        Notes:
+            - Either order_list_id or list_client_order_id must be provided
+            - Canceling an individual leg will cancel the entire OCO
+        """
+        if not order_list_id and not list_client_order_id:
+            logger.error("Either order_list_id or list_client_order_id must be provided to cancel OCO order")
+            return None
+            
+        request = self.request("DELETE", "/api/v3/orderList", RateLimitType.REQUEST_WEIGHT, 1) \
+            .requires_auth(True) \
+            .with_query_params(symbol=symbol)
+            
+        if order_list_id:
+            request.with_query_params(orderListId=order_list_id)
+        elif list_client_order_id:
+            request.with_query_params(listClientOrderId=list_client_order_id)
+            
+        if new_client_order_id:
+            request.with_query_params(newClientOrderId=new_client_order_id)
+            
+        response = request.execute()
+        
+        if response:
+            return OcoOrderResponse.from_api_response(response)
+        return None

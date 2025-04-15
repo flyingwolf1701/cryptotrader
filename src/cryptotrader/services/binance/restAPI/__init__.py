@@ -64,4 +64,11 @@ __all__ = [
     'get_subaccount_assets', # GET /sapi/v3/sub-account/assets
     'get_master_account_total_value', # GET /sapi/v1/sub-account/spotSummary
     'get_subaccount_status_list', # GET /sapi/v1/sub-account/status
+
+    # OCO Order Functions with endpoint paths in comments
+    'place_oco_order',        # POST /api/v3/order/oco
+    'get_oco_order',          # GET /api/v3/orderList
+    'get_all_oco_orders',     # GET /api/v3/allOrderList
+    'get_open_oco_orders',    # GET /api/v3/openOrderList
+    'cancel_oco_order',       # DELETE /api/v3/orderList
 ]
