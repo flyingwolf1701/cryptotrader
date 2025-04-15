@@ -14,6 +14,7 @@ from cryptotrader.services.binance.restAPI.order_api import OrderOperations
 from cryptotrader.services.binance.restAPI.system_api import SystemOperations
 from cryptotrader.services.binance.restAPI.user_api import UserOperations
 from cryptotrader.services.binance.restAPI.subaccount_api import SubAccountOperations
+from cryptotrader.services.binance.restAPI.otc_api import OtcOperations
 
 __all__ = [
     # Client classes
@@ -23,6 +24,7 @@ __all__ = [
     'SystemOperations',
     'UserOperations',
     'SubAccountOperations',
+    'OtcOperations',
     
     # API Functions with endpoint paths in comments
     'get_server_time',       # GET /api/v3/time
@@ -71,4 +73,12 @@ __all__ = [
     'get_all_oco_orders',     # GET /api/v3/allOrderList
     'get_open_oco_orders',    # GET /api/v3/openOrderList
     'cancel_oco_order',       # DELETE /api/v3/orderList
+    
+    # OTC Functions with endpoint paths in comments
+    'get_coin_pairs',         # GET /sapi/v1/otc/coinPairs
+    'request_quote',          # POST /sapi/v1/otc/quotes
+    'place_order',            # POST /sapi/v1/otc/orders
+    'get_order',              # GET /sapi/v1/otc/orders/{orderId}
+    'get_orders',             # GET /sapi/v1/otc/orders
+    'get_ocbs_orders',        # GET /sapi/v1/ocbs/orders
 ]

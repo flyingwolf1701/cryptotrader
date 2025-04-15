@@ -1,4 +1,3 @@
-
 """
 Binance API Models
 
@@ -25,6 +24,12 @@ from .order_models import (
     OcoOrderResponse
 )
 
+# Import from otc_models
+from .otc_models import (
+    OtcOrderStatus, OtcCoinPair, OtcQuote, OtcOrderResponse,
+    OtcOrderDetail, OtcOrdersResponse, OcbsOrderDetail, OcbsOrdersResponse
+)
+
 __all__ = [
     # Base Models
     'OrderType', 'OrderSide', 'TimeInForce', 'KlineInterval',
@@ -40,5 +45,9 @@ __all__ = [
     'CancelReplaceMode', 'NewOrderResponseType', 'CancelRestriction',
     'Fill', 'OrderResponseFull', 'OrderResponseResult', 'OrderResponseAck',
     'CancelReplaceResponse', 'OrderTrade', 'PreventedMatch', 'RateLimitInfo',
-    'OcoOrderResponse'
+    'OcoOrderResponse',
+    
+    # OTC Models
+    'OtcOrderStatus', 'OtcCoinPair', 'OtcQuote', 'OtcOrderResponse',
+    'OtcOrderDetail', 'OtcOrdersResponse', 'OcbsOrderDetail', 'OcbsOrdersResponse'
 ]
