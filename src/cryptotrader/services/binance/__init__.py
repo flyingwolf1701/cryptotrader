@@ -7,7 +7,7 @@ from .binance_models import (
 
 from .binance_rest_api import RestClient as Client
 from .binance_base_operations import BinanceAPIRequest
-from .binance_rest_order import OrderOperations
+from .binance_order_api import OrderOperations
 
 __all__ = [
     'Client',

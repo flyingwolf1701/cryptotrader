@@ -12,6 +12,7 @@ than specific market data or trading operations.
 """
 
 import json
+import time  # Need to add this for the fallback time function
 from typing import Dict, List, Optional, Any, Union
 
 from cryptotrader.config import get_logger
@@ -69,7 +70,8 @@ class SystemClient:
         Returns:
             SystemStatus object (0: normal, 1: maintenance)
         """
-        response = self.request("GET", "/sapi/v1/system/status").requires_api_key(True).execute()
+        # FIX: Changed requires_api_key to requires_auth
+        response = self.request("GET", "/sapi/v1/system/status").requires_auth(True).execute()
         if response:
             return SystemStatus(status_code=response.get("status", -1))
         return SystemStatus(status_code=-1)  # Unknown status
