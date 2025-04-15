@@ -24,7 +24,7 @@ from .models import (
 )
 
 # Import client classes
-from .rest_api import RestClient as Client
+from .general_api import RestClient as Client
 from .base_operations import BinanceAPIRequest
 from .order_api import OrderOperations
 

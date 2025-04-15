@@ -16,14 +16,14 @@ import time  # Need to add this for the fallback time function
 from typing import Dict, List, Optional, Any, Union
 
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.base_operations import BinanceAPIRequest
+from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
 from cryptotrader.services.binance.models.base_models import (
     SystemStatus, SymbolInfo, RateLimitType
 )
 
 logger = get_logger(__name__)
 
-class SystemClient:
+class SystemOperations:
     """
     Binance system API client implementation.
     

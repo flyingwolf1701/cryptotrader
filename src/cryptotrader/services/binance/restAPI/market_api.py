@@ -18,7 +18,7 @@ import time
 from typing import Dict, List, Optional, Any, Union
 
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.base_operations import BinanceAPIRequest
+from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
 from cryptotrader.services.binance.models.base_models import (
     PriceData, Candle, RateLimitType,
     Trade, AggTrade, OrderBook, TickerPrice, AvgPrice, 
@@ -28,7 +28,7 @@ from cryptotrader.services.binance.models.base_models import (
 
 logger = get_logger(__name__)
 
-class MarketClient:
+class MarketOperations:
     """
     Binance market data API client implementation.
     
