@@ -19,12 +19,10 @@ import json
 import time
 from typing import Dict, List, Optional, Any, Union
 
-import httpx
-
 from cryptotrader.config import get_logger
 from cryptotrader.services.binance.binance_base_operations import BinanceAPIRequest
 from cryptotrader.services.binance.binance_models import (
-    PriceData, BinanceEndpoints, Candle,
+    PriceData, Candle,
     AccountBalance, SymbolInfo, RateLimitType,
     SystemStatus, Trade, AggTrade, 
     OrderBook, TickerPrice, AvgPrice, 
@@ -183,7 +181,7 @@ class RestClient:
         return {'default': 'NONE', 'allowed': []}
     
     @staticmethod
-    def get_symbols_binance() -> List[str]:
+    def get_symbols_binance(self, symbol: str) -> List[str]:
         """
         Get available trading symbols.
         
@@ -192,19 +190,17 @@ class RestClient:
         Returns:
             List of available trading symbols
         """
-        try:
-            with httpx.Client() as client:
-                response = client.get(f"{BinanceEndpoints.base_url}/api/v3/exchangeInfo", timeout=10)
-                if response.status_code == 200:
-                    exchange_info = response.json()
-                    if 'symbols' in exchange_info:
-                        symbols = [s['symbol'] for s in exchange_info['symbols'] 
-                                 if s['status'] == 'TRADING']
-                        return symbols
-            return []
-        except Exception as e:
-            logger.error(f"Error getting symbols: {str(e)}")
-            return []
+        response = self.request("GET", "/api/v3/exchangeInfo") \
+            .with_query_params(symbol=symbol) \
+            .execute()
+        
+        if response:
+            if 'symbols' in response:
+                symbols = [s['symbol'] for s in response['symbols'] 
+                        if s['status'] == 'TRADING']
+            return symbols
+        return []
+        
     
     def get_bid_ask(self, symbol: str) -> Optional[PriceData]:
         """
