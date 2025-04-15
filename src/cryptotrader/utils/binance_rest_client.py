@@ -22,7 +22,7 @@ from typing import Dict, List, Optional, Any, Union, Tuple
 import httpx
 
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.binance_models import (
+from cryptotrader.services.binance.models.base_models import (
     PriceData, BinanceEndpoints, OrderRequest, Candle,
     AccountBalance, OrderStatusResponse, SymbolInfo,
     RateLimit, RateLimitType, RateLimitInterval, OrderType, 
