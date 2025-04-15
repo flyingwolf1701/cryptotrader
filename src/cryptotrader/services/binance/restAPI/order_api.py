@@ -21,7 +21,7 @@ from cryptotrader.config import get_logger
 from cryptotrader.services.binance.models import (
     OrderRequest, OrderStatusResponse, RateLimitType, OrderResponseFull,
     OrderResponseResult, OrderResponseAck, CancelReplaceResponse,
-    OrderTrade, PreventedMatch, RateLimitInfo
+    OrderTrade, PreventedMatch, RateLimitInfo, OcoOrderResponse
 )
 from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
 
