@@ -32,15 +32,25 @@ class UserOperations:
     trading status, fee rates, and more.
     """
     
-    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
+    def __init__(self):
         """Initialize the User client."""
-        self.api_key = api_key
-        self.api_secret = api_secret
+        pass
     
     def request(self, method: str, endpoint: str, 
                limit_type: Optional[RateLimitType] = None,
                weight: int = 1) -> BinanceAPIRequest:
-        """Create a new API request."""
+        """
+        Create a new API request.
+        
+        Args:
+            method: HTTP method (GET, POST, DELETE)
+            endpoint: API endpoint path
+            limit_type: Type of rate limit for this request
+            weight: Weight of this request for rate limiting
+            
+        Returns:
+            BinanceAPIRequest object for building and executing the request
+        """
         return BinanceAPIRequest(
             method=method, 
             endpoint=endpoint,
@@ -52,6 +62,7 @@ class UserOperations:
         """
         Get account information including balances.
         
+        GET /api/v3/account
         Weight: 10
         
         Args:
@@ -74,6 +85,7 @@ class UserOperations:
         """
         Get account status.
         
+        GET /sapi/v3/accountStatus
         Weight: 1
         
         Args:
@@ -94,6 +106,7 @@ class UserOperations:
         """
         Get API trading status.
         
+        GET /sapi/v3/apiTradingStatus
         Weight: 1
         
         Args:
@@ -118,6 +131,7 @@ class UserOperations:
         """
         Get asset distribution history.
         
+        GET /sapi/v1/asset/assetDistributionHistory
         Weight: 1
         
         Args:
@@ -150,6 +164,7 @@ class UserOperations:
         """
         Get trading fee information.
         
+        GET /sapi/v1/asset/query/trading-fee
         Weight: 1
         
         Args:
@@ -170,6 +185,7 @@ class UserOperations:
         """
         Get past 30 days trading volume.
         
+        GET /sapi/v1/asset/query/trading-volume
         Weight: 1
         
         Returns:

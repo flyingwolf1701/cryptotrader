@@ -40,16 +40,9 @@ class GeneralOperations:
     with automatic response parsing and error handling.
     """
     
-    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
-        """
-        Initialize the REST client.
-        
-        Args:
-            api_key: Binance API key
-            api_secret: Binance API secret
-        """
-        self.api_key = api_key
-        self.api_secret = api_secret
+    def __init__(self):
+        """Initialize the REST client."""
+        pass
     
     def request(self, method: str, endpoint: str, 
                limit_type: Optional[RateLimitType] = None,
@@ -81,6 +74,7 @@ class GeneralOperations:
         """
         Get account information including balances.
         
+        GET /api/v3/account
         Weight: 10
         
         Returns:
@@ -99,6 +93,7 @@ class GeneralOperations:
         """
         Get current server time from Binance API.
         
+        GET /api/v3/time
         Weight: 1
         
         Returns:
@@ -113,6 +108,7 @@ class GeneralOperations:
         """
         Get system status.
         
+        GET /sapi/v1/system/status
         Weight: 1
         
         Returns:
@@ -133,6 +129,7 @@ class GeneralOperations:
         """
         Get exchange information.
         
+        GET /api/v3/exchangeInfo
         Weight: 1 for a single symbol, 10 for all symbols
         
         Args:
@@ -161,6 +158,7 @@ class GeneralOperations:
         """
         Get information for a specific symbol.
         
+        Uses GET /api/v3/exchangeInfo
         Weight: 1
         
         Args:
@@ -179,6 +177,7 @@ class GeneralOperations:
         """
         Get self-trade prevention modes from exchange info.
         
+        Uses GET /api/v3/exchangeInfo
         Weight: 1
         
         Returns:
@@ -192,18 +191,17 @@ class GeneralOperations:
             return stp_modes
         return {'default': 'NONE', 'allowed': []}
     
-    @staticmethod
-    def get_symbols_binance() -> List[str]:
+    def get_symbols(self) -> List[str]:
         """
         Get available trading symbols.
         
+        Uses GET /api/v3/exchangeInfo
         Weight: 10
         
         Returns:
             List of available trading symbols
         """
-        client = RestClient()
-        response = client.request("GET", "/api/v3/exchangeInfo").requires_auth(False).execute()
+        response = self.request("GET", "/api/v3/exchangeInfo").requires_auth(False).execute()
         
         symbols = []
         if response and 'symbols' in response:
@@ -215,6 +213,7 @@ class GeneralOperations:
         """
         Get current bid/ask prices for a symbol.
         
+        GET /api/v3/ticker/bookTicker
         Weight: 1
         
         Args:
@@ -241,6 +240,7 @@ class GeneralOperations:
         """
         Get historical candlestick data.
         
+        GET /api/v3/klines
         Weight: 1
         
         Args:
@@ -286,6 +286,7 @@ class GeneralOperations:
         """
         Get recent trades for a symbol.
         
+        GET /api/v3/trades
         Weight: 1
         
         Args:
@@ -313,6 +314,7 @@ class GeneralOperations:
         """
         Get older trades for a symbol.
         
+        GET /api/v3/historicalTrades
         Weight: 5
         
         Note: This endpoint requires API key in the request header
@@ -350,6 +352,7 @@ class GeneralOperations:
         Get compressed, aggregate trades. Trades that fill at the same time, from the same order, 
         with the same price, will have the quantity aggregated.
         
+        GET /api/v3/aggTrades
         Weight: 1
         
         Args:
@@ -392,6 +395,7 @@ class GeneralOperations:
         """
         Get order book (market depth) for a symbol.
         
+        GET /api/v3/depth
         Weight: Adjusted based on the limit:
         - 1-100: weight=1
         - 101-500: weight=5
@@ -431,6 +435,7 @@ class GeneralOperations:
         """
         Get live ticker price for a symbol or for all symbols.
         
+        GET /api/v3/ticker/price
         Weight: 
         - When symbol is provided: 1
         - When symbol is omitted: 2
@@ -466,6 +471,7 @@ class GeneralOperations:
         """
         Get current average price for a symbol.
         
+        GET /api/v3/avgPrice
         Weight: 1
         
         Args:
@@ -489,6 +495,7 @@ class GeneralOperations:
         """
         Get 24-hour price change statistics for a symbol, multiple symbols, or all symbols.
         
+        GET /api/v3/ticker/24hr
         Weight:
         - When symbol is provided: 1
         - When symbol is omitted: 40
@@ -550,6 +557,7 @@ class GeneralOperations:
         """
         Get price change statistics within a requested window of time.
         
+        GET /api/v3/ticker
         Weight: 2 for each requested symbol
         
         Args:
