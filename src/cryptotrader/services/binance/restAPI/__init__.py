@@ -20,7 +20,6 @@ __all__ = [
     'BinanceAPIRequest',
     'MarketOperations',
     'OrderOperations',
-    'GeneralOperations',
     'SystemOperations',
     'UserOperations',
     'SubAccountOperations',
@@ -30,6 +29,8 @@ __all__ = [
     'get_system_status',     # GET /sapi/v1/system/status
     'get_exchange_info',     # GET /api/v3/exchangeInfo
     'get_symbol_info',       # Uses GET /api/v3/exchangeInfo
+    'get_symbols',           # Uses GET /api/v3/exchangeInfo
+    'get_self_trade_prevention_modes', # Uses GET /api/v3/exchangeInfo
     'get_bid_ask',           # GET /api/v3/ticker/bookTicker
     'get_historical_candles', # GET /api/v3/klines
     'get_recent_trades',     # GET /api/v3/trades
@@ -54,4 +55,13 @@ __all__ = [
     'get_account',           # GET /api/v3/account
     'get_account_status',    # GET /sapi/v3/accountStatus
     'get_api_trading_status', # GET /sapi/v3/apiTradingStatus
+    'get_asset_distribution_history', # GET /sapi/v1/asset/assetDistributionHistory
+    'get_trade_fee',         # GET /sapi/v1/asset/query/trading-fee
+    'get_trading_volume',    # GET /sapi/v1/asset/query/trading-volume
+    'get_subaccount_list',   # GET /sapi/v3/sub-account/list
+    'get_subaccount_transfer_history', # GET /sapi/v3/sub-account/transfer/history
+    'execute_subaccount_transfer', # POST /sapi/v3/sub-account/transfer
+    'get_subaccount_assets', # GET /sapi/v3/sub-account/assets
+    'get_master_account_total_value', # GET /sapi/v1/sub-account/spotSummary
+    'get_subaccount_status_list', # GET /sapi/v1/sub-account/status
 ]

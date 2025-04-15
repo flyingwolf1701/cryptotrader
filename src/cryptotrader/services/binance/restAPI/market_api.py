@@ -1,4 +1,3 @@
-
 """
 Binance Market Data API Client
 
@@ -67,6 +66,7 @@ class MarketOperations:
         """
         Get current bid/ask prices for a symbol.
         
+        GET /api/v3/ticker/bookTicker
         Weight: 1
         
         Args:
@@ -75,7 +75,8 @@ class MarketOperations:
         Returns:
             PriceData object with bid and ask prices, or None if not available
         """
-        response = self.request("GET", "/api/v3/ticker/bookTicker").requires_auth(False) \
+        response = self.request("GET", "/api/v3/ticker/bookTicker", RateLimitType.REQUEST_WEIGHT, 1) \
+            .requires_auth(False) \
             .with_query_params(symbol=symbol) \
             .execute()
             
@@ -93,6 +94,7 @@ class MarketOperations:
         """
         Get historical candlestick data.
         
+        GET /api/v3/klines
         Weight: 1
         
         Args:
@@ -105,7 +107,8 @@ class MarketOperations:
         Returns:
             List of Candle objects
         """
-        request = self.request("GET", "/api/v3/klines").requires_auth(False) \
+        request = self.request("GET", "/api/v3/klines", RateLimitType.REQUEST_WEIGHT, 1) \
+            .requires_auth(False) \
             .with_query_params(
                 symbol=symbol,
                 interval=interval,
@@ -138,6 +141,7 @@ class MarketOperations:
         """
         Get recent trades for a symbol.
         
+        GET /api/v3/trades
         Weight: 1
         
         Args:
@@ -147,7 +151,8 @@ class MarketOperations:
         Returns:
             List of Trade objects
         """
-        response = self.request("GET", "/api/v3/trades").requires_auth(False) \
+        response = self.request("GET", "/api/v3/trades", RateLimitType.REQUEST_WEIGHT, 1) \
+            .requires_auth(False) \
             .with_query_params(
                 symbol=symbol,
                 limit=min(limit, 1000)  # Ensure limit doesn't exceed API max
@@ -165,6 +170,7 @@ class MarketOperations:
         """
         Get older trades for a symbol.
         
+        GET /api/v3/historicalTrades
         Weight: 5
         
         Note: This endpoint requires API key in the request header
@@ -202,6 +208,7 @@ class MarketOperations:
         Get compressed, aggregate trades. Trades that fill at the same time, from the same order, 
         with the same price, will have the quantity aggregated.
         
+        GET /api/v3/aggTrades
         Weight: 1
         
         Args:
@@ -217,7 +224,8 @@ class MarketOperations:
         Returns:
             List of AggTrade objects
         """
-        request = self.request("GET", "/api/v3/aggTrades").requires_auth(False) \
+        request = self.request("GET", "/api/v3/aggTrades", RateLimitType.REQUEST_WEIGHT, 1) \
+            .requires_auth(False) \
             .with_query_params(
                 symbol=symbol,
                 limit=min(limit, 1000)  # Ensure limit doesn't exceed API max
@@ -244,6 +252,7 @@ class MarketOperations:
         """
         Get order book (market depth) for a symbol.
         
+        GET /api/v3/depth
         Weight: Adjusted based on the limit:
         - 1-100: weight=1
         - 101-500: weight=5
@@ -267,7 +276,8 @@ class MarketOperations:
         if limit > 1000:
             weight = 50
             
-        response = self.request("GET", "/api/v3/depth", weight=weight).requires_auth(False) \
+        response = self.request("GET", "/api/v3/depth", RateLimitType.REQUEST_WEIGHT, weight) \
+            .requires_auth(False) \
             .with_query_params(
                 symbol=symbol,
                 limit=min(limit, 5000)  # Ensure limit doesn't exceed API max
@@ -283,6 +293,7 @@ class MarketOperations:
         """
         Get live ticker price for a symbol or for all symbols.
         
+        GET /api/v3/ticker/price
         Weight: 
         - When symbol is provided: 1
         - When symbol is omitted: 2
@@ -299,7 +310,8 @@ class MarketOperations:
         if symbol is None:
             weight = 2
             
-        request = self.request("GET", "/api/v3/ticker/price", weight=weight).requires_auth(False)
+        request = self.request("GET", "/api/v3/ticker/price", RateLimitType.REQUEST_WEIGHT, weight) \
+            .requires_auth(False)
         
         if symbol is not None:
             request.with_query_params(symbol=symbol)
@@ -318,6 +330,7 @@ class MarketOperations:
         """
         Get current average price for a symbol.
         
+        GET /api/v3/avgPrice
         Weight: 1
         
         Args:
@@ -326,7 +339,8 @@ class MarketOperations:
         Returns:
             AvgPrice object with average price information
         """
-        response = self.request("GET", "/api/v3/avgPrice").requires_auth(False) \
+        response = self.request("GET", "/api/v3/avgPrice", RateLimitType.REQUEST_WEIGHT, 1) \
+            .requires_auth(False) \
             .with_query_params(symbol=symbol) \
             .execute()
             
@@ -341,6 +355,7 @@ class MarketOperations:
         """
         Get 24-hour price change statistics for a symbol, multiple symbols, or all symbols.
         
+        GET /api/v3/ticker/24hr
         Weight:
         - When symbol is provided: 1
         - When symbol is omitted: 40
@@ -370,7 +385,8 @@ class MarketOperations:
             elif symbols_count > 20:
                 weight = 20
             
-        request = self.request("GET", "/api/v3/ticker/24hr", weight=weight).requires_auth(False)
+        request = self.request("GET", "/api/v3/ticker/24hr", RateLimitType.REQUEST_WEIGHT, weight) \
+            .requires_auth(False)
         
         if symbol is not None:
             request.with_query_params(symbol=symbol)
@@ -402,6 +418,7 @@ class MarketOperations:
         """
         Get price change statistics within a requested window of time.
         
+        GET /api/v3/ticker
         Weight: 2 for each requested symbol
         
         Args:
@@ -418,10 +435,9 @@ class MarketOperations:
         Returns:
             RollingWindowStats/RollingWindowStatsMini object with price statistics
         """
-        weight = 2
-        
-        request = self.request("GET", "/api/v3/ticker", weight=weight).requires_auth(False)
-        request.with_query_params(symbol=symbol)
+        request = self.request("GET", "/api/v3/ticker", RateLimitType.REQUEST_WEIGHT, 2) \
+            .requires_auth(False) \
+            .with_query_params(symbol=symbol)
             
         if window_size is not None:
             request.with_query_params(windowSize=window_size)

@@ -67,7 +67,10 @@ class SystemOperations:
         Returns:
             Server time in milliseconds
         """
-        response = self.request("GET", "/api/v3/time").requires_auth(False).execute()
+        response = self.request("GET", "/api/v3/time", RateLimitType.REQUEST_WEIGHT, 1) \
+            .requires_auth(False) \
+            .execute()
+            
         if response:
             return response["serverTime"]
         return int(time.time() * 1000)  # Fallback to local time
@@ -82,8 +85,10 @@ class SystemOperations:
         Returns:
             SystemStatus object (0: normal, 1: maintenance)
         """
-        # Fixed: Changed requires_auth to False as this is a public endpoint
-        response = self.request("GET", "/sapi/v1/system/status").requires_auth(False).execute()
+        response = self.request("GET", "/sapi/v1/system/status", RateLimitType.REQUEST_WEIGHT, 1) \
+            .requires_auth(False) \
+            .execute()
+            
         if response:
             return SystemStatus(status_code=response.get("status", -1))
         return SystemStatus(status_code=-1)  # Unknown status
@@ -95,7 +100,7 @@ class SystemOperations:
         Get exchange information.
         
         GET /api/v3/exchangeInfo
-        Weight: 1 for a single symbol, 10 for all symbols
+        Weight: 10
         
         Args:
             symbol: Single symbol to get info for
@@ -105,7 +110,13 @@ class SystemOperations:
         Returns:
             Dictionary containing exchange information
         """
-        request = self.request("GET", "/api/v3/exchangeInfo").requires_auth(False)
+        # Adjust weight based on parameters
+        weight = 1
+        if symbol is None and symbols is None and permissions is None:
+            weight = 10
+            
+        request = self.request("GET", "/api/v3/exchangeInfo", RateLimitType.REQUEST_WEIGHT, weight) \
+            .requires_auth(False)
         
         if symbol:
             request.with_query_params(symbol=symbol)
@@ -166,8 +177,9 @@ class SystemOperations:
         Returns:
             List of available trading symbols
         """
-        # Fixed: Removed static method and SystemClient reference
-        response = self.request("GET", "/api/v3/exchangeInfo").requires_auth(False).execute()
+        response = self.request("GET", "/api/v3/exchangeInfo", RateLimitType.REQUEST_WEIGHT, 10) \
+            .requires_auth(False) \
+            .execute()
         
         symbols = []
         if response and 'symbols' in response:
