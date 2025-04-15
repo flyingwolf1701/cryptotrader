@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from cryptotrader.services.binance.binance_client import Client
-from cryptotrader.services.binance.binance_models import PriceData, Candle, AccountBalance
+from cryptotrader.services.binance.models.base_models import PriceData, Candle, AccountBalance
 
 # Create FastAPI app
 app = FastAPI(

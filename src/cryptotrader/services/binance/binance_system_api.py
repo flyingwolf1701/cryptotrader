@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Any, Union
 
 from cryptotrader.config import get_logger
 from cryptotrader.services.binance.binance_base_operations import BinanceAPIRequest
-from cryptotrader.services.binance.binance_models import (
+from cryptotrader.services.binance.models.base_models import (
     SystemStatus, SymbolInfo, RateLimitType
 )
 

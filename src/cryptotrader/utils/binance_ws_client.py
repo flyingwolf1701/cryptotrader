@@ -5,7 +5,7 @@ import threading
 import websockets
 from typing import Dict, List, Set, Optional, Any, Callable
 
-from cryptotrader.services.binance.binance_models import (
+from cryptotrader.services.binance.models.base_models import (
     BinanceEndpoints, PriceData, Candle
 )
 
