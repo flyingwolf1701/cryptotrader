@@ -1,3 +1,4 @@
+
 """
 Binance Market Data API Client
 
@@ -36,15 +37,25 @@ class MarketOperations:
     including prices, order books, trades, and statistical information.
     """
     
-    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
+    def __init__(self):
         """Initialize the Market Data client."""
-        self.api_key = api_key
-        self.api_secret = api_secret
+        pass
     
     def request(self, method: str, endpoint: str, 
                limit_type: Optional[RateLimitType] = None,
                weight: int = 1) -> BinanceAPIRequest:
-        """Create a new API request."""
+        """
+        Create a new API request.
+        
+        Args:
+            method: HTTP method (GET, POST, DELETE)
+            endpoint: API endpoint path
+            limit_type: Type of rate limit for this request
+            weight: Weight of this request for rate limiting
+            
+        Returns:
+            BinanceAPIRequest object for building and executing the request
+        """
         return BinanceAPIRequest(
             method=method, 
             endpoint=endpoint,
@@ -167,7 +178,7 @@ class MarketOperations:
             List of Trade objects
         """
         request = self.request("GET", "/api/v3/historicalTrades", RateLimitType.REQUEST_WEIGHT, 5) \
-            .requires_api_key(True) \
+            .requires_auth(True) \
             .with_query_params(
                 symbol=symbol,
                 limit=min(limit, 1000)  # Ensure limit doesn't exceed API max
