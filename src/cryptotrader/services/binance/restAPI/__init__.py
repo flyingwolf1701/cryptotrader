@@ -15,6 +15,8 @@ from cryptotrader.services.binance.restAPI.system_api import SystemOperations
 from cryptotrader.services.binance.restAPI.user_api import UserOperations
 from cryptotrader.services.binance.restAPI.subaccount_api import SubAccountOperations
 from cryptotrader.services.binance.restAPI.otc_api import OtcOperations
+from cryptotrader.services.binance.restAPI.wallet_api import WalletOperations
+from cryptotrader.services.binance.restAPI.staking_api import StakingOperations
 
 __all__ = [
     # Client classes
@@ -25,6 +27,8 @@ __all__ = [
     'UserOperations',
     'SubAccountOperations',
     'OtcOperations',
+    'WalletOperations',
+    'StakingOperations',
     
     # API Functions with endpoint paths in comments
     'get_server_time',       # GET /api/v3/time
@@ -81,4 +85,24 @@ __all__ = [
     'get_order',              # GET /sapi/v1/otc/orders/{orderId}
     'get_orders',             # GET /sapi/v1/otc/orders
     'get_ocbs_orders',        # GET /sapi/v1/ocbs/orders
+    
+    # Wallet Functions with endpoint paths in comments
+    'get_asset_details',      # GET /sapi/v1/capital/config/getall
+    'withdraw_fiat',          # POST /sapi/v1/fiatpayment/withdraw/apply
+    'withdraw_crypto',        # POST /sapi/v1/capital/withdraw/apply
+    'get_crypto_withdraw_history', # GET /sapi/v1/capital/withdraw/history
+    'get_fiat_withdraw_history', # GET /sapi/v1/fiatpayment/query/withdraw/history
+    'get_deposit_address',    # GET /sapi/v1/capital/deposit/address
+    'get_crypto_deposit_history', # GET /sapi/v1/capital/deposit/hisrec
+    'get_fiat_deposit_history', # GET /sapi/v1/fiatpayment/query/deposit/history
+    'get_subaccount_deposit_address', # GET /sapi/v1/capital/sub-account/deposit/address
+    'get_subaccount_deposit_history', # GET /sapi/v1/capital/sub-account/deposit/history
+    
+    # Staking Functions with endpoint paths in comments
+    'get_staking_asset_info', # GET /sapi/v1/staking/asset
+    'stake',                  # POST /sapi/v1/staking/stake
+    'unstake',                # POST /sapi/v1/staking/unstake
+    'get_staking_balance',    # GET /sapi/v1/staking/stakingBalance
+    'get_staking_history',    # GET /sapi/v1/staking/history
+    'get_staking_rewards_history', # GET /sapi/v1/staking/stakingRewardsHistory
 ]

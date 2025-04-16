@@ -30,6 +30,22 @@ from .otc_models import (
     OtcOrderDetail, OtcOrdersResponse, OcbsOrderDetail, OcbsOrdersResponse
 )
 
+# Import from wallet_models
+from .wallet_models import (
+    WithdrawStatus, DepositStatus, NetworkInfo, AssetDetail,
+    FiatWithdrawResponse, CryptoWithdrawResponse, WithdrawHistoryItem,
+    FiatWithdrawHistory, DepositAddress, DepositHistoryItem,
+    FiatDepositHistory, FiatDepositHistoryItem, FiatWithdrawHistoryItem
+)
+
+# Import from staking_models
+from .staking_models import (
+    StakingTransactionType, StakingTransactionStatus, StakingAssetInfo,
+    StakingOperationResult, StakingStakeResult, StakingUnstakeResult,
+    StakingBalanceItem, StakingBalanceResponse, StakingHistoryItem,
+    StakingRewardItem, StakingRewardsResponse
+)
+
 __all__ = [
     # Base Models
     'OrderType', 'OrderSide', 'TimeInForce', 'KlineInterval',
@@ -49,5 +65,17 @@ __all__ = [
     
     # OTC Models
     'OtcOrderStatus', 'OtcCoinPair', 'OtcQuote', 'OtcOrderResponse',
-    'OtcOrderDetail', 'OtcOrdersResponse', 'OcbsOrderDetail', 'OcbsOrdersResponse'
+    'OtcOrderDetail', 'OtcOrdersResponse', 'OcbsOrderDetail', 'OcbsOrdersResponse',
+    
+    # Wallet Models
+    'WithdrawStatus', 'DepositStatus', 'NetworkInfo', 'AssetDetail',
+    'FiatWithdrawResponse', 'CryptoWithdrawResponse', 'WithdrawHistoryItem',
+    'FiatWithdrawHistory', 'DepositAddress', 'DepositHistoryItem',
+    'FiatDepositHistory', 'FiatDepositHistoryItem', 'FiatWithdrawHistoryItem',
+    
+    # Staking Models
+    'StakingTransactionType', 'StakingTransactionStatus', 'StakingAssetInfo',
+    'StakingOperationResult', 'StakingStakeResult', 'StakingUnstakeResult',
+    'StakingBalanceItem', 'StakingBalanceResponse', 'StakingHistoryItem',
+    'StakingRewardItem', 'StakingRewardsResponse'
 ]
