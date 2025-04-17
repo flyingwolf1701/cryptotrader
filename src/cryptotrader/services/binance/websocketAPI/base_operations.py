@@ -53,7 +53,7 @@ class BinanceWebSocketConnection:
     """
     
     def __init__(self, 
-                on_message: Callable[[Dict[str, Any]], None],
+                on_message: Callable[[Dict[str, Any]], Awaitable[None]],
                 on_error: Optional[Callable[[Exception], Awaitable[None]]] = None,
                 on_reconnect: Optional[Callable[[], Awaitable[None]]] = None,
                 on_close: Optional[Callable[[], Awaitable[None]]] = None,
@@ -235,7 +235,8 @@ class BinanceWebSocketConnection:
                     
                     # Process the message with the callback
                     if self.on_message:
-                        self.on_message(parsed_message)
+                        # FIX: Await the coroutine instead of just calling it
+                        await self.on_message(parsed_message)
                         
             except websockets.exceptions.ConnectionClosed as e:
                 if not self.is_closing:
@@ -569,7 +570,7 @@ class BinanceWebSocketClient:
         self.response_handlers = {}
     
     async def _create_connection(self, 
-                               on_message: Callable[[Dict[str, Any]], None],
+                               on_message: Callable[[Dict[str, Any]], Awaitable[None]],
                                on_error: Optional[Callable[[Exception], Awaitable[None]]] = None,
                                on_reconnect: Optional[Callable[[], Awaitable[None]]] = None,
                                on_close: Optional[Callable[[], Awaitable[None]]] = None) -> BinanceWebSocketConnection:
