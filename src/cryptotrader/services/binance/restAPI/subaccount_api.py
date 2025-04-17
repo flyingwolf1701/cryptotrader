@@ -14,12 +14,11 @@ These endpoints provide information and operations related to sub-accounts for
 institutional or professional users who manage multiple accounts.
 """
 
-import json
 from typing import Dict, List, Optional, Any, Union
 
 from cryptotrader.config import get_logger
 from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
-from cryptotrader.services.binance.models.base_models import RateLimitType
+from cryptotrader.services.binance.models import RateLimitType
 
 logger = get_logger(__name__)
 
