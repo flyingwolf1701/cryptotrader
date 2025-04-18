@@ -215,7 +215,7 @@ binance_websocket_api:
         requests:
           get_historical_trades:
             description: "Get historical trades for a symbol"
-            endpoint: "historicalTrades"
+            endpoint: "trades.historical"
             weight: 5
             security_type: "MARKET_DATA"
             parameters:
@@ -223,6 +223,8 @@ binance_websocket_api:
               - fromId: "Trade ID to fetch from (optional)"
               - limit: "Number of results (default 500, max 1000)"
             returns: "List of historical trades"
+            note: "If fromId is not specified, the most recent trades are returned"
+            data_source: "Database"
       
       klines:
         description: "Retrieve kline/candlestick data"
@@ -246,25 +248,27 @@ binance_websocket_api:
           get_order_book:
             description: "Get order book for a symbol"
             endpoint: "depth"
-            weight: "1-50 based on limit"
+            weight: "Adjusted based on limit: 1-100 (1), 101-500 (5), 501-1000 (10), 1001-5000 (50)"
             security_type: "NONE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
               - limit: "Number of price levels (default 100, max 5000)"
-            returns: "Order book data with bids and asks"
+            returns: "Order book data with bids and asks, including lastUpdateId"
+            note: "Bid levels are sorted from highest to lowest price. Ask levels are sorted from lowest to highest price."
       
       recent_trades:
         description: "Retrieve recent trades"
         requests:
           get_recent_trades:
             description: "Get recent trades for a symbol"
-            endpoint: "trades"
+            endpoint: "trades.recent"
             weight: 1
             security_type: "NONE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
               - limit: "Number of results (default 500, max 1000)"
             returns: "List of recent trades"
+            data_source: "Memory"
       
       rolling_window_price:
         description: "Retrieve rolling window price statistics"
