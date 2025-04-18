@@ -29,33 +29,66 @@ binance_websocket_api:
             - websockets
             - asyncio
             - hmac, hashlib
+            - urllib.parse
           properties:
             - on_message: "Callback function for received messages"
             - on_error: "Callback function for errors"
             - on_reconnect: "Callback function when reconnection happens"
             - on_close: "Callback function when connection closes"
-            - ping_interval: "How often to send ping frames (seconds)"
-            - pong_timeout: "How long to wait for pong response (seconds)"
+            - ping_interval: "How often to send ping frames (seconds), default 180s (3 minutes)"
+            - pong_timeout: "How long to wait for pong response (seconds), default 10s"
             - reconnect_attempts: "Maximum number of reconnection attempts"
-            - base_url: "Base URL for WebSocket API"
-            - return_rate_limits: "Whether to return rate limits in responses"
+            - base_url: "Base URL for WebSocket API, default is wss://ws-api.binance.us:443"
+            - return_rate_limits: "Whether to return rate limits in responses, default True"
             - websocket: "Active WebSocket connection"
             - is_connected: "Connection state flag"
             - is_closing: "Closing state flag"
             - reconnect_count: "Current reconnection attempt count"
             - rate_limiter: "Rate limit tracking instance"
+            - ip_banned_until: "Timestamp when IP ban expires (if banned)"
+            - retry_after: "Timestamp when to retry after rate limit (if limited)"
+            - connection_start_time: "Timestamp when connection was established"
+            - message_id: "Counter for request message IDs"
           methods:
-            - connect: "Establish WebSocket connection"
-            - close: "Close the WebSocket connection"
-            - send: "Send a message to the WebSocket server"
-            - send_signed: "Send a signed message to the WebSocket server"
+            - connect: 
+                description: "Establish WebSocket connection to Binance WebSocket API"
+                weight: 1
+                security_type: "NONE"
+                parameters: []
+                returns: "Boolean indicating success"
+            - close: 
+                description: "Close the WebSocket connection"
+                parameters: []
+                returns: "None"
+            - send: 
+                description: "Send a message to the Binance WebSocket API server"
+                parameters:
+                  - method: "API method to call (e.g., 'ping', 'time', 'exchangeInfo')"
+                  - params: "Parameters for the method"
+                  - security_type: "Type of security required for this request"
+                  - return_rate_limits: "Override default setting for returning rate limits"
+                returns: "Message ID that can be used to match the response"
+            - send_signed: 
+                description: "Send a signed message to the Binance WebSocket API server"
+                parameters:
+                  - method: "API method to call (e.g., 'order.place', 'account.status')"
+                  - params: "Parameters for the method"
+                  - return_rate_limits: "Override default setting for returning rate limits"
+                returns: "Message ID that can be used to match the response"
           internal_methods:
             - _ping_loop: "Send periodic pings to keep connection alive"
             - _receive_loop: "Receive and process incoming WebSocket messages"
             - _reconnect: "Handle reconnection after connection loss"
             - _update_rate_limits: "Update rate limit counters from WebSocket response"
-            - _handle_error: "Handle error responses from WebSocket"
+            - _handle_error: "Handle error responses from WebSocket API"
             - _monitor_connection_age: "Monitor connection age for 24h limit"
+          error_handling:
+            - "400": "Bad request - client-side error"
+            - "403": "Blocked by Web Application Firewall"
+            - "409": "Request partially failed but also partially succeeded"
+            - "418": "Auto-banned for repeated rate limit violations"
+            - "429": "Rate limit exceeded, needs to back off"
+            - "5XX": "Internal server errors"
         
         BinanceWebSocketClient:
           description: "Base class for Binance WebSocket API clients"
