@@ -107,13 +107,197 @@ binance_websocket_api:
             - _handle_reconnect: "Handle WebSocket reconnection"
             - _handle_close: "Handle WebSocket closure"
   
+  market_stream:
+  description: "WebSocket streams for market data from the Binance API"
+  classes:
+    MarketStreamClient:
+      description: "Client for accessing Binance Market WebSocket streams"
+      dependencies:
+        - BinanceWebSocketClient
+        - BinanceWebSocketConnection
+        - OrderBook
+        - Trade
+        - AggTrade
+        - Candle
+        - TickerPrice
+        - PriceStats
+        - RollingWindowStats
+      properties:
+        - callbacks: "Dictionary of stream callbacks by stream name"
+        - subscriptions: "Dictionary of active stream subscriptions"
+      methods:
+        - get_order_book:
+            description: "Get current order book for a symbol"
+            endpoint: "depth"
+            weight: "1-50 based on limit"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - limit: "Number of price levels (default 100, max 5000)"
+            returns: "OrderBook object with bids and asks"
+        - get_recent_trades:
+            description: "Get recent trades for a symbol"
+            endpoint: "trades.recent"
+            weight: 1
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - limit: "Number of trades (default 500, max 1000)"
+            returns: "List of Trade objects"
+        - get_historical_trades:
+            description: "Get historical trades for a symbol"
+            endpoint: "trades.historical"
+            weight: 5
+            security_type: "MARKET_DATA"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - fromId: "Trade ID to fetch from (optional)"
+              - limit: "Number of trades (default 500, max 1000)"
+            returns: "List of Trade objects"
+        - get_aggregate_trades:
+            description: "Get aggregate trades for a symbol"
+            endpoint: "trades.aggregate"
+            weight: 1
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - fromId: "Aggregate trade ID to fetch from (optional)"
+              - startTime: "Start time in milliseconds (optional)"
+              - endTime: "End time in milliseconds (optional)"
+              - limit: "Number of trades (default 500, max 1000)"
+            returns: "List of AggTrade objects"
+        - get_klines:
+            description: "Get klines/candlestick data for a symbol"
+            endpoint: "klines"
+            weight: 1
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - interval: "Kline interval (e.g., '1m', '1h', '1d')"
+              - startTime: "Start time in milliseconds (optional)"
+              - endTime: "End time in milliseconds (optional)"
+              - limit: "Number of candles (default 500, max 1000)"
+            returns: "List of Candle objects"
+        - get_avg_price:
+            description: "Get current average price for a symbol"
+            endpoint: "avgPrice"
+            weight: 1
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+            returns: "AvgPrice object"
+        - get_24hr_ticker:
+            description: "Get 24-hour price change statistics"
+            endpoint: "ticker.24hr"
+            weight: "1-40 based on number of symbols"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
+              - symbols: "List of symbols (optional)"
+              - type: "Ticker type: FULL or MINI (default FULL)"
+            returns: "PriceStats object or list of PriceStats objects"
+        - get_ticker:
+            description: "Get rolling window price change statistics"
+            endpoint: "ticker"
+            weight: "2 per symbol or 100 for 51-100 symbols"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - symbols: "List of symbols (optional)"
+              - windowSize: "Window size (e.g., '1d', '7d') (default '1d')"
+              - type: "Ticker type: FULL or MINI (default FULL)"
+            returns: "RollingWindowStats object or list of RollingWindowStats objects"
+        - get_price_ticker:
+            description: "Get latest price for a symbol or symbols"
+            endpoint: "ticker.price"
+            weight: "1-2 based on parameters"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
+              - symbols: "List of symbols (optional)"
+            returns: "TickerPrice object or list of TickerPrice objects"
+        - get_book_ticker:
+            description: "Get best bid/ask price and quantity"
+            endpoint: "ticker.book"
+            weight: "1-2 based on parameters"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
+              - symbols: "List of symbols (optional)"
+            returns: "OrderBookTicker object or list of OrderBookTicker objects"
+      stream_methods:
+        - subscribe_trade_stream:
+            description: "Subscribe to real-time trade updates for a symbol"
+            stream_name: "<symbol>@trade"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - callback: "Function to call on updates"
+            returns: "Subscription ID"
+        - subscribe_agg_trade_stream:
+            description: "Subscribe to aggregate trade updates for a symbol"
+            stream_name: "<symbol>@aggTrade"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - callback: "Function to call on updates"
+            returns: "Subscription ID"
+        - subscribe_kline_stream:
+            description: "Subscribe to kline/candlestick updates for a symbol"
+            stream_name: "<symbol>@kline_<interval>"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - interval: "Kline interval (e.g., '1m', '1h', '1d')"
+              - callback: "Function to call on updates"
+            returns: "Subscription ID"
+        - subscribe_mini_ticker_stream:
+            description: "Subscribe to 24hr mini ticker updates"
+            stream_name: "<symbol>@miniTicker or !miniTicker@arr"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') or None for all symbols"
+              - callback: "Function to call on updates"
+            returns: "Subscription ID"
+        - subscribe_ticker_stream:
+            description: "Subscribe to 24hr ticker updates"
+            stream_name: "<symbol>@ticker or !ticker@arr"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') or None for all symbols"
+              - callback: "Function to call on updates"
+            returns: "Subscription ID"
+        - subscribe_rolling_window_ticker_stream:
+            description: "Subscribe to rolling window ticker updates"
+            stream_name: "<symbol>@ticker_<window_size> or !ticker_<window-size>@arr"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') or None for all symbols"
+              - window_size: "Window size (e.g., '1d', '7d')"
+              - callback: "Function to call on updates"
+            returns: "Subscription ID"
+        - subscribe_book_ticker_stream:
+            description: "Subscribe to order book ticker updates"
+            stream_name: "<symbol>@bookTicker"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - callback: "Function to call on updates"
+            returns: "Subscription ID"
+        - subscribe_partial_book_depth_stream:
+            description: "Subscribe to partial book depth updates"
+            stream_name: "<symbol>@depth<levels>"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - levels: "Number of price levels (5, 10, or 20)"
+              - update_speed: "Update speed in ms (1000 or 100)"
+              - callback: "Function to call on updates"
+            returns: "Subscription ID"
+        - subscribe_diff_depth_stream:
+            description: "Subscribe to differential order book updates"
+            stream_name: "<symbol>@depth"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - update_speed: "Update speed in ms (1000 or 100)"
+              - callback: "Function to call on updates"
+            returns: "Subscription ID"
+  models:
+    OrderBookTicker:
+      description: "Data structure for best bid/ask price and quantity"
+      properties:
+        - symbol: "Trading pair symbol"
+        - bidPrice: "Best bid price"
+        - bidQty: "Best bid quantity"
+        - askPrice: "Best ask price"
+        - askQty: "Best ask quantity"
+    
   # Placeholder sections for future implementation
   # Will be populated based on actual documentation and code
-  
-  market_stream:
-    description: "TO BE IMPLEMENTED: WebSocket streams for market data"
-    # Will be populated based on Binance documentation and actual implementation
-    
+
   user_stream:
     description: "TO BE IMPLEMENTED: WebSocket streams for user data"
     # Will be populated based on Binance documentation and actual implementation
