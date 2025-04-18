@@ -1,0 +1,94 @@
+binance_websocket_api:
+  description: "API functions available in the CryptoTrader Binance WebSocket API implementation"
+  
+  dependencies:
+    - cryptotrader.config.Secrets
+    - cryptotrader.config.get_logger
+    - cryptotrader.services.binance.restAPI.base_operations.RateLimiter
+    - cryptotrader.services.binance.models.base_models.RateLimit
+    - cryptotrader.services.binance.models.base_models.RateLimitType
+    - cryptotrader.services.binance.models.base_models.RateLimitInterval
+  
+  core_components:
+    base_operations:
+      description: "Core WebSocket connection management and authentication"
+      classes:
+        SecurityType:
+          description: "Security types for Binance API endpoints"
+          type: "Enum"
+          values:
+            - NONE: "Public market data"
+            - TRADE: "Trading on the exchange (requires API key and signature)"
+            - USER_DATA: "Private account information (requires API key and signature)"
+            - USER_STREAM: "Managing user data stream (requires API key only)"
+            - MARKET_DATA: "Historical market data (requires API key only)"
+        
+        BinanceWebSocketConnection:
+          description: "Manages a WebSocket connection to the Binance API"
+          dependencies:
+            - websockets
+            - asyncio
+            - hmac, hashlib
+          properties:
+            - on_message: "Callback function for received messages"
+            - on_error: "Callback function for errors"
+            - on_reconnect: "Callback function when reconnection happens"
+            - on_close: "Callback function when connection closes"
+            - ping_interval: "How often to send ping frames (seconds)"
+            - pong_timeout: "How long to wait for pong response (seconds)"
+            - reconnect_attempts: "Maximum number of reconnection attempts"
+            - base_url: "Base URL for WebSocket API"
+            - return_rate_limits: "Whether to return rate limits in responses"
+            - websocket: "Active WebSocket connection"
+            - is_connected: "Connection state flag"
+            - is_closing: "Closing state flag"
+            - reconnect_count: "Current reconnection attempt count"
+            - rate_limiter: "Rate limit tracking instance"
+          methods:
+            - connect: "Establish WebSocket connection"
+            - close: "Close the WebSocket connection"
+            - send: "Send a message to the WebSocket server"
+            - send_signed: "Send a signed message to the WebSocket server"
+          internal_methods:
+            - _ping_loop: "Send periodic pings to keep connection alive"
+            - _receive_loop: "Receive and process incoming WebSocket messages"
+            - _reconnect: "Handle reconnection after connection loss"
+            - _update_rate_limits: "Update rate limit counters from WebSocket response"
+            - _handle_error: "Handle error responses from WebSocket"
+            - _monitor_connection_age: "Monitor connection age for 24h limit"
+        
+        BinanceWebSocketClient:
+          description: "Base class for Binance WebSocket API clients"
+          dependencies:
+            - BinanceWebSocketConnection
+          properties:
+            - connections: "Dictionary of active connections"
+            - callbacks: "Dictionary of message callbacks"
+            - response_handlers: "Dictionary of response handlers"
+          methods:
+            - close_all_connections: "Close all active WebSocket connections"
+          internal_methods:
+            - _create_connection: "Create a new WebSocket connection"
+            - _handle_message: "Handle received WebSocket message"
+            - _handle_error: "Handle WebSocket error"
+            - _handle_reconnect: "Handle WebSocket reconnection"
+            - _handle_close: "Handle WebSocket closure"
+  
+  # Placeholder sections for future implementation
+  # Will be populated based on actual documentation and code
+  
+  market_stream:
+    description: "TO BE IMPLEMENTED: WebSocket streams for market data"
+    # Will be populated based on Binance documentation and actual implementation
+    
+  user_stream:
+    description: "TO BE IMPLEMENTED: WebSocket streams for user data"
+    # Will be populated based on Binance documentation and actual implementation
+    
+  order_stream:
+    description: "TO BE IMPLEMENTED: WebSocket API for trading operations"
+    # Will be populated based on Binance documentation and actual implementation
+    
+  combined_streams:
+    description: "TO BE IMPLEMENTED: Multiple WebSocket streams over a single connection"
+    # Will be populated based on Binance documentation and actual implementation
