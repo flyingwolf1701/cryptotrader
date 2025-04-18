@@ -89,223 +89,353 @@ binance_websocket_api:
             - "418": "Auto-banned for repeated rate limit violations"
             - "429": "Rate limit exceeded, needs to back off"
             - "5XX": "Internal server errors"
-        
-        BinanceWebSocketClient:
-          description: "Base class for Binance WebSocket API clients"
-          dependencies:
-            - BinanceWebSocketConnection
-          properties:
-            - connections: "Dictionary of active connections"
-            - callbacks: "Dictionary of message callbacks"
-            - response_handlers: "Dictionary of response handlers"
-          methods:
-            - close_all_connections: "Close all active WebSocket connections"
-          internal_methods:
-            - _create_connection: "Create a new WebSocket connection"
-            - _handle_message: "Handle received WebSocket message"
-            - _handle_error: "Handle WebSocket error"
-            - _handle_reconnect: "Handle WebSocket reconnection"
-            - _handle_close: "Handle WebSocket closure"
   
-  market_stream:
-  description: "WebSocket streams for market data from the Binance API"
-  classes:
-    MarketStreamClient:
-      description: "Client for accessing Binance Market WebSocket streams"
-      dependencies:
-        - BinanceWebSocketClient
-        - BinanceWebSocketConnection
-        - OrderBook
-        - Trade
-        - AggTrade
-        - Candle
-        - TickerPrice
-        - PriceStats
-        - RollingWindowStats
-      properties:
-        - callbacks: "Dictionary of stream callbacks by stream name"
-        - subscriptions: "Dictionary of active stream subscriptions"
-      methods:
-        - get_order_book:
-            description: "Get current order book for a symbol"
-            endpoint: "depth"
-            weight: "1-50 based on limit"
+  account_requests:
+    description: "WebSocket requests for account data from the Binance API"
+    modules:
+      acct_oco_history:
+        description: "Retrieve OCO order history"
+        requests:
+          get_oco_history:
+            description: "Get historical OCO orders for an account"
+            endpoint: "allOrderList"
+            weight: 10
+            security_type: "USER_DATA"
+            parameters:
+              - fromId: "OCO order ID to fetch from (optional)"
+              - startTime: "Start time in milliseconds (optional)"
+              - endTime: "End time in milliseconds (optional)"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of OCO order details"
+      
+      acct_order_history:
+        description: "Retrieve order history"
+        requests:
+          get_order_history:
+            description: "Get historical orders for an account"
+            endpoint: "allOrders"
+            weight: 10
+            security_type: "USER_DATA"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
-              - limit: "Number of price levels (default 100, max 5000)"
-            returns: "OrderBook object with bids and asks"
-        - get_recent_trades:
-            description: "Get recent trades for a symbol"
-            endpoint: "trades.recent"
-            weight: 1
+              - orderId: "Order ID to fetch from (optional)"
+              - startTime: "Start time in milliseconds (optional)"
+              - endTime: "End time in milliseconds (optional)"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of order details"
+      
+      acct_prevented_matches:
+        description: "Retrieve self-trade prevention matches"
+        requests:
+          get_prevented_matches:
+            description: "Get prevented matches due to self-trade prevention"
+            endpoint: "myPreventedMatches"
+            weight: 10
+            security_type: "USER_DATA"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
-              - limit: "Number of trades (default 500, max 1000)"
-            returns: "List of Trade objects"
-        - get_historical_trades:
-            description: "Get historical trades for a symbol"
-            endpoint: "trades.historical"
-            weight: 5
-            security_type: "MARKET_DATA"
+              - preventedMatchId: "Prevented match ID to fetch from (optional)"
+              - orderId: "Order ID (optional)"
+              - fromPreventedMatchId: "Prevented match ID to fetch from (optional)"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of prevented match details"
+      
+      acct_trade_history:
+        description: "Retrieve trade history"
+        requests:
+          get_trade_history:
+            description: "Get trade history for an account"
+            endpoint: "myTrades"
+            weight: 10
+            security_type: "USER_DATA"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - orderId: "Order ID (optional)"
+              - startTime: "Start time in milliseconds (optional)"
+              - endTime: "End time in milliseconds (optional)"
               - fromId: "Trade ID to fetch from (optional)"
-              - limit: "Number of trades (default 500, max 1000)"
-            returns: "List of Trade objects"
-        - get_aggregate_trades:
-            description: "Get aggregate trades for a symbol"
-            endpoint: "trades.aggregate"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of trade details"
+      
+      get_order_rate_limits:
+        description: "Retrieve order rate limits"
+        requests:
+          get_order_rate_limits:
+            description: "Get current order rate limits for all time intervals"
+            endpoint: "rateLimit.order"
+            weight: 20
+            security_type: "USER_DATA"
+            parameters: []
+            returns: "List of rate limit information"
+      
+      get_user_acct_info:
+        description: "Retrieve user account information"
+        requests:
+          get_account_info:
+            description: "Get current account information including balances"
+            endpoint: "account"
+            weight: 10
+            security_type: "USER_DATA"
+            parameters: []
+            returns: "Account information with balances"
+  
+  market_data_requests:
+    description: "WebSocket requests for market data from the Binance API"
+    modules:
+      aggregate_trades:
+        description: "Retrieve aggregate trades data"
+        requests:
+          get_aggregate_trades:
+            description: "Get aggregate trades data for a symbol"
+            endpoint: "aggTrades"
             weight: 1
+            security_type: "NONE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
               - fromId: "Aggregate trade ID to fetch from (optional)"
               - startTime: "Start time in milliseconds (optional)"
               - endTime: "End time in milliseconds (optional)"
-              - limit: "Number of trades (default 500, max 1000)"
-            returns: "List of AggTrade objects"
-        - get_klines:
-            description: "Get klines/candlestick data for a symbol"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of aggregate trade data"
+      
+      current_average_price:
+        description: "Retrieve current average price"
+        requests:
+          get_avg_price:
+            description: "Get current average price for a symbol"
+            endpoint: "avgPrice"
+            weight: 1
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+            returns: "Average price information"
+      
+      historical_trades:
+        description: "Retrieve historical trades"
+        requests:
+          get_historical_trades:
+            description: "Get historical trades for a symbol"
+            endpoint: "historicalTrades"
+            weight: 5
+            security_type: "MARKET_DATA"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - fromId: "Trade ID to fetch from (optional)"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of historical trades"
+      
+      klines:
+        description: "Retrieve kline/candlestick data"
+        requests:
+          get_klines:
+            description: "Get kline/candlestick data for a symbol"
             endpoint: "klines"
             weight: 1
+            security_type: "NONE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
               - interval: "Kline interval (e.g., '1m', '1h', '1d')"
               - startTime: "Start time in milliseconds (optional)"
               - endTime: "End time in milliseconds (optional)"
-              - limit: "Number of candles (default 500, max 1000)"
-            returns: "List of Candle objects"
-        - get_avg_price:
-            description: "Get current average price for a symbol"
-            endpoint: "avgPrice"
-            weight: 1
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of kline/candlestick data"
+      
+      order_book:
+        description: "Retrieve order book data"
+        requests:
+          get_order_book:
+            description: "Get order book for a symbol"
+            endpoint: "depth"
+            weight: "1-50 based on limit"
+            security_type: "NONE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
-            returns: "AvgPrice object"
-        - get_24hr_ticker:
-            description: "Get 24-hour price change statistics"
-            endpoint: "ticker.24hr"
-            weight: "1-40 based on number of symbols"
+              - limit: "Number of price levels (default 100, max 5000)"
+            returns: "Order book data with bids and asks"
+      
+      recent_trades:
+        description: "Retrieve recent trades"
+        requests:
+          get_recent_trades:
+            description: "Get recent trades for a symbol"
+            endpoint: "trades"
+            weight: 1
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of recent trades"
+      
+      rolling_window_price:
+        description: "Retrieve rolling window price statistics"
+        requests:
+          get_rolling_window_stats:
+            description: "Get price statistics for a rolling window"
+            endpoint: "ticker"
+            weight: "1-40 based on parameters"
+            security_type: "NONE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
               - symbols: "List of symbols (optional)"
-              - type: "Ticker type: FULL or MINI (default FULL)"
-            returns: "PriceStats object or list of PriceStats objects"
-        - get_ticker:
-            description: "Get rolling window price change statistics"
-            endpoint: "ticker"
-            weight: "2 per symbol or 100 for 51-100 symbols"
-            parameters:
-              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
-              - symbols: "List of symbols (optional)"
               - windowSize: "Window size (e.g., '1d', '7d') (default '1d')"
-              - type: "Ticker type: FULL or MINI (default FULL)"
-            returns: "RollingWindowStats object or list of RollingWindowStats objects"
-        - get_price_ticker:
+              - type: "Stats type (FULL or MINI) (default FULL)"
+            returns: "Rolling window price statistics"
+      
+      symbol_order_book_ticker:
+        description: "Retrieve order book ticker"
+        requests:
+          get_book_ticker:
+            description: "Get best bid/ask price and quantity"
+            endpoint: "ticker.bookTicker"
+            weight: "1-2 based on parameters"
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
+              - symbols: "List of symbols (optional)"
+            returns: "Book ticker with best bid/ask information"
+      
+      symbol_price_ticker:
+        description: "Retrieve price ticker"
+        requests:
+          get_price_ticker:
             description: "Get latest price for a symbol or symbols"
             endpoint: "ticker.price"
             weight: "1-2 based on parameters"
+            security_type: "NONE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
               - symbols: "List of symbols (optional)"
-            returns: "TickerPrice object or list of TickerPrice objects"
-        - get_book_ticker:
-            description: "Get best bid/ask price and quantity"
-            endpoint: "ticker.book"
-            weight: "1-2 based on parameters"
+            returns: "Price ticker information"
+      
+      ticker_price_24h:
+        description: "Retrieve 24-hour price statistics"
+        requests:
+          get_24h_ticker:
+            description: "Get 24-hour price change statistics"
+            endpoint: "ticker.24hr"
+            weight: "1-40 based on parameters"
+            security_type: "NONE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
               - symbols: "List of symbols (optional)"
-            returns: "OrderBookTicker object or list of OrderBookTicker objects"
-      stream_methods:
-        - subscribe_trade_stream:
-            description: "Subscribe to real-time trade updates for a symbol"
-            stream_name: "<symbol>@trade"
+              - type: "Stats type (FULL or MINI) (default FULL)"
+            returns: "24-hour price statistics"
+  
+  trading_requests:
+    description: "WebSocket requests for trading operations"
+    modules:
+      cancel_oco_order:
+        description: "Cancel OCO order"
+        requests:
+          cancel_oco_order:
+            description: "Cancel an existing OCO order"
+            endpoint: "orderList"
+            weight: 1
+            security_type: "TRADE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
-              - callback: "Function to call on updates"
-            returns: "Subscription ID"
-        - subscribe_agg_trade_stream:
-            description: "Subscribe to aggregate trade updates for a symbol"
-            stream_name: "<symbol>@aggTrade"
+              - orderListId: "OCO order list ID (optional if using clientOrderId)"
+              - listClientOrderId: "Client order list ID (optional if using orderListId)"
+              - newClientOrderId: "New client order ID for the cancel (optional)"
+            returns: "Cancelled OCO order information"
+      
+      cancel_open_orders:
+        description: "Cancel all open orders"
+        requests:
+          cancel_open_orders:
+            description: "Cancel all open orders on a symbol"
+            endpoint: "openOrders"
+            weight: 1
+            security_type: "TRADE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
-              - callback: "Function to call on updates"
-            returns: "Subscription ID"
-        - subscribe_kline_stream:
-            description: "Subscribe to kline/candlestick updates for a symbol"
-            stream_name: "<symbol>@kline_<interval>"
+            returns: "List of cancelled orders"
+      
+      cancel_order:
+        description: "Cancel an existing order"
+        requests:
+          cancel_order:
+            description: "Cancel an existing order"
+            endpoint: "order"
+            weight: 1
+            security_type: "TRADE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
-              - interval: "Kline interval (e.g., '1m', '1h', '1d')"
-              - callback: "Function to call on updates"
-            returns: "Subscription ID"
-        - subscribe_mini_ticker_stream:
-            description: "Subscribe to 24hr mini ticker updates"
-            stream_name: "<symbol>@miniTicker or !miniTicker@arr"
-            parameters:
-              - symbol: "Trading symbol (e.g., 'BTCUSDT') or None for all symbols"
-              - callback: "Function to call on updates"
-            returns: "Subscription ID"
-        - subscribe_ticker_stream:
-            description: "Subscribe to 24hr ticker updates"
-            stream_name: "<symbol>@ticker or !ticker@arr"
-            parameters:
-              - symbol: "Trading symbol (e.g., 'BTCUSDT') or None for all symbols"
-              - callback: "Function to call on updates"
-            returns: "Subscription ID"
-        - subscribe_rolling_window_ticker_stream:
-            description: "Subscribe to rolling window ticker updates"
-            stream_name: "<symbol>@ticker_<window_size> or !ticker_<window-size>@arr"
-            parameters:
-              - symbol: "Trading symbol (e.g., 'BTCUSDT') or None for all symbols"
-              - window_size: "Window size (e.g., '1d', '7d')"
-              - callback: "Function to call on updates"
-            returns: "Subscription ID"
-        - subscribe_book_ticker_stream:
-            description: "Subscribe to order book ticker updates"
-            stream_name: "<symbol>@bookTicker"
+              - orderId: "Order ID (optional if using clientOrderId)"
+              - origClientOrderId: "Original client order ID (optional if using orderId)"
+              - newClientOrderId: "New client order ID for the cancel (optional)"
+            returns: "Cancelled order information"
+      
+      create_new_oco_order:
+        description: "Create a new OCO order"
+        requests:
+          create_oco_order:
+            description: "Create a new OCO (One-Cancels-the-Other) order"
+            endpoint: "order.oco"
+            weight: 1
+            security_type: "TRADE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
-              - callback: "Function to call on updates"
-            returns: "Subscription ID"
-        - subscribe_partial_book_depth_stream:
-            description: "Subscribe to partial book depth updates"
-            stream_name: "<symbol>@depth<levels>"
+              - side: "Order side (BUY or SELL)"
+              - quantity: "Order quantity"
+              - price: "Limit order price"
+              - stopPrice: "Stop order price"
+              - stopLimitPrice: "Stop limit order price (optional)"
+              - stopLimitTimeInForce: "Time in force for stop limit order (optional)"
+              - listClientOrderId: "Client order list ID (optional)"
+              - limitClientOrderId: "Client order ID for limit order (optional)"
+              - stopClientOrderId: "Client order ID for stop order (optional)"
+              - newOrderRespType: "Response type (ACK, RESULT, FULL) (optional)"
+            returns: "New OCO order information"
+      
+      current_open_orders:
+        description: "Get current open orders"
+        requests:
+          get_open_orders:
+            description: "Get all open orders on a symbol or all symbols"
+            endpoint: "openOrders"
+            weight: "1-40 based on parameters"
+            security_type: "USER_DATA"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
+            returns: "List of open orders"
+      
+      get_oco_order:
+        description: "Get OCO order details"
+        requests:
+          get_oco_order:
+            description: "Get details of a specific OCO order"
+            endpoint: "orderList"
+            weight: 2
+            security_type: "USER_DATA"
+            parameters:
+              - orderListId: "OCO order list ID (optional if using origClientOrderId)"
+              - origClientOrderId: "Original client order list ID (optional if using orderListId)"
+            returns: "OCO order details"
+      
+      get_open_oco_orders:
+        description: "Get all open OCO orders"
+        requests:
+          get_open_oco_orders:
+            description: "Get all open OCO orders"
+            endpoint: "openOrderList"
+            weight: 3
+            security_type: "USER_DATA"
+            parameters: []
+            returns: "List of open OCO orders"
+      
+      place_new_order:
+        description: "Place a new order"
+        requests:
+          place_order:
+            description: "Place a new order"
+            endpoint: "order"
+            weight: 1
+            security_type: "TRADE"
             parameters:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
-              - levels: "Number of price levels (5, 10, or 20)"
-              - update_speed: "Update speed in ms (1000 or 100)"
-              - callback: "Function to call on updates"
-            returns: "Subscription ID"
-        - subscribe_diff_depth_stream:
-            description: "Subscribe to differential order book updates"
-            stream_name: "<symbol>@depth"
-            parameters:
-              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
-              - update_speed: "Update speed in ms (1000 or 100)"
-              - callback: "Function to call on updates"
-            returns: "Subscription ID"
-  models:
-    OrderBookTicker:
-      description: "Data structure for best bid/ask price and quantity"
-      properties:
-        - symbol: "Trading pair symbol"
-        - bidPrice: "Best bid price"
-        - bidQty: "Best bid quantity"
-        - askPrice: "Best ask price"
-        - askQty: "Best ask quantity"
-    
-  # Placeholder sections for future implementation
-  # Will be populated based on actual documentation and code
-
-  user_stream:
-    description: "TO BE IMPLEMENTED: WebSocket streams for user data"
-    # Will be populated based on Binance documentation and actual implementation
-    
-  order_stream:
-    description: "TO BE IMPLEMENTED: WebSocket API for trading operations"
-    # Will be populated based on Binance documentation and actual implementation
-    
-  combined_streams:
-    description: "TO BE IMPLEMENTED: Multiple WebSocket streams over a single connection"
-    # Will be populated based on Binance documentation and actual implementation
+              - side: "Order side (BUY or SELL)"
+              - type: "Order type (LIMIT, MARKET, STOP_LOSS, etc.)"
+              - timeInForce: "Time in force (GTC, IOC, FOK) (optional)"
+              - quantity: "Order quantity (optional)"
+              - quoteOrderQty: "
