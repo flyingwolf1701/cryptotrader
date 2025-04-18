@@ -63,18 +63,24 @@ class BinanceWebSocketConnection:
                 base_url: str = "wss://ws-api.binance.us:443",
                 return_rate_limits: bool = True):
         """
-        Initialize a new WebSocket connection.
+        Initialize a new WebSocket connection to the Binance WebSocket API.
+        
+        The Binance WebSocket API allows for lower-latency communications compared
+        to REST API endpoints. This connection handles authentication, rate limiting,
+        reconnection logic, and message handling.
         
         Args:
             on_message: Callback function for received messages
             on_error: Callback function for errors
             on_reconnect: Callback function when reconnection happens
             on_close: Callback function when connection closes
-            ping_interval: How often to send ping frames (seconds)
-            pong_timeout: How long to wait for pong response (seconds)
+            ping_interval: How often to send ping frames (seconds), default 180s (3 minutes)
+                           Server expects pong responses within 10 minutes
+            pong_timeout: How long to wait for pong response (seconds), default 10s
             reconnect_attempts: Maximum number of reconnection attempts
-            base_url: Base URL for WebSocket API
-            return_rate_limits: Whether to return rate limits in responses
+            base_url: Base URL for WebSocket API, default is wss://ws-api.binance.us:443
+                      Alternative port 9443 is also available if needed
+            return_rate_limits: Whether to return rate limits in responses, default True
         """
         self.on_message = on_message
         self.on_error = on_error
@@ -109,7 +115,14 @@ class BinanceWebSocketConnection:
     
     async def connect(self) -> bool:
         """
-        Establish WebSocket connection.
+        Establish WebSocket connection to Binance WebSocket API.
+        
+        This method connects to the Binance WebSocket API endpoint and sets up
+        the necessary tasks for handling messages, ping/pong keep-alive, and
+        connection monitoring. The API connection is valid for 24 hours max.
+        
+        Rate limit: 1 weight per connection
+        Method: None (connection establishment)
         
         Returns:
             True if connection successful, False otherwise
@@ -132,8 +145,19 @@ class BinanceWebSocketConnection:
         try:
             # Build URL with rate limit parameter if needed
             url = self.base_url + "/ws-api/v3"
-            if not self.return_rate_limits:
-                url += "?returnRateLimits=false"
+            
+            # Check for returnRateLimits parameter in URL or from instance
+            parsed_url = urlparse(url)
+            query_params = parse_qs(parsed_url.query)
+            
+            # If there's already a query string, append our parameter
+            if parsed_url.query:
+                if 'returnRateLimits' not in query_params and not self.return_rate_limits:
+                    url += "&returnRateLimits=false"
+            else:
+                # No existing query parameters
+                if not self.return_rate_limits:
+                    url += "?returnRateLimits=false"
                 
             # Create connection with ping/pong control
             self.websocket = await websockets.connect(
@@ -154,7 +178,7 @@ class BinanceWebSocketConnection:
             self.receive_task = asyncio.create_task(self._receive_loop())
             self.connection_monitoring_task = asyncio.create_task(self._monitor_connection_age())
             
-            logger.info("WebSocket connection established")
+            logger.info(f"WebSocket connection established to {url}")
             return True
             
         except Exception as e:
@@ -342,7 +366,16 @@ class BinanceWebSocketConnection:
     
     async def _handle_error(self, message: Dict[str, Any]):
         """
-        Handle error responses from WebSocket.
+        Handle error responses from WebSocket API.
+        
+        Processes error messages and handles specific status codes according to 
+        Binance WebSocket API documentation:
+        - 400: Invalid request, issue is on client side
+        - 403: Blocked by Web Application Firewall
+        - 409: Request partially failed but also partially succeeded
+        - 418: Auto-banned for repeated rate limit violations
+        - 429: Rate limit exceeded, needs to back off
+        - 5xx: Internal server errors, issue is on Binance side
         
         Args:
             message: Error message from WebSocket
@@ -361,11 +394,18 @@ class BinanceWebSocketConnection:
                 if 'serverTime' in data:
                     server_time = data['serverTime']
             
-            # Handle specific status codes
-            if status == 403:
+            # Handle specific status codes based on Binance documentation
+            if status == 400:
+                logger.error(f"WebSocket error: Bad request - {msg}")
+            elif status == 403:
                 logger.error("WebSocket error: Blocked by Web Application Firewall")
             elif status == 409:
-                logger.warning("WebSocket error: Request partially failed")
+                # Handle partial success case
+                logger.warning(f"WebSocket error: Request partially succeeded - {msg}")
+                # Additional logic for handling partial success could be added here
+                # For example, examine the result part of the response if present
+                if 'result' in message:
+                    logger.info(f"Partial success result: {message['result']}")
             elif status == 418:
                 # IP ban
                 logger.error("WebSocket error: Auto-banned for rate limit violations")
@@ -381,7 +421,9 @@ class BinanceWebSocketConnection:
                     logger.warning(f"Rate limit exceeded, retry after: {self.retry_after} (in {retry_seconds:.1f} seconds)")
             elif status >= 500:
                 logger.error(f"WebSocket error: Internal server error (status {status})")
-                # For 5xx errors, consider checking request status separately
+                # For 5xx errors, request status is unknown
+                # Consider checking request status separately via REST API if critical
+                logger.warning("For 5xx errors, request execution status is unknown; consider checking status separately")
                 
             logger.error(f"WebSocket error (code {code}, status {status}): {msg}")
             
@@ -393,7 +435,29 @@ class BinanceWebSocketConnection:
                   security_type: SecurityType = SecurityType.NONE,
                   return_rate_limits: Optional[bool] = None) -> str:
         """
-        Send a message to the WebSocket server.
+        Send a message to the Binance WebSocket API server.
+        
+        This method builds and sends a WebSocket request to call any of the Binance
+        WebSocket API methods. It handles security requirements based on the endpoint
+        type, and manages rate limit tracking.
+        
+        Common API methods:
+        - "ping": Test connectivity (weight 1)
+        - "time": Get server time (weight 1)
+        - "exchangeInfo": Get exchange information (weight 10)
+        - "ticker.price": Get latest price for a symbol (weight 1-2)
+        - "ticker.24hr": Get 24hr ticker price change statistics (weight 1-40)
+        - "depth": Get order book (weight 1-10)
+        - "trades.recent": Get recent trades (weight 1)
+        - "trades.historical": Get historical trades (weight 5)
+        - "trades.aggregate": Get aggregate trades (weight 1)
+        - "klines": Get kline/candlestick data (weight 1-2)
+        - "order.place": Place new order (weight 1, requires TRADE permission)
+        - "order.test": Test new order (weight 1, requires TRADE permission)
+        - "order.status": Check order status (weight 2, requires USER_DATA permission)
+        - "order.cancel": Cancel order (weight 1, requires TRADE permission)
+        - "order.cancelReplace": Cancel and replace order (weight 1, requires TRADE permission)
+        - "account.status": Get account status (weight 10, requires USER_DATA permission)
         
         Args:
             method: API method to call
@@ -403,6 +467,10 @@ class BinanceWebSocketConnection:
             
         Returns:
             Message ID that can be used to match the response
+            
+        Raises:
+            ConnectionError: If WebSocket is not connected
+            Exception: If IP banned or rate limited
         """
         if not self.is_connected:
             raise ConnectionError("WebSocket is not connected")
@@ -452,20 +520,31 @@ class BinanceWebSocketConnection:
             
         # Send the message
         await self.websocket.send(json.dumps(message))
+        logger.debug(f"Sent WebSocket request: method={method}, id={msg_id}")
         return msg_id
     
     async def send_signed(self, method: str, params: Optional[Dict[str, Any]] = None,
                        return_rate_limits: Optional[bool] = None) -> str:
         """
-        Send a signed message to the WebSocket server.
+        Send a signed message to the Binance WebSocket API server.
+        
+        This method is used for authenticated requests that require signing with the API secret.
+        It automatically adds the required timestamp and signature to the request parameters.
+        
+        Signed endpoints require both an API key and a signature. The signature is computed using
+        HMAC-SHA256 on a sorted query string of all parameters.
         
         Args:
-            method: API method to call
+            method: API method to call (e.g., "order.place", "account.status")
             params: Parameters for the method
             return_rate_limits: Override default setting for returning rate limits
             
         Returns:
             Message ID that can be used to match the response
+            
+        Raises:
+            ConnectionError: If WebSocket is not connected
+            Exception: If IP banned or rate limited
         """
         if not self.is_connected:
             raise ConnectionError("WebSocket is not connected")
@@ -520,10 +599,16 @@ class BinanceWebSocketConnection:
             
         # Send the message
         await self.websocket.send(json.dumps(message))
+        logger.debug(f"Sent signed WebSocket request: method={method}, id={msg_id}")
         return msg_id
     
     async def close(self):
-        """Close the WebSocket connection."""
+        """
+        Close the WebSocket connection.
+        
+        This method gracefully closes the WebSocket connection, cancels all 
+        associated tasks, and notifies via the on_close callback if provided.
+        """
         if not self.is_connected:
             return
             
@@ -560,6 +645,7 @@ class BinanceWebSocketClient:
     Base class for Binance WebSocket API clients.
     
     Provides common functionality for specific WebSocket client implementations.
+    This serves as a foundation for market, user, and trading stream clients.
     """
     
     def __init__(self):
