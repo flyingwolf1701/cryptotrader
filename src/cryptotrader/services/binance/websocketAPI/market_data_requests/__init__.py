@@ -29,6 +29,12 @@ from cryptotrader.services.binance.websocketAPI.market_data_requests.historical_
     process_historical_trades_response
 )
 
+# klines.py
+from cryptotrader.services.binance.websocketAPI.market_data_requests.klines import (
+    get_klines,
+    process_klines_response
+)
+
 __all__ = [
     # Base operations
     'BinanceWebSocketConnection',
@@ -44,5 +50,9 @@ __all__ = [
     
     # historical_trades.py
     'get_historical_trades',
-    'process_historical_trades_response'
+    'process_historical_trades_response',
+    
+    # klines.py
+    'get_klines',
+    'process_klines_response'
 ]
