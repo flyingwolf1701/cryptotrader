@@ -1,0 +1,125 @@
+binance_websocket_user_data_stream_api:
+description: "API functions for managing User Data Stream in the CryptoTrader Binance WebSocket API implementation"
+
+dependencies:
+- cryptotrader.config.Secrets
+- cryptotrader.config.get_logger
+- cryptotrader.services.binance.websocketAPI.base_operations.BinanceWebSocketConnection
+- cryptotrader.services.binance.websocketAPI.base_operations.SecurityType
+
+user_data_stream_requests:
+description: "WebSocket requests for managing User Data Stream from the Binance API"
+modules:
+start_user_data_stream:
+description: "Start a new user data stream"
+requests:
+start_user_data_stream:
+description: "Start a new user data stream to receive account updates"
+endpoint: "userDataStream.start"
+weight: 1
+security_type: "USER_STREAM"
+parameters: []  # API key is automatically added by the connection handler
+returns: "Listen key to subscribe to on a separate WebSocket connection"
+data_source: "Memory"
+notes:
+- "The stream will close after 60 minutes unless ping requests are sent regularly"
+- "The listenKey should be used with a separate WebSocket connection for receiving account updates"
+- "User data streams provide real-time account update events"
+
+ping_user_data_stream:
+  description: "Ping a user data stream to keep it alive"
+  requests:
+    ping_user_data_stream:
+      description: "Ping a user data stream to prevent it from closing"
+      endpoint: "userDataStream.ping"
+      weight: 1
+      security_type: "USER_STREAM"
+      parameters:
+        - listenKey: "Listen key of the user data stream to keep alive"
+      returns: "Empty response object on success"
+      data_source: "Memory"
+      notes:
+        - "User data streams close automatically after 60 minutes, even if you're actively listening to them"
+        - "It is recommended to send a ping once every 30 minutes"
+        - "The ping request extends the validity of the listenKey for 60 minutes"
+
+stop_user_data_stream:
+  description: "Explicitly stop and close a user data stream"
+  requests:
+    stop_user_data_stream:
+      description: "Stop and close a user data stream when no longer needed"
+      endpoint: "userDataStream.stop"
+      weight: 1
+      security_type: "USER_STREAM"
+      parameters:
+        - listenKey: "Listen key of the user data stream to stop"
+      returns: "Empty response object on success"
+      data_source: "Memory"
+      notes:
+        - "This will invalidate the listenKey and close any open WebSocket connections using it"
+        - "It's a good practice to stop streams when they're no longer needed to free up server resources"
+response_formats:
+start_user_data_stream:
+description: "Start user data stream response format"
+example: |
+{
+"id": "d3df8a61-98ea-4fe0-8f4e-0fcea5d418b0",
+"status": 200,
+"result": {
+"listenKey": "xs0mRXdAKlIPDRFrlPcw0qI41Eh3ixNntmymGyhrhgqo7L6FuLaWArTD7RLP"
+},
+"rateLimits": [
+{
+"rateLimitType": "REQUEST_WEIGHT",
+"interval": "MINUTE",
+"intervalNum": 1,
+"limit": 1200,
+"count": 1
+}
+]
+}
+
+ping_user_data_stream:
+  description: "Ping user data stream response format"
+  example: |
+    {
+      "id": "815d5fce-0880-4287-a567-80badf004c74",
+      "status": 200,
+      "response": {},
+      "rateLimits": [
+        {
+          "rateLimitType": "REQUEST_WEIGHT",
+          "interval": "MINUTE",
+          "intervalNum": 1,
+          "limit": 1200,
+          "count": 1
+        }
+      ]
+    }
+
+stop_user_data_stream:
+  description: "Stop user data stream response format"
+  example: |
+    {
+      "id": "819e1b1b-8c06-485b-a13e-131326c69599",
+      "status": 200,
+      "response": {},
+      "rateLimits": [
+        {
+          "rateLimitType": "REQUEST_WEIGHT",
+          "interval": "MINUTE",
+          "intervalNum": 1,
+          "limit": 1200,
+          "count": 1
+        }
+      ]
+    }
+usage_workflow:
+description: "Typical workflow for using user data streams"
+steps:
+- "Call start_user_data_stream to obtain a listenKey"
+- "Connect to the User Data Stream WebSocket endpoint (wss://stream.binance.us:443) with the listenKey in the URL"
+- "Set up a regular ping every 30 minutes to keep the stream alive"
+- "Process account updates received on the WebSocket connection"
+- "When finished, call stop_user_data_stream to explicitly close the stream"
+
