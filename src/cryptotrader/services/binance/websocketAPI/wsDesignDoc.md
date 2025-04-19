@@ -1,6 +1,7 @@
 Binance WebSocket API Design Document
 Overview
 This document outlines the design and implementation patterns for the Binance WebSocket API client. The WebSocket API provides real-time data and trading operations with lower latency compared to REST API endpoints. This implementation complements the existing REST API client while following similar design principles.
+
 Project Structure and Naming Conventions
 src/cryptotrader/services/binance/websocketAPI/
 ├── __init__.py                                    # Main package exports
@@ -43,22 +44,32 @@ src/cryptotrader/services/binance/websocketAPI/
 │   ├── ping_user_data_stream.py                   # Ping user data stream requests
 │   ├── start_user_data_stream.py                  # Start user data stream requests
 │   └── stop_user_data_stream.py                   # Stop user data stream requests
-└── diagnostic_scripts/                            # WebSocket testing scripts
-    ├── binance_websocket_diagnostic.py            # Tests for base operations
-    ├── account_requests_diagnostic.py             # Tests for account requests
-    ├── market_data_requests_diagnostic.py         # Tests for market data requests
-    ├── trading_requests_diagnostic.py             # Tests for trading requests
-    └── user_data_stream_requests_diagnostic.py    # Tests for user data stream
+└── diagnostic_scripts/                            # WebSocket testing scripts parent directory
+    ├── account_diagnostics/                       # Diagnostic scripts for account requests
+    │   └── account_requests_diagnostic.py         # Tests for account requests
+    ├── market_diagnostics/                        # Diagnostic scripts for market data requests
+    │   └── order_book_diagnostic.py               # Tests for order book requests
+    ├── trading_diagnostics/                       # Diagnostic scripts for trading requests
+    │   └── trading_requests_diagnostic.py         # Tests for trading requests
+    ├── user_stream_diagnostics/                   # Diagnostic scripts for user data stream
+    │   └── user_data_stream_requests_diagnostic.py # Tests for user data stream
+    └── binance_websocket_diagnostic.py            # Tests for base operations
 We follow these naming conventions:
 
 Request-specific implementations use the Binance API method names as closely as possible (e.g., get_user_acct_info.py, place_new_order.py)
 Requests are organized by functional category in dedicated directories (e.g., account_requests, market_data_requests)
-Each request category has a corresponding diagnostic script with a _diagnostic.py suffix
-Diagnostic scripts are stored in the diagnostic_scripts directory
-
+Each request category has a corresponding diagnostic script subdirectory that matches the module structure with a slightly different naming pattern:
+account_requests → account_diagnostics
+market_data_requests → market_diagnostics
+trading_requests → trading_diagnostics
+user_data_stream_requests → user_stream_diagnostics
+Diagnostic scripts are stored in the diagnostic_scripts directory with subdirectories as outlined above
+Each diagnostic script follows the pattern *_diagnostic.py
 Request Implementation Pattern
 When implementing a new WebSocket API request, follow this pattern:
-python"""
+
+python
+"""
 Binance WebSocket API [Method Name] Request
 
 This module provides functionality to [brief description of what the request does].
@@ -114,7 +125,20 @@ async def process_request(
     
     return msg_id
 Diagnostic Scripts
-Each component of the WebSocket API should have a corresponding diagnostic script that tests its functionality. All diagnostic scripts should follow the design pattern established in binance_websocket_diagnostic.py, which serves as the reference implementation.
+Each component of the WebSocket API should have a corresponding diagnostic script that tests its functionality. Diagnostic scripts are now organized in a directory structure that mirrors the main WebSocket API modules but with slightly different naming, making it easier to locate and maintain them.
+
+Diagnostic Script Organization
+The diagnostic_scripts directory contains subdirectories that correspond to the main module structure with adjusted naming:
+
+account_diagnostics/ - Diagnostic scripts for account-related operations
+market_diagnostics/ - Diagnostic scripts for market data operations
+trading_diagnostics/ - Diagnostic scripts for trading operations
+user_stream_diagnostics/ - Diagnostic scripts for user data stream operations
+The main binance_websocket_diagnostic.py script serves as a reference implementation for testing the core WebSocket functionality.
+
+Diagnostic Script Pattern
+All diagnostic scripts should follow the design pattern established in binance_websocket_diagnostic.py, which serves as the reference implementation.
+
 Key characteristics of the diagnostic scripts:
 
 Comprehensive Testing: Test all major functionality in the corresponding module
@@ -125,9 +149,10 @@ Summary Reporting: Provide a clear summary of all test results at the end
 Clean Project Path Management: Add the project root to Python path
 Signal Handling: Properly handle interruption signals
 Connection Management: Ensure connections are properly closed after tests
-
 Example of the diagnostic script structure:
-python#!/usr/bin/env python3
+
+python
+#!/usr/bin/env python3
 """
 Binance [Category] WebSocket Requests Diagnostic Script
 ---------------------------------------------
@@ -135,7 +160,7 @@ Tests the Binance [Category] WebSocket requests to verify functionality.
 
 Usage:
     To run this script from the project root directory:
-    python src/cryptotrader/services/binance/diagnostic_scripts/[category]_requests_diagnostic.py
+    python src/cryptotrader/services/binance/websocketAPI/diagnostic_scripts/[category]_diagnostics/[specific]_diagnostic.py
 """
 
 import sys
@@ -145,13 +170,14 @@ import time
 import signal
 from pathlib import Path
 import traceback
+from datetime import datetime
 from colorama import Fore, Style, init
 
 # Initialize colorama
 init(autoreset=True)
 
 # Add the src directory to the Python path
-project_root = Path(__file__).parent.parent.parent.parent.parent
+project_root = Path(__file__).parent.parent.parent.parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 # Import our modules
@@ -214,19 +240,24 @@ SecurityType.TRADE: Trading endpoints that require API key and signature
 SecurityType.USER_DATA: User account endpoints that require API key and signature
 SecurityType.USER_STREAM: User data stream endpoints that require API key only
 SecurityType.MARKET_DATA: Historical market data endpoints that require API key only
-
 Authentication is handled by the BinanceWebSocketConnection class based on the security type. For signed requests (TRADE and USER_DATA), a timestamp and signature are automatically added to the request parameters.
+
 Request Categories
 Market Data Requests
 These requests provide market information such as prices, trades, order books, and statistics.
+
 Account Requests
 These requests provide information about the user's account, orders, trades, and balances.
+
 Trading Requests
 These requests allow placing, canceling, and modifying orders.
+
 User Data Stream Requests
 These requests manage the user data stream for receiving real-time account updates.
+
 Response Handling
 All WebSocket responses are handled via callback functions. The response for a specific request can be tied to a message ID, allowing for request-response correlation.
+
 Error Handling
 Error handling should follow these principles:
 
@@ -234,16 +265,16 @@ All errors should be logged with appropriate severity levels
 Network-related errors should trigger reconnection logic
 API errors should be parsed and handled based on error codes
 Rate limiting and IP bans should be respected with appropriate waiting periods
-
 Reconnection Strategy
 The BinanceWebSocketConnection class implements a reconnection strategy with exponential backoff. When implementing request handlers, be mindful of the connection state and handle reconnection gracefully.
-Implementation Process for New Requests
 
+Implementation Process for New Requests
 Identify the Binance API endpoint and method name
 Determine the security type required for the endpoint
 Review request parameters and response format
 Create the request handler module in the appropriate directory
-Update diagnostic script to test the new functionality
+Create a corresponding diagnostic script in the diagnostic_scripts subdirectory that mirrors the module structure
+Update the diagnostic scripts to test the new functionality
 Add any new models required for request/response handling
-Update the __init__.py file to export the new functionality
-DO NOT add classes or functions to an __init__.py
+Update the init.py file to export the new functionality
+DO NOT add classes or functions to an init.py
