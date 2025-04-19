@@ -1,11 +1,11 @@
 """
-Binance Historical Trades Diagnostic Script
-------------------------------------------
-Tests the Binance Historical Trades WebSocket API functionality to verify proper operation.
+Binance Current Average Price Diagnostic Script
+----------------------------------------------
+Tests the Binance Current Average Price WebSocket API functionality to verify proper operation.
 
 Usage:
     To run this script from the project root directory:
-    python src/cryptotrader/services/binance/websocketAPI/diagnostic_scripts/market_diagnostics/historical_trades_diagnostic.py
+    python src/cryptotrader/services/binance/websocketAPI/diagnostic_scripts/market_diagnostics/current_average_price_diagnostic.py
 """
 
 import sys
@@ -24,23 +24,22 @@ sys.path.insert(0, str(project_root))
 
 # Import our modules
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.websocketAPI.market_data_requests.historical_trades import (
-    get_historical_trades,
-    process_historical_trades_response
+from cryptotrader.services.binance.websocketAPI.market_data_requests.current_average_price import (
+    get_avg_price,
+    process_avg_price_response
 )
 
 logger = get_logger(__name__)
 
 # Test constants
 TEST_SYMBOL = "BTCUSDT"  # Use a common trading pair for testing
-LIMIT = 5  # Number of trades to fetch
 
 def print_test_header(test_name):
     """Print a test header in cyan color"""
     logger.info(f"\n{Fore.CYAN}Test: {test_name}{Style.RESET_ALL}")
 
 async def main():
-    """Run the historical trades diagnostic test"""
+    """Run the current average price diagnostic test"""
     logger.info(f"Added {project_root} to Python path")
     
     print_test_header("Setting up WebSocket connection")
@@ -61,7 +60,6 @@ async def main():
     
     try:
         # Create a simple WebSocket connection
-        # The get_historical_trades function will use this connection
         from cryptotrader.services.binance.websocketAPI.base_operations import BinanceWebSocketConnection
         connection = BinanceWebSocketConnection(
             on_message=on_message,
@@ -71,14 +69,13 @@ async def main():
         await connection.connect()
         logger.info("WebSocket connection established")
         
-        # Test historical trades
-        print_test_header(f"Getting historical trades for {TEST_SYMBOL}")
+        # Test current average price
+        print_test_header(f"Getting current average price for {TEST_SYMBOL}")
         
         # Send request
-        msg_id = await get_historical_trades(
+        msg_id = await get_avg_price(
             connection=connection,
-            symbol=TEST_SYMBOL,
-            limit=LIMIT
+            symbol=TEST_SYMBOL
         )
         
         logger.info(f"Request sent with ID: {msg_id}")
@@ -91,20 +88,12 @@ async def main():
         
         # Process response
         if response_received:
-            trades = await process_historical_trades_response(response_data)
-            if trades and len(trades) > 0:
-                logger.info(f"✓ Successfully retrieved {len(trades)} historical trades")
-                
-                # Display first trade info
-                first_trade = trades[0]
-                logger.info(f"First trade details:")
-                logger.info(f"  ID: {first_trade.id}")
-                logger.info(f"  Price: {first_trade.price}")
-                logger.info(f"  Quantity: {first_trade.quantity}")
-                logger.info(f"  Time: {datetime.fromtimestamp(first_trade.time/1000)}")
-                logger.info(f"  Buyer Maker: {first_trade.is_buyer_maker}")
+            avg_price = await process_avg_price_response(response_data)
+            if avg_price:
+                logger.info(f"✓ Successfully retrieved average price")
+                logger.info(f"  Average price over {avg_price.mins} minutes: {avg_price.price}")
             else:
-                logger.error("✗ No trades returned in the response")
+                logger.error("✗ Failed to process average price response")
         else:
             logger.error("✗ No response received")
     
