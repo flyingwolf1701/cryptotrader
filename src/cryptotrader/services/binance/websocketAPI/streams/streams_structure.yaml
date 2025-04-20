@@ -1,0 +1,510 @@
+binance_websocket_streams:
+  description: "WebSocket Streams for real-time data from Binance"
+  
+  base_information:
+    base_endpoint: "wss://stream.binance.us:9443"
+    connection_limits:
+      max_connection_duration: "24 hours"
+      ping_interval: "3 minutes"
+      pong_timeout: "10 minutes"
+      incoming_messages_rate_limit: "5 messages per second"
+      max_streams_per_connection: 1024
+    
+    access_patterns:
+      raw_streams: "/ws/<streamName>"
+      combined_streams: "/stream?streams=<streamName1>/<streamName2>/<streamName3>"
+    
+    message_formats:
+      combined_stream_wrapper: '{"stream":"<streamName>","data":<rawPayload>}'
+      symbol_format: "lowercase"
+  
+  subscription_management:
+    description: "Methods to subscribe, unsubscribe, and manage WebSocket streams"
+    methods:
+      subscribe:
+        description: "Subscribe to one or more streams"
+        method: "SUBSCRIBE"
+        parameters: 
+          - "Array of stream names (e.g., btcusdt@aggTrade)"
+        example_request: |
+          {
+            "method": "SUBSCRIBE",
+            "params": [
+              "btcusdt@aggTrade",
+              "btcusdt@depth"
+            ],
+            "id": 1
+          }
+        example_response: |
+          {
+            "result": null,
+            "id": 1
+          }
+      
+      unsubscribe:
+        description: "Unsubscribe from one or more streams"
+        method: "UNSUBSCRIBE"
+        parameters: 
+          - "Array of stream names (e.g., btcusdt@depth)"
+        example_request: |
+          {
+            "method": "UNSUBSCRIBE",
+            "params": [
+              "btcusdt@depth"
+            ],
+            "id": 312
+          }
+        example_response: |
+          {
+            "result": null,
+            "id": 312
+          }
+      
+      list_subscriptions:
+        description: "List all current subscriptions"
+        method: "LIST_SUBSCRIPTIONS"
+        parameters: []
+        example_request: |
+          {
+            "method": "LIST_SUBSCRIPTIONS",
+            "id": 3
+          }
+        example_response: |
+          {
+            "result": [
+              "btcusdt@aggTrade"
+            ],
+            "id": 3
+          }
+      
+      set_property:
+        description: "Set properties for the connection"
+        method: "SET_PROPERTY"
+        parameters: 
+          - "Property name (e.g., 'combined')"
+          - "Property value (e.g., true)"
+        example_request: |
+          {
+            "method": "SET_PROPERTY",
+            "params": [
+              "combined",
+              true
+            ],
+            "id": 5
+          }
+        example_response: |
+          {
+            "result": null,
+            "id": 5
+          }
+      
+      get_property:
+        description: "Get properties of the connection"
+        method: "GET_PROPERTY"
+        parameters: 
+          - "Property name (e.g., 'combined')"
+        example_request: |
+          {
+            "method": "GET_PROPERTY",
+            "params": [
+              "combined"
+            ],
+            "id": 2
+          }
+        example_response: |
+          {
+            "result": true,
+            "id": 2
+          }
+  
+  market_data_streams:
+    description: "Real-time market data streams"
+    streams:
+      trade_streams:
+        aggregate_trade_stream:
+          description: "Aggregate trade information for a single taker order"
+          stream_name: "<symbol>@aggTrade"
+          update_speed: "Real-time"
+          payload_example: |
+            {
+              "e": "aggTrade",  // Event type
+              "E": 1672515782136,   // Event time
+              "s": "BNBBTC",    // Symbol
+              "a": 12345,       // Aggregate trade ID
+              "p": "0.001",     // Price
+              "q": "100",       // Quantity
+              "f": 100,         // First trade ID
+              "l": 105,         // Last trade ID
+              "T": 1672515782136,   // Trade time
+              "m": true,        // Is the buyer the market maker?
+              "M": true         // Ignore
+            }
+        
+        trade_stream:
+          description: "Raw trade information with unique buyer and seller"
+          stream_name: "<symbol>@trade"
+          update_speed: "Real-time"
+          payload_example: |
+            {
+              "e": "trade",     // Event type
+              "E": 1672515782136,   // Event time
+              "s": "BNBBTC",    // Symbol
+              "t": 12345,       // Trade ID
+              "p": "0.001",     // Price
+              "q": "100",       // Quantity
+              "b": 88,          // Buyer order ID
+              "a": 50,          // Seller order ID
+              "T": 1672515782136,   // Trade time
+              "m": true,        // Is the buyer the market maker?
+              "M": true         // Ignore
+            }
+      
+      candlestick_stream:
+        description: "Kline/candlestick updates for a symbol"
+        stream_name: "<symbol>@kline_<interval>"
+        update_speed: "2000ms"
+        intervals: [
+          "1m", "3m", "5m", "15m", "30m",
+          "1h", "2h", "4h", "6h", "8h", "12h",
+          "1d", "3d", "1w", "1M"
+        ]
+        payload_example: |
+          {
+            "e": "kline",     // Event type
+            "E": 1672515782136,   // Event time
+            "s": "BNBBTC",    // Symbol
+            "k": {
+              "t": 1672515780000, // Kline start time
+              "T": 1672515839999, // Kline close time
+              "s": "BNBBTC",  // Symbol
+              "i": "1m",      // Interval
+              "f": 100,       // First trade ID
+              "L": 200,       // Last trade ID
+              "o": "0.0010",  // Open price
+              "c": "0.0020",  // Close price
+              "h": "0.0025",  // High price
+              "l": "0.0015",  // Low price
+              "v": "1000",    // Base asset volume
+              "n": 100,       // Number of trades
+              "x": false,     // Is this kline closed?
+              "q": "1.0000",  // Quote asset volume
+              "V": "500",     // Taker buy base asset volume
+              "Q": "0.500",   // Taker buy quote asset volume
+              "B": "123456"   // Ignore
+            }
+          }
+      
+      ticker_streams:
+        individual_symbol_rolling_window:
+          description: "Rolling window ticker statistics for a single symbol"
+          stream_name: "<symbol>@ticker_<window_size>"
+          window_sizes: ["1h", "4h"]
+          update_speed: "1000ms"
+          payload_example: |
+            {
+              "e": "1hTicker",    // Event type
+              "E": 1672515782136,     // Event time
+              "s": "BNBBTC",      // Symbol
+              "p": "0.0015",      // Price change
+              "P": "250.00",      // Price change percent
+              "o": "0.0010",      // Open price
+              "h": "0.0025",      // High price
+              "l": "0.0010",      // Low price
+              "c": "0.0025",      // Last price
+              "w": "0.0018",      // Weighted average price
+              "v": "10000",       // Total traded base asset volume
+              "q": "18",          // Total traded quote asset volume
+              "O": 0,             // Statistics open time
+              "C": 1675216573749,      // Statistics close time
+              "F": 0,             // First trade ID
+              "L": 18150,         // Last trade Id
+              "n": 18151          // Total number of trades
+            }
+        
+        all_market_ticker:
+          description: "24hr rolling window ticker statistics for all symbols"
+          stream_name: "!ticker@arr"
+          update_speed: "1000ms"
+          payload_format: "Array of individual symbol ticker objects"
+        
+        all_market_rolling_window:
+          description: "Rolling window statistics for all symbols"
+          stream_name: "!ticker_<window-size>@arr"
+          window_sizes: ["1h", "4h"]
+          update_speed: "1000ms"
+          payload_format: "Array of individual rolling window ticker objects"
+        
+        individual_symbol_24h_change:
+          description: "24hr rolling window ticker statistics for a symbol"
+          stream_name: "<symbol>@ticker"
+          update_speed: "1000ms"
+          payload_example: |
+            {
+              "e": "24hrTicker",  // Event type
+              "E": 1672515782136,     // Event time
+              "s": "BNBBTC",      // Symbol
+              "p": "0.0015",      // Price change
+              "P": "250.00",      // Price change percent
+              "w": "0.0018",      // Weighted average price
+              "x": "0.0009",      // First trade(F)-1 price
+              "c": "0.0025",      // Last price
+              "Q": "10",          // Last quantity
+              "b": "0.0024",      // Best bid price
+              "B": "10",          // Best bid quantity
+              "a": "0.0026",      // Best ask price
+              "A": "100",         // Best ask quantity
+              "o": "0.0010",      // Open price
+              "h": "0.0025",      // High price
+              "l": "0.0010",      // Low price
+              "v": "10000",       // Total traded base asset volume
+              "q": "18",          // Total traded quote asset volume
+              "O": 0,             // Statistics open time
+              "C": 1675216573749, // Statistics close time
+              "F": 0,             // First trade ID
+              "L": 18150,         // Last trade Id
+              "n": 18151          // Total number of trades
+            }
+        
+        individual_symbol_mini_ticker:
+          description: "Mini-ticker statistics for a symbol"
+          stream_name: "<symbol>@miniTicker"
+          update_speed: "1000ms"
+          payload_example: |
+            {
+              "e": "24hrMiniTicker",  // Event type
+              "E": 1672515782136,     // Event time
+              "s": "BNBBTC",          // Symbol
+              "c": "0.0025",          // Close price
+              "o": "0.0010",          // Open price
+              "h": "0.0025",          // High price
+              "l": "0.0010",          // Low price
+              "v": "10000",           // Total traded base asset volume
+              "q": "18"               // Total traded quote asset volume
+            }
+        
+        all_market_mini_ticker:
+          description: "Mini-ticker statistics for all symbols"
+          stream_name: "!miniTicker@arr"
+          update_speed: "1000ms"
+          payload_format: "Array of individual mini-ticker objects"
+      
+      order_book_streams:
+        book_ticker_stream:
+          description: "Best bid/ask price and quantity updates"
+          stream_name: "<symbol>@bookTicker"
+          update_speed: "Real-time"
+          payload_example: |
+            {
+              "u":400900217,     // order book updateId
+              "s":"BNBUSDT",     // symbol
+              "b":"25.35190000", // best bid price
+              "B":"31.21000000", // best bid qty
+              "a":"25.36520000", // best ask price
+              "A":"40.66000000"  // best ask qty
+            }
+        
+        partial_order_book:
+          description: "Top levels of order book data"
+          stream_name: "<symbol>@depth<levels> OR <symbol>@depth<levels>@100ms"
+          levels: [5, 10, 20]
+          update_speed: "1000ms or 100ms"
+          payload_example: |
+            {
+              "lastUpdateId": 160,  // Last update ID
+              "bids": [             // Bids to be updated
+                [
+                  "0.0024",         // Price level to be updated
+                  "10"              // Quantity
+                ]
+              ],
+              "asks": [             // Asks to be updated
+                [
+                  "0.0026",         // Price level to be updated
+                  "100"            // Quantity
+                ]
+              ]
+            }
+        
+        order_book_diff:
+          description: "Order book price and quantity depth updates"
+          stream_name: "<symbol>@depth OR <symbol>@depth@100ms"
+          update_speed: "1000ms or 100ms"
+          payload_example: |
+            {
+              "e": "depthUpdate", // Event type
+              "E": 1675216573749,     // Event time
+              "s": "BNBBTC",      // Symbol
+              "U": 157,           // First update ID in event
+              "u": 160,           // Final update ID in event
+              "b": [              // Bids to be updated
+                [
+                  "0.0024",       // Price level to be updated
+                  "10"            // Quantity
+                ]
+              ],
+              "a": [              // Asks to be updated
+                [
+                  "0.0026",       // Price level to be updated
+                  "100"           // Quantity
+                ]
+              ]
+            }
+  
+  user_data_streams:
+    description: "Private WebSocket streams for user account data"
+    listenKey_management:
+      description: "REST API endpoints to manage listenKey for User Data Streams"
+      endpoints:
+        create:
+          method: "POST"
+          endpoint: "/api/v3/userDataStream"
+          weight: 1
+          parameters: []
+          security_type: "USER_STREAM"
+          returns: "listenKey string"
+          validity: "60 minutes"
+        
+        extend:
+          method: "PUT" 
+          endpoint: "/api/v3/userDataStream"
+          weight: 1
+          parameters:
+            - listenKey: "The listenKey to extend validity"
+          security_type: "USER_STREAM"
+          returns: "Empty response on success"
+          validity_extension: "60 minutes"
+          recommended_usage: "Every 30 minutes"
+        
+        close:
+          method: "DELETE"
+          endpoint: "/api/v3/userDataStream"
+          weight: 1
+          parameters:
+            - listenKey: "The listenKey to close"
+          security_type: "USER_STREAM"
+          returns: "Empty response on success"
+    
+    stream_access:
+      base_endpoint: "wss://stream.binance.us:9443"
+      raw_stream: "/ws/<listenKey>"
+      combined_stream: "/stream?streams=<listenKey>"
+    
+    payloads:
+      account_update:
+        description: "Account balance updates"
+        event_type: "outboundAccountPosition"
+        payload_example: |
+          {
+            "e": "outboundAccountPosition", //Event type
+            "E": 1564034571105,             //Event Time
+            "u": 1564034571073,             //Time of last account update
+            "B": [                          //Balances Array
+              {
+                "a": "ETH",                 //Asset
+                "f": "10000.000000",        //Free
+                "l": "0.000000"             //Locked
+              }
+            ]
+          }
+      
+      order_update:
+        description: "Updates to order status"
+        event_type: "executionReport"
+        payload_example: |
+          {
+            "e": "executionReport",        // Event type
+            "E": 1499405658658,            // Event time
+            "s": "ETHBTC",                 // Symbol
+            "c": "mUvoqJxFIILMdfAW5iGSOW", // Client order ID
+            "S": "BUY",                    // Side
+            "o": "LIMIT",                  // Order type
+            "f": "GTC",                    // Time in force
+            "q": "1.00000000",             // Order quantity
+            "p": "0.10264410",             // Order price
+            "P": "0.00000000",             // Stop price
+            "d": 4,                        // Trailing Delta
+            "F": "0.00000000",             // Iceberg quantity
+            "g": -1,                       // OrderListId
+            "C": "",                       // Original client order ID
+            "x": "NEW",                    // Current execution type
+            "X": "NEW",                    // Current order status
+            "r": "NONE",                   // Order reject reason
+            "i": 4293153,                  // Order ID
+            "l": "0.00000000",             // Last executed quantity
+            "z": "0.00000000",             // Cumulative filled quantity
+            "L": "0.00000000",             // Last executed price
+            "n": "0",                      // Commission amount
+            "N": null,                     // Commission asset
+            "T": 1499405658657,            // Transaction time
+            "t": -1,                       // Trade ID
+            "I": 8641984,                  // Ignore
+            "w": true,                     // Is the order on the book?
+            "m": false,                    // Is this trade the maker side?
+            "M": false,                    // Ignore
+            "O": 1499405658657,            // Order creation time
+            "Z": "0.00000000",             // Cumulative quote asset transacted quantity
+            "Y": "0.00000000",             // Last quote asset transacted quantity
+            "Q": "0.00000000",             // Quote Order Quantity
+            "V": "selfTradePreventionMode",
+            "D": "trailing_time",          // (For trailing stop orders)
+            "W": "workingTime",            // (If order is on the book)
+            "u": 12332,                    // tradeGroupId (For STP)
+            "v": 122,                      // preventedMatchId (For STP)
+            "U": 2039,                     // counterOrderId (For STP)
+            "A": "1.00000000",             // preventedQuantity (For STP)
+            "B": "2.00000000"              // lastPreventedQuantity (For STP)
+          }
+      
+      oco_update:
+        description: "Updates to OCO order status"
+        event_type: "listStatus"
+        payload_example: |
+          {
+            "e": "listStatus",                //Event Type
+            "E": 1564035303637,               //Event Time
+            "s": "ETHBTC",                    //Symbol
+            "g": 2,                           //OrderListId
+            "c": "OCO",                       //Contingency Type
+            "l": "EXEC_STARTED",              //List Status Type
+            "L": "EXECUTING",                 //List Order Status
+            "r": "NONE",                      //List Reject Reason
+            "C": "F4QN4G8DlFATFlIUQ0cjdD",    //List Client Order ID
+            "T": 1564035303625,               //Transaction Time
+            "O": [                            //An array of objects
+              {
+                "s": "ETHBTC",                //Symbol
+                "i": 17,                      // orderId
+                "c": "AJYsMjErWJesZvqlJCTUgL" //ClientOrderId
+              },
+              {
+                "s": "ETHBTC",
+                "i": 18,
+                "c": "bfYPSQdLoqAJeNrOr9adzq"
+              }
+            ]
+          }
+      
+      balance_update:
+        description: "Balance update for deposits or withdrawals"
+        event_type: "balanceUpdate"
+        payload_example: |
+          {
+            "e": "balanceUpdate",         //Event Type
+            "E": 1573200697110,           //Event Time
+            "a": "BTC",                   //Asset
+            "d": "100.00000000",          //Balance Delta
+            "T": 1573200697068            //Clear Time
+          }
+  
+  managing_local_order_book:
+    description: "Steps to maintain a local order book"
+    steps:
+      - "Open a stream to wss://stream.binance.us:9443/ws/bnbbtc@depth"
+      - "Buffer the events you receive from the stream"
+      - "Get a depth snapshot from https://www.binance.us/api/v1/depth?symbol=BNBBTC&limit=1000"
+      - "Drop any event where u is <= lastUpdateId in the snapshot"
+      - "The first processed should have U <= lastUpdateId+1 AND u >= lastUpdateId+1"
+      - "While listening to the stream, each new event's U should be equal to the previous event's u+1"
+      - "The data in each event is the absolute quantity for a price level"
+      - "If the quantity is 0, remove the price level"
+      - "Receiving an event that removes a price level that is not in your local order book is normal"
