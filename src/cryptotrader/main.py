@@ -1,23 +1,47 @@
+"""
+CryptoTrader Application Entry Point
 
-import uvicorn
-from app import app
-from config import Secrets, get_logger
+This script initializes the application and starts the main UI.
+Keeps the main file clean by delegating the UI logic to the MainWindow class.
+"""
 
-# Get logger for this module
+import sys
+import logging
+from pathlib import Path
+from PySide6.QtWidgets import QApplication
+
+# Add the project root to the Python path
+project_root = Path(__file__).parent.parent.parent  # Navigate to the project root from src/cryptotrader/main.py
+sys.path.insert(0, str(project_root))
+
+# Now import from the local modules
+from src.cryptotrader.gui.main_window import MainWindow
+from src.cryptotrader.gui.components.styles import apply_dark_theme
+from src.cryptotrader.config import get_logger
+
+# Configure logging
 logger = get_logger(__name__)
 
-# Get port from Secrets or use default
-port = int(getattr(Secrets, 'PORT', 8000))
-debug = Secrets.DEBUG
+def main():
+    """Application entry point."""
+    # Create the application
+    app = QApplication(sys.argv)
+    
+    # Set application style
+    app.setStyle('Fusion')
+    
+    # Apply dark theme
+    apply_dark_theme(app)
+    
+    # Log application startup
+    logger.info("Starting CryptoTrader Application")
+    
+    # Create and show the main window
+    window = MainWindow()
+    window.show()
+    
+    # Start the event loop
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
-    logger.info(f"Starting FastAPI server on port {port} (debug={debug})")
-    
-    # Run the application with uvicorn
-    uvicorn.run(
-        "app:app", 
-        host="0.0.0.0", 
-        port=port, 
-        reload=debug,
-        log_level="info"
-    )
+    main()
