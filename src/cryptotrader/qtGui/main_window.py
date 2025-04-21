@@ -13,7 +13,7 @@ from src.cryptotrader.config import get_logger
 from src.cryptotrader.services.binance.restAPI import MarketOperations, SystemOperations
 
 # Import components
-from src.cryptotrader.gui.components import (
+from src.cryptotrader.qtGui.components import (
     WatchlistWidget, 
     TradeHistoryWidget, 
     StrategyPanel,
