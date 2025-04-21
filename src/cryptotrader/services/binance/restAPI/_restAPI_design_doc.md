@@ -8,18 +8,32 @@ src/cryptotrader/services/binance/
 │   ├── __init__.py            # Exports all models
 │   ├── base_models.py         # Core models used across APIs
 │   ├── order_models.py        # Order-specific models
-│   └── [feature]_models.py    # Feature-specific models
+│   ├── market_models.py       # Market data models
+│   ├── user_models.py         # User account models
+│   ├── wallet_models.py       # Wallet operation models
+│   ├── otc_models.py          # OTC trading models
+│   └── staking_models.py      # Staking operation models
 ├── restAPI/                   # REST API implementation
 │   ├── __init__.py            # Exports clients
 │   ├── base_operations.py     # Core request functionality
-│   ├── order_api.py           # Order operations
+│   ├── system_api.py          # System information operations
 │   ├── market_api.py          # Market data operations
-│   └── [feature]_api.py       # Feature-specific operations
+│   ├── order_api.py           # Order operations
+│   ├── user_api.py            # User account operations
+│   ├── wallet_api.py          # Wallet operations
+│   ├── subaccount_api.py      # Sub-account management
+│   ├── otc_api.py             # OTC trading operations
+│   └── staking_api.py         # Staking operations
 ├── diagnostic_scripts/        # Diagnostic/testing scripts
-│   ├── order_diagnostic.py    # Tests order API functionality
+│   ├── system_diagnostic.py   # Tests system API functionality
 │   ├── market_diagnostic.py   # Tests market API functionality
-│   └── [feature]_diagnostic.py # Tests feature functionality
-└── websocket/                 # WebSocket API (not covered here)
+│   ├── order_diagnostic.py    # Tests order API functionality
+│   ├── user_diagnostic.py     # Tests user API functionality
+│   ├── wallet_diagnostic.py   # Tests wallet API functionality
+│   ├── subaccount_diagnostic.py # Tests sub-account functionality
+│   ├── otc_diagnostic.py      # Tests OTC API functionality
+│   └── staking_diagnostic.py  # Tests staking functionality
+└── websocketAPI/              # WebSocket API (covered separately)
 ```
 Each functional area of the Binance API should have three corresponding components:
 

@@ -6,10 +6,10 @@ This document outlines the design and implementation patterns for the Binance We
 
 ## Project Structure and Naming Conventions
 src/cryptotrader/services/binance/websocketAPI/
-├── init.py                                    # Main package exports
+├── __init__.py                                    # Main package exports
 ├── base_operations.py                             # Core WebSocket functionality
 ├── account_requests/                              # Account data operations
-│   ├── init.py                                # Package exports
+│   ├── __init__.py                                # Package exports
 │   ├── acct_oco_history.py                        # OCO order history requests
 │   ├── acct_order_history.py                      # Order history requests
 │   ├── acct_prevented_matches.py                  # Self-trade prevention matches
@@ -17,7 +17,7 @@ src/cryptotrader/services/binance/websocketAPI/
 │   ├── get_order_rate_limits.py                   # Order rate limit requests
 │   └── get_user_acct_info.py                      # Account information requests
 ├── market_data_requests/                          # Market data operations
-│   ├── init.py                                # Package exports
+│   ├── __init__.py                                # Package exports
 │   ├── aggregate_trades.py                        # Aggregate trade requests
 │   ├── current_average_price.py                   # Average price requests
 │   ├── historical_trades.py                       # Historical trade requests
@@ -29,7 +29,7 @@ src/cryptotrader/services/binance/websocketAPI/
 │   ├── symbol_price_ticker.py                     # Symbol price ticker requests
 │   └── ticker_price_24h.py                        # 24h price statistics requests
 ├── trading_requests/                              # Trading operations
-│   ├── init.py                                # Package exports
+│   ├── __init__.py                                # Package exports
 │   ├── cancel_oco_order.py                        # Cancel OCO order requests
 │   ├── cancel_open_orders.py                      # Cancel open orders requests
 │   ├── cancel_order.py                            # Cancel order requests
@@ -42,20 +42,29 @@ src/cryptotrader/services/binance/websocketAPI/
 │   ├── replace_order.py                           # Replace order requests
 │   └── test_new_order.py                          # Test order placement requests
 ├── user_data_stream_requests/                     # User data stream operations
-│   ├── init.py                                # Package exports
+│   ├── __init__.py                                # Package exports
 │   ├── ping_user_data_stream.py                   # Ping user data stream requests
 │   ├── start_user_data_stream.py                  # Start user data stream requests
 │   └── stop_user_data_stream.py                   # Stop user data stream requests
-└── diagnostic_scripts/                            # WebSocket testing scripts parent directory
-├── account_diagnostics/                       # Diagnostic scripts for account requests
-│   └── account_requests_diagnostic.py         # Tests for account requests
-├── market_diagnostics/                        # Diagnostic scripts for market data requests
-│   └── order_book_diagnostic.py               # Tests for order book requests
-├── trading_diagnostics/                       # Diagnostic scripts for trading requests
-│   └── trading_requests_diagnostic.py         # Tests for trading requests
-├── user_stream_diagnostics/                   # Diagnostic scripts for user data stream
-│   └── user_data_stream_requests_diagnostic.py # Tests for user data stream
-└── binance_websocket_diagnostic.py            # Tests for base operations
+├── streams/                                       # Real-time data streams
+│   ├── __init__.py                                # Package exports
+│   ├── websocket_stream_manager.py                # Stream connection management
+│   ├── user_data_stream.py                        # User data stream handler
+│   ├── market_stream.py                           # Market data stream handler
+│   ├── stream_parser.py                           # Stream data parsing utilities
+│   └── stream_buffer.py                           # Buffer for stream data
+└── diagnostic_scripts/                            # WebSocket testing scripts
+    ├── account_diagnostics/                       # Diagnostic scripts for account requests
+    │   └── account_requests_diagnostic.py         # Tests for account requests
+    ├── market_diagnostics/                        # Diagnostic scripts for market data requests
+    │   ├── order_book_diagnostic.py               # Tests for order book requests
+    │   ├── klines_diagnostic.py                   # Tests for kline requests
+    │   └── ticker_diagnostic.py                   # Tests for ticker requests
+    ├── trading_diagnostics/                       # Diagnostic scripts for trading requests
+    │   └── trading_requests_diagnostic.py         # Tests for trading requests
+    ├── user_stream_diagnostics/                   # Diagnostic scripts for user data stream
+    │   └── user_data_stream_requests_diagnostic.py # Tests for user data stream
+    └── binance_websocket_diagnostic.py            # Tests for base operations
 
 We follow these naming conventions:
 

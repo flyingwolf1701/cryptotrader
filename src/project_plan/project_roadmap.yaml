@@ -1,0 +1,161 @@
+project: project_roadmap
+epics:
+  - id: roadmap-1
+    title: Wallet Dashboard
+    reference_file: epics/2_in_progress_epics/wallet_dashboard_epic.yaml
+    status: in progress
+    priority: high
+    domain: GUI, Wallet Integration
+    description: Build a cross-platform wallet viewer using PyQt6 with REST and WebSocket integration.
+
+  - id: roadmap-2
+    title: Wallet Database Persistence
+    reference_file: epics/wallet_database_persistence.yaml
+    status: not yet started
+    priority: high
+    domain: Data Engineering, Storage
+    description: Set up a PostgreSQL database to persist wallet data for analytics and caching.
+
+  - id: roadmap-3
+    title: Analytics & Portfolio Intelligence
+    reference_file: N/A
+    status: not yet started
+    priority: medium
+    domain: Analytics, Dashboard
+    description: Add analysis tools for allocation, historical value, and performance tracking.
+
+  - id: roadmap-4
+    title: Strategy & Automation Framework
+    reference_file: N/A
+    status: not yet started
+    priority: high
+    domain: Trading Bot, Logic Engine
+    description: Create signal-based and rule-driven execution logic with modular strategy support.
+
+  - id: roadmap-5
+    title: Machine Learning Integration
+    reference_file: N/A
+    status: not yet started
+    priority: medium
+    domain: Machine Learning, Signal Prediction
+    description: Train models on historical data and integrate ML signals into the strategy engine.
+
+  - id: roadmap-6
+    title: GUI Expansion & User Settings
+    reference_file: N/A
+    status: not yet started
+    priority: low
+    domain: UX/UI, Configuration
+    description: Add user-facing settings and GUI panels for API keys, alerts, and preferences.
+
+  - id: roadmap-7
+    title: Integrate CoinGecko
+    reference_file: N/A
+    status: not yet started
+    priority: medium
+    domain: API Integration, Market Metadata
+    description: Use CoinGecko API to enrich assets with metadata and supplement price data.
+
+  - id: roadmap-8
+    title: Integrate Crypto.com
+    reference_file: N/A
+    status: not yet started
+    priority: medium
+    domain: Wallet Integration, CEX
+    description: Pull wallet balances and transaction data from Crypto.com's exchange.
+
+  - id: roadmap-9
+    title: Integrate Coinbase (Exchange + Wallet)
+    reference_file: N/A
+    status: not yet started
+    priority: medium
+    domain: Wallet Integration, CEX/Wallet
+    description: Retrieve balances from both Coinbase exchange and Coinbase Wallet.
+
+  - id: roadmap-10
+    title: Integrate Uniswap
+    reference_file: N/A
+    status: not yet started
+    priority: medium
+    domain: DEX, Wallet Integration
+    description: Show LP positions and swap history from Uniswap, and prepare for DEX trading.
+
+  - id: roadmap-11
+    title: Integrate PancakeSwap
+    reference_file: N/A
+    status: not yet started
+    priority: medium
+    domain: DEX, Wallet Integration
+    description: Add support for BSC-based wallet viewing and LP tracking via PancakeSwap.
+
+  - id: roadmap-12
+    title: Integrate Hyperliquid
+    reference_file: N/A
+    status: not yet started
+    priority: medium
+    domain: Trading, DeFi Derivatives
+    description: Show open positions and enable future bot trading on Hyperliquid.
+
+  - id: roadmap-13
+    title: Mimic CTO Larsson Chart
+    reference_file: N/A
+    status: in progress
+    priority: high
+    domain: Charting, Visualization
+    description: Replicate visual features and overlays from CTO Larsson’s charting style.
+
+  - id: roadmap-14
+    title: Mimic FinRev
+    reference_file: N/A
+    status: not yet started
+    priority: medium
+    domain: Strategy UX, Trade Calls
+    description: Reproduce FinRev’s alert board and indicator system in a GUI panel.
+
+  - id: roadmap-15
+    title: Mimic 100x Coin Club / Pumped System
+    reference_file: N/A
+    status: not yet started
+    priority: low
+    domain: Strategy Monitoring, Signal UX
+    description: Build visuals and alerts modeled on community trading systems.
+
+  - id: roadmap-16
+    title: Create Udemy Trading Bot
+    reference_file: N/A
+    status: not yet started
+    priority: low
+    domain: Learning, Bot Execution
+    description: Follow Udemy tutorials to build a trading bot, adapting it to your API layer.
+
+  - id: roadmap-17
+    title: Create Udemy Rebalancing Bot
+    reference_file: N/A
+    status: not yet started
+    priority: low
+    domain: Learning, Portfolio Management
+    description: Create a periodic rebalancer bot and visualize its effectiveness.
+
+  - id: roadmap-18
+    title: Profit Distribution Plan
+    reference_file: N/A
+    status: not yet started
+    priority: low
+    domain: Accounting, Wealth Strategy
+    description: Define how to allocate realized profits into buckets like HODL, savings, etc.
+
+  - id: roadmap-19
+    title: Research: Use Wallets vs Exchanges
+    reference_file: N/A
+    status: not yet started
+    priority: low
+    domain: Research, Risk Strategy
+    description: Compare security, cost, and control tradeoffs between CEXs and self-custody.
+
+  - id: roadmap-20
+    title: Research: Being a Liquidity Provider
+    reference_file: N/A
+    status: not yet started
+    priority: low
+    domain: Research, Yield Farming
+    description: Investigate profitability and risks of being a DEX liquidity provider.

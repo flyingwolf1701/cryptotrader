@@ -1,0 +1,148 @@
+epic: Build Crypto Wallet Dashboard in PyQt6
+tickets:
+  - id: 1
+    title: Set up PyQt6 base window and layout
+    status: not yet started
+    description: Create a PyQt6 app window with a vertical layout and placeholder title.
+    acceptance_criteria:
+      - App window opens with title "Binance Wallet Overview"
+      - Layout uses QVBoxLayout
+      - Runs without error
+
+  - id: 2
+    title: Create lightweight BinanceClient wrapper
+    status: not yet started
+    description: Write a simple class that wraps wallet and price endpoints using the existing REST API functions.
+    acceptance_criteria:
+      - Class exposes get_account_balances() and get_price_for_asset(asset)
+      - Uses existing wallet_api.py and market_api.py
+      - Callable from GUI
+
+  - id: 3
+    title: Display wallet data in a table
+    status: not yet started
+    description: Use BinanceClient to show wallet balances and estimated USD value in a QTableWidget.
+    acceptance_criteria:
+      - Columns: Asset, Balance, Price (USD), Total Value
+      - Filters out zero balances
+      - Table resizes cleanly
+
+  - id: 4
+    title: Add manual refresh button for wallet data
+    status: not yet started
+    description: Add a QPushButton to refresh the wallet and price data on click.
+    acceptance_criteria:
+      - Refresh button reloads wallet balances
+      - Table updates on click
+
+  - id: 5
+    title: Implement WebSocket for live price updates
+    status: not yet started
+    description: Use Binance WebSocket API to get live ticker updates for displayed assets.
+    acceptance_criteria:
+      - Price and total value update in real-time
+      - Smooth updates without full reload
+
+  - id: 6
+    title: Add wallet integration: Phantom Wallet (Solana)
+    status: not yet started
+    description: Create a connector to retrieve balances from Phantom Wallet.
+    acceptance_criteria:
+      - Fetches current balances
+      - Handles connection issues gracefully
+      - Output is normalized format
+
+  - id: 7
+    title: Add wallet integration: SolFlare Wallet (Solana)
+    status: not yet started
+    description: Create a connector to retrieve balances from SolFlare Wallet.
+    acceptance_criteria:
+      - Fetches current balances
+      - Output is normalized format
+
+  - id: 8
+    title: Add wallet integration: Coinbase account
+    status: not yet started
+    description: Retrieve wallet balances using Coinbase REST API.
+    acceptance_criteria:
+      - Returns balances
+      - Secrets handled through .env
+
+  - id: 9
+    title: Add wallet integration: Coinbase Wallet
+    status: not yet started
+    description: Retrieve balances from Coinbase Wallet keys.
+    acceptance_criteria:
+      - Independent from Coinbase exchange account
+      - Normalized output
+
+  - id: 10
+    title: Add wallet integration: Trust Wallet
+    status: not yet started
+    description: Implement connector to pull balance from Trust Wallet.
+    acceptance_criteria:
+      - Secure key storage
+      - Returns normalized balances
+
+  - id: 11
+    title: Add wallet integration: Crypto.com account
+    status: not yet started
+    description: Connect to Crypto.com and retrieve wallet balances via API.
+    acceptance_criteria:
+      - Uses API or scraper as needed
+      - Error handling in place
+
+  - id: 12
+    title: Create normalized wallet adapter format
+    status: not yet started
+    description: Standardize output of all wallet modules to a shared schema.
+    acceptance_criteria:
+      - Output structure: { source, asset, balance }
+      - Applies to all integrations
+
+  - id: 13
+    title: Merge all sources into dashboard view
+    status: not yet started
+    description: Combine all wallet balances by asset across integrations for unified display.
+    acceptance_criteria:
+      - Assets grouped and summed
+      - Source-specific totals also supported
+
+  - id: 14
+    title: Set up PostgreSQL database (local)
+    status: not yet started
+    description: Install and configure a local PostgreSQL instance to store wallet data.
+    acceptance_criteria:
+      - PostgreSQL installed and running locally
+      - Environment config for DB credentials
+
+  - id: 15
+    title: Define database schema for wallet balances
+    status: not yet started
+    description: Design and implement a table schema for storing normalized wallet data.
+    acceptance_criteria:
+      - Table includes source, asset, balance, price, timestamp
+      - Matches normalized wallet adapter format
+
+  - id: 16
+    title: Implement database persistence for Binance wallet data
+    status: not yet started
+    description: After fetching wallet data from Binance, store results in PostgreSQL.
+    acceptance_criteria:
+      - Wallet records inserted or updated in DB
+      - SQLAlchemy model or raw SQL works reliably
+
+  - id: 17
+    title: Enable dashboard to load wallet balances from PostgreSQL
+    status: not yet started
+    description: Load previously stored balances from DB instead of calling the API directly.
+    acceptance_criteria:
+      - Table populates from DB
+      - Option to trigger fresh API sync still available
+"""
+
+with open("/mnt/data/crypto_dashboard_plan_updated.yaml", "w") as f:
+    f.write(updated_yaml)
+
+"/mnt/data/crypto_dashboard_plan_updated.yaml"
+
