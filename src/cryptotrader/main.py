@@ -15,8 +15,8 @@ project_root = Path(__file__).parent.parent.parent  # Navigate to the project ro
 sys.path.insert(0, str(project_root))
 
 # Now import from the local modules
-from src.cryptotrader.gui.main_window import MainWindow
-from src.cryptotrader.gui.components.styles import apply_dark_theme
+from src.cryptotrader.qtGui.main_window import MainWindow
+from src.cryptotrader.qtGui.components.styles import apply_dark_theme
 from src.cryptotrader.config import get_logger
 
 # Configure logging

@@ -5,6 +5,6 @@ This package contains all GUI-related components for the CryptoTrader applicatio
 """
 
 # Import important classes to make them available when importing from the gui package
-from src.cryptotrader.gui.main_window import MainWindow
+from src.cryptotrader.qtGui.main_window import MainWindow
 
 __all__ = ['MainWindow']
