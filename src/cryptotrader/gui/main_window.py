@@ -13,11 +13,13 @@ from src.cryptotrader.config import get_logger
 from src.cryptotrader.services.binance.restAPI import MarketOperations, SystemOperations
 
 # Import components
-from src.cryptotrader.gui.components.watchlist import WatchlistWidget
-from src.cryptotrader.gui.components.trade_history import TradeHistoryWidget
-from src.cryptotrader.gui.components.strategy_panel import StrategyPanel
-from src.cryptotrader.gui.components.logging_panel import LoggingPanel
-from src.cryptotrader.gui.components.chart_widget import ChartWidget
+from src.cryptotrader.gui.components import (
+    WatchlistWidget, 
+    TradeHistoryWidget, 
+    StrategyPanel,
+    LoggingPanel,
+    ChartWidget
+    )
 
 logger = get_logger(__name__)
 

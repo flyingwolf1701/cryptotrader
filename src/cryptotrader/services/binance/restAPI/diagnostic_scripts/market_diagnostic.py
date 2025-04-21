@@ -23,7 +23,7 @@ sys.path.insert(0, str(project_root))
 
 # Import our modules
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.restAPI.market_api import MarketOperations
+from cryptotrader.services.binance.restAPI import MarketOperations
 
 logger = get_logger(__name__)
 
@@ -99,7 +99,7 @@ def main():
     # Test 5: Get order book
     print_test_header("Getting order book for BTC/USDT")
     try:
-        order_book = client.get_order_book(TEST_SYMBOL, limit=5)
+        order_book = client.get_order_book_rest(TEST_SYMBOL, limit=5)
         if order_book:
             logger.info(f"Order Book Last Update ID: {order_book.last_update_id}")
             logger.info(f"Top 5 Bids:")

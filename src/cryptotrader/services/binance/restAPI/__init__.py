@@ -6,7 +6,7 @@ including market data, trading operations, and system information.
 """
 
 # Import base operations
-from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
+# from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
 
 # Import API operation classes
 from cryptotrader.services.binance.restAPI.market_api import MarketOperations
@@ -20,7 +20,7 @@ from cryptotrader.services.binance.restAPI.staking_api import StakingOperations
 
 __all__ = [
     # Client classes
-    'BinanceAPIRequest',
+    # 'BinanceAPIRequest',
     'MarketOperations',
     'OrderOperations',
     'SystemOperations',
@@ -39,15 +39,15 @@ __all__ = [
     'get_self_trade_prevention_modes', # Uses GET /api/v3/exchangeInfo
     'get_bid_ask',           # GET /api/v3/ticker/bookTicker
     'get_historical_candles', # GET /api/v3/klines
-    'get_recent_trades',     # GET /api/v3/trades
-    'get_historical_trades', # GET /api/v3/historicalTrades
-    'get_aggregate_trades',  # GET /api/v3/aggTrades
-    'get_order_book',        # GET /api/v3/depth
+    'get_recent_trades_rest',     # GET /api/v3/trades
+    'get_historical_trades_rest', # GET /api/v3/historicalTrades
+    'get_aggregate_trades_rest',  # GET /api/v3/aggTrades
+    'get_order_book_rest',        # GET /api/v3/depth
     'get_ticker_price',      # GET /api/v3/ticker/price
     'get_avg_price',         # GET /api/v3/avgPrice
     'get_24h_stats',         # GET /api/v3/ticker/24hr
     'get_rolling_window_stats', # GET /api/v3/ticker
-    'place_order',           # POST /api/v3/order
+    'place_spot_order',           # POST /api/v3/order
     'test_new_order',        # POST /api/v3/order/test
     'cancel_order',          # DELETE /api/v3/order
     'cancel_all_orders',     # DELETE /api/v3/openOrders
@@ -81,7 +81,7 @@ __all__ = [
     # OTC Functions with endpoint paths in comments
     'get_coin_pairs',         # GET /sapi/v1/otc/coinPairs
     'request_quote',          # POST /sapi/v1/otc/quotes
-    'place_order',            # POST /sapi/v1/otc/orders
+    'place_otc_order',            # POST /sapi/v1/otc/orders
     'get_order',              # GET /sapi/v1/otc/orders/{orderId}
     'get_orders',             # GET /sapi/v1/otc/orders
     'get_ocbs_orders',        # GET /sapi/v1/ocbs/orders

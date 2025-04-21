@@ -280,7 +280,6 @@ sys.path.insert(0, str(project_root))
 
 # Import our modules
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance import Client
 from cryptotrader.services.binance.models import (
     # Import relevant models...
 )
@@ -391,8 +390,8 @@ Example Implementation
 from typing import Dict, List, Optional, Any
 
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
-from cryptotrader.services.binance.models.base_models import RateLimitType, SomeResponseModel
+from src.cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
+from cryptotrader.services.binance.models import RateLimitType, SomeResponseModel
 
 logger = get_logger(__name__)
 

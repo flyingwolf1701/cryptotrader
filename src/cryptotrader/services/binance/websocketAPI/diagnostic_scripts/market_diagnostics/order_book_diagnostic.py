@@ -25,7 +25,7 @@ sys.path.insert(0, str(project_root))
 # Import our modules
 from cryptotrader.config import get_logger
 from cryptotrader.services.binance.websocketAPI.market_data_requests.order_book import (
-    get_order_book,
+    get_order_book_ws,
     process_order_book_response
 )
 
@@ -61,7 +61,7 @@ async def main():
     
     try:
         # Create a simple WebSocket connection
-        # The get_order_book function will use this connection
+        # The get_order_book_ws function will use this connection
         from cryptotrader.services.binance.websocketAPI.base_operations import BinanceWebSocketConnection
         connection = BinanceWebSocketConnection(
             on_message=on_message,
@@ -75,7 +75,7 @@ async def main():
         print_test_header(f"Getting order book for {TEST_SYMBOL} with {LIMIT} levels")
         
         # Send request
-        msg_id = await get_order_book(
+        msg_id = await get_order_book_ws(
             connection=connection,
             symbol=TEST_SYMBOL,
             limit=LIMIT

@@ -13,7 +13,7 @@ from cryptotrader.services.binance.models import Trade
 
 logger = get_logger(__name__)
 
-async def get_historical_trades(
+async def get_historical_trades_ws(
     connection: BinanceWebSocketConnection,
     symbol: str,
     from_id: Optional[int] = None,

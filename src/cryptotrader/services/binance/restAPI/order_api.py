@@ -60,7 +60,7 @@ class OrderOperations:
             weight=weight
         )
     
-    def place_order(self, order_request: Union[OrderRequest, Dict[str, Any]]) -> Optional[OrderStatusResponse]:
+    def place_spot_order(self, order_request: Union[OrderRequest, Dict[str, Any]]) -> Optional[OrderStatusResponse]:
         """
         Place a new order.
         

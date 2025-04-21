@@ -25,7 +25,7 @@ sys.path.insert(0, str(project_root))
 # Import our modules
 from cryptotrader.config import get_logger
 from cryptotrader.services.binance.websocketAPI.market_data_requests.klines import (
-    get_klines,
+    get_klines_ws,
     process_klines_response
 )
 
@@ -62,7 +62,7 @@ async def main():
     
     try:
         # Create a simple WebSocket connection
-        # The get_klines function will use this connection
+        # The get_klines_ws function will use this connection
         from cryptotrader.services.binance.websocketAPI.base_operations import BinanceWebSocketConnection
         connection = BinanceWebSocketConnection(
             on_message=on_message,
@@ -76,7 +76,7 @@ async def main():
         print_test_header(f"Getting {INTERVAL} klines for {TEST_SYMBOL}")
         
         # Send request
-        msg_id = await get_klines(
+        msg_id = await get_klines_ws(
             connection=connection,
             symbol=TEST_SYMBOL,
             interval=INTERVAL,

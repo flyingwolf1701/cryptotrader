@@ -17,7 +17,7 @@ import json
 from typing import Dict, List, Optional, Any, Union
 
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
+from src.cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
 from cryptotrader.services.binance.models import (
     OtcCoinPair, OtcQuote, OtcOrderResponse, OtcOrderDetail,
     OtcOrdersResponse, OcbsOrdersResponse, RateLimitType
@@ -122,7 +122,7 @@ class OtcOperations:
             return OtcQuote.from_api_response(response)
         return None
     
-    def place_order(self, quote_id: str) -> Optional[OtcOrderResponse]:
+    def place_otc_order(self, quote_id: str) -> Optional[OtcOrderResponse]:
         """
         Place an OTC trade order using a quote.
         

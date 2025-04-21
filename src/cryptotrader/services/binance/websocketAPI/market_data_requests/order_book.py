@@ -13,7 +13,7 @@ from cryptotrader.services.binance.models import OrderBook
 
 logger = get_logger(__name__)
 
-async def get_order_book(
+async def get_order_book_ws(
     connection: BinanceWebSocketConnection,
     symbol: str,
     limit: Optional[int] = None,

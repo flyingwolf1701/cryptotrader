@@ -10,23 +10,23 @@ from cryptotrader.services.binance.websocketAPI.base_operations import BinanceWe
 
 # Import market data request operations
 from cryptotrader.services.binance.websocketAPI.market_data_requests.order_book import (
-    get_order_book,
+    get_order_book_ws,
     process_order_book_response
 )
 from cryptotrader.services.binance.websocketAPI.market_data_requests.recent_trades import (
-    get_recent_trades,
+    get_recent_trades_ws,
     process_recent_trades_response
 )
 from cryptotrader.services.binance.websocketAPI.market_data_requests.historical_trades import (
-    get_historical_trades,
+    get_historical_trades_ws,
     process_historical_trades_response
 )
 from cryptotrader.services.binance.websocketAPI.market_data_requests.klines import (
-    get_klines,
+    get_klines_ws,
     process_klines_response
 )
 from cryptotrader.services.binance.websocketAPI.market_data_requests.aggregate_trades import (
-    get_aggregate_trades,
+    get_aggregate_trades_ws,
     process_aggregate_trades_response
 )
 from cryptotrader.services.binance.websocketAPI.market_data_requests.symbol_price_ticker import (
@@ -151,15 +151,15 @@ __all__ = [
     'SecurityType',
     
     # Market data requests
-    'get_order_book',
+    'get_order_book_ws',
     'process_order_book_response',
-    'get_recent_trades',
+    'get_recent_trades_ws',
     'process_recent_trades_response',
-    'get_historical_trades',
+    'get_historical_trades_ws',
     'process_historical_trades_response',
-    'get_klines',
+    'get_klines_ws',
     'process_klines_response',
-    'get_aggregate_trades',
+    'get_aggregate_trades_ws',
     'process_aggregate_trades_response',
     'get_price_ticker',
     'process_price_ticker_response',

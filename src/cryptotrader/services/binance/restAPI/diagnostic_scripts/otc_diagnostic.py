@@ -24,8 +24,8 @@ sys.path.insert(0, str(project_root))
 
 # Import our modules
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.restAPI.otc_api import OtcOperations
-from cryptotrader.services.binance.models.otc_models import OtcOrderStatus
+from cryptotrader.services.binance.restAPI import OtcOperations
+from cryptotrader.services.binance.models import OtcOrderStatus
 
 logger = get_logger(__name__)
 

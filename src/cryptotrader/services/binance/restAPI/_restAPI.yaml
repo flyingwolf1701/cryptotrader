@@ -39,19 +39,19 @@ binance_rest_api:
         endpoint: "GET /api/v3/klines"
         description: "Retrieves historical candlestick data for a symbol and interval"
       
-      get_recent_trades:
+      get_recent_trades_rest:
         endpoint: "GET /api/v3/trades"
         description: "Retrieves recent trades for a symbol"
       
-      get_historical_trades:
+      get_historical_trades_rest:
         endpoint: "GET /api/v3/historicalTrades"
         description: "Retrieves older trades for a symbol"
       
-      get_aggregate_trades:
+      get_aggregate_trades_rest:
         endpoint: "GET /api/v3/aggTrades"
         description: "Retrieves compressed, aggregate trades for a symbol"
       
-      get_order_book:
+      get_order_book_rest:
         endpoint: "GET /api/v3/depth"
         description: "Retrieves order book (market depth) for a symbol"
       

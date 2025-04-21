@@ -4,7 +4,7 @@ binance_websocket_api:
   dependencies:
     - cryptotrader.config.Secrets
     - cryptotrader.config.get_logger
-    - cryptotrader.services.binance.restAPI.base_operations.RateLimiter
+    - cryptotrader.services.binance.restAPI.RateLimiter
     - cryptotrader.services.binance.models.base_models.RateLimit
     - cryptotrader.services.binance.models.base_models.RateLimitType
     - cryptotrader.services.binance.models.base_models.RateLimitInterval
@@ -185,7 +185,7 @@ binance_websocket_api:
       aggregate_trades:
         description: "Retrieve aggregate trades data"
         requests:
-          get_aggregate_trades:
+          get_aggregate_trades_ws:
             description: "Get aggregate trades data for a symbol"
             endpoint: "aggTrades"
             weight: 1
@@ -213,7 +213,7 @@ binance_websocket_api:
       historical_trades:
         description: "Retrieve historical trades"
         requests:
-          get_historical_trades:
+          get_historical_trades_ws:
             description: "Get historical trades for a symbol"
             endpoint: "trades.historical"
             weight: 5
@@ -229,7 +229,7 @@ binance_websocket_api:
       klines:
         description: "Retrieve kline/candlestick data"
         requests:
-          get_klines:
+          get_klines_ws:
             description: "Get kline/candlestick data for a symbol"
             endpoint: "klines"
             weight: 1
@@ -245,7 +245,7 @@ binance_websocket_api:
       order_book:
         description: "Retrieve order book data"
         requests:
-          get_order_book:
+          get_order_book_ws:
             description: "Get order book for a symbol"
             endpoint: "depth"
             weight: "Adjusted based on limit: 1-100 (1), 101-500 (5), 501-1000 (10), 1001-5000 (50)"
@@ -259,7 +259,7 @@ binance_websocket_api:
       recent_trades:
         description: "Retrieve recent trades"
         requests:
-          get_recent_trades:
+          get_recent_trades_ws:
             description: "Get recent trades for a symbol"
             endpoint: "trades.recent"
             weight: 1

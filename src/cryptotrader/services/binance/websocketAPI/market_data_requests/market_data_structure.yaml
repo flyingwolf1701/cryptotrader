@@ -15,7 +15,7 @@ market_data_requests:
       weight: "1-50 based on limit parameter"
       security_type: "NONE"
       functions:
-        get_order_book:
+        get_order_book_ws:
           description: "Send a request to retrieve order book data"
           parameters:
             - connection: "Active WebSocket connection"
@@ -41,7 +41,7 @@ market_data_requests:
       weight: 1
       security_type: "NONE"
       functions:
-        get_recent_trades:
+        get_recent_trades_ws:
           description: "Send a request to retrieve recent trades"
           parameters:
             - connection: "Active WebSocket connection"
@@ -63,7 +63,7 @@ market_data_requests:
       weight: 5
       security_type: "MARKET_DATA"
       functions:
-        get_historical_trades:
+        get_historical_trades_ws:
           description: "Send a request to retrieve historical trades"
           parameters:
             - connection: "Active WebSocket connection"
@@ -88,7 +88,7 @@ market_data_requests:
       weight: 1
       security_type: "NONE"
       functions:
-        get_klines:
+        get_klines_ws:
           description: "Send a request to retrieve kline/candlestick data"
           parameters:
             - connection: "Active WebSocket connection"
@@ -117,7 +117,7 @@ market_data_requests:
       weight: 1
       security_type: "NONE"
       functions:
-        get_aggregate_trades:
+        get_aggregate_trades_ws:
           description: "Send a request to retrieve aggregate trades"
           parameters:
             - connection: "Active WebSocket connection"
