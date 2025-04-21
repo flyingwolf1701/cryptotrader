@@ -25,6 +25,8 @@ import matplotlib.dates as mdates
 from matplotlib.patches import Rectangle
 
 from cryptotrader.config import get_logger
+from cryptotrader.services.binance.models import Candle
+
 
 logger = get_logger(__name__)
 
@@ -54,96 +56,69 @@ class CandlestickChart(FigureCanvas):
         self.symbol = ""
         self.timeframe = ""
     
-    def plot_candles(self, candles: List, symbol: str, timeframe: str):
-        """Plot candlestick data on the chart.
-        
-        Args:
-            candles: List of Candle objects or dictionary data
-            symbol: Trading symbol (e.g., "BTCUSDT")
-            timeframe: Chart timeframe (e.g., "1h")
-        """
+    def plot_candles(self, candles: List[Candle], symbol: str, timeframe: str):
         if not candles:
             return
-        
-        # Store data
+
         self.candles = candles
         self.symbol = symbol
         self.timeframe = timeframe
-        
-        # Clear previous plot
+
         self.axes.clear()
-        
-        # Format dates for x-axis
         dates = []
-        for c in candles:
-            # Handle both Candle objects and dictionary data
-            timestamp = getattr(c, 'timestamp', c[0]) if hasattr(c, 'timestamp') else c[0]
-            dates.append(datetime.fromtimestamp(timestamp / 1000))
-        
-        # Draw candles
-        for i, candle in enumerate(candles):
-            # Handle both Candle objects and dictionary data
-            if hasattr(candle, 'open'):
+
+        for candle in candles:
+            try:
+                timestamp = candle.timestamp
                 open_price = candle.open
                 high_price = candle.high
                 low_price = candle.low
                 close_price = candle.close
-            else:
-                open_price = float(candle[1])
-                high_price = float(candle[2])
-                low_price = float(candle[3])
-                close_price = float(candle[4])
-            
-            # Determine candle color
+            except AttributeError:
+                # fallback for dict or list-based data
+                timestamp = candle.timestamp
+                open_price = candle.open_price
+                high_price = candle.high_price
+                low_price = candle.low_price
+                close_price = candle.close_price
+
+
+            date = datetime.fromtimestamp(timestamp / 1000)
+            dates.append(date)
+
             color = 'green' if close_price >= open_price else 'red'
-            
-            # Plot the wick (high-low range)
-            self.axes.plot(
-                [dates[i], dates[i]], 
-                [low_price, high_price], 
-                color='black', 
-                linewidth=1
-            )
-            
-            # Plot the body (open-close range)
-            body_bottom = min(open_price, close_price)
-            body_height = abs(close_price - open_price)
-            
-            # Calculate width for the candle body (in date units)
-            if i < len(candles) - 1:
-                width = (dates[i+1] - dates[i]) * 0.8
+            self.axes.plot([date, date], [low_price, high_price], color='black', linewidth=1)
+
+            if len(dates) > 1:
+                width = (dates[-1] - dates[-2]) * 0.8
             else:
-                # For the last candle, use the same width as the previous one
-                width = (dates[i] - dates[i-1]) * 0.8 if i > 0 else 0.8
-            
-            # Create and add the candle body rectangle
+                width = 0.01  # fallback
+
             rect = Rectangle(
-                (mdates.date2num(dates[i]) - width/2, body_bottom),
+                (mdates.date2num(date) - width / 2, min(open_price, close_price)),
                 width=width,
-                height=body_height,
+                height=abs(close_price - open_price),
                 facecolor=color,
                 edgecolor='black',
                 linewidth=0.5
             )
             self.axes.add_patch(rect)
-        
-        # Configure axes
+
         self.axes.set_title(f"{symbol} {timeframe} Chart")
         self.axes.xaxis_date()
-        
-        # Format the date axis based on timeframe
+        self.fig.autofmt_xdate()
+        self.axes.grid(True, alpha=0.3)
+
+        # Apply better x-axis formatting
         if timeframe in ["1m", "5m", "15m"]:
             self.axes.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
         elif timeframe in ["30m", "1h", "4h"]:
             self.axes.xaxis.set_major_formatter(mdates.DateFormatter('%d-%H:%M'))
         else:
             self.axes.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        
-        self.fig.autofmt_xdate()
-        self.axes.grid(True, alpha=0.3)
-        
-        # Draw everything
+
         self.draw()
+
 
 
 class ChartWidget(QWidget):

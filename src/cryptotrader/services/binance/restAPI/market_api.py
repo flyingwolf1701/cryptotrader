@@ -18,7 +18,7 @@ import time
 from typing import Dict, List, Optional, Any, Union
 
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
+from src.cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
 from cryptotrader.services.binance.models import (
     PriceData, Candle, RateLimitType,
     Trade, AggTrade, OrderBook, TickerPrice, AvgPrice, 
@@ -137,7 +137,7 @@ class MarketOperations:
                 
         return candles
         
-    def get_recent_trades(self, symbol: str, limit: int = 500) -> List[Trade]:
+    def get_recent_trades_rest(self, symbol: str, limit: int = 500) -> List[Trade]:
         """
         Get recent trades for a symbol.
         
@@ -166,7 +166,7 @@ class MarketOperations:
         
         return trades
     
-    def get_historical_trades(self, symbol: str, limit: int = 500, from_id: Optional[int] = None) -> List[Trade]:
+    def get_historical_trades_rest(self, symbol: str, limit: int = 500, from_id: Optional[int] = None) -> List[Trade]:
         """
         Get older trades for a symbol.
         
@@ -202,7 +202,7 @@ class MarketOperations:
         
         return trades
     
-    def get_aggregate_trades(self, symbol: str, limit: int = 500, from_id: Optional[int] = None,
+    def get_aggregate_trades_rest(self, symbol: str, limit: int = 500, from_id: Optional[int] = None,
                         start_time: Optional[int] = None, end_time: Optional[int] = None) -> List[AggTrade]:
         """
         Get compressed, aggregate trades. Trades that fill at the same time, from the same order, 
@@ -248,7 +248,7 @@ class MarketOperations:
         
         return agg_trades
     
-    def get_order_book(self, symbol: str, limit: int = 100) -> Optional[OrderBook]:
+    def get_order_book_rest(self, symbol: str, limit: int = 100) -> Optional[OrderBook]:
         """
         Get order book (market depth) for a symbol.
         

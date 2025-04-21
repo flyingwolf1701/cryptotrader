@@ -25,7 +25,7 @@ sys.path.insert(0, str(project_root))
 # Import our modules
 from cryptotrader.config import get_logger
 from cryptotrader.services.binance.websocketAPI.market_data_requests.historical_trades import (
-    get_historical_trades,
+    get_historical_trades_ws,
     process_historical_trades_response
 )
 
@@ -61,7 +61,7 @@ async def main():
     
     try:
         # Create a simple WebSocket connection
-        # The get_historical_trades function will use this connection
+        # The get_historical_trades_ws function will use this connection
         from cryptotrader.services.binance.websocketAPI.base_operations import BinanceWebSocketConnection
         connection = BinanceWebSocketConnection(
             on_message=on_message,
@@ -75,7 +75,7 @@ async def main():
         print_test_header(f"Getting historical trades for {TEST_SYMBOL}")
         
         # Send request
-        msg_id = await get_historical_trades(
+        msg_id = await get_historical_trades_ws(
             connection=connection,
             symbol=TEST_SYMBOL,
             limit=LIMIT

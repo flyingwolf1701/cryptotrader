@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Any, Union
 
 # Import base models to reference common types
-from cryptotrader.services.binance.models.base_models import OrderStatus, OrderType, OrderSide, TimeInForce
+from src.cryptotrader.services.binance.models import OrderStatus, OrderType, OrderSide, TimeInForce
 
 
 class CancelReplaceMode(str, Enum):

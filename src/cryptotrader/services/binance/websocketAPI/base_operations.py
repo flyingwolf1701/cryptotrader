@@ -18,7 +18,6 @@ import hmac
 import hashlib
 import asyncio
 import uuid
-import logging
 from typing import Dict, List, Optional, Any, Union, Callable, Awaitable
 from enum import Enum, auto
 from urllib.parse import parse_qs, urlparse
@@ -28,7 +27,7 @@ from websockets.exceptions import ConnectionClosed
 
 from cryptotrader.config import get_logger, Secrets
 from cryptotrader.services.binance.restAPI.base_operations import RateLimiter
-from cryptotrader.services.binance.models.base_models import (
+from cryptotrader.services.binance.models import (
     RateLimit, RateLimitType, RateLimitInterval
 )
 

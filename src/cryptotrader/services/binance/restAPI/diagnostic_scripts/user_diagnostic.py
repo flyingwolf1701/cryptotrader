@@ -22,7 +22,7 @@ sys.path.insert(0, str(project_root))
 
 # Import our modules
 from cryptotrader.config import get_logger
-from cryptotrader.services.binance.restAPI.user_api import UserOperations
+from cryptotrader.services.binance.restAPI import UserOperations
 
 logger = get_logger(__name__)
 

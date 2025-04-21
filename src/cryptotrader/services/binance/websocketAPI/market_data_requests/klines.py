@@ -13,7 +13,7 @@ from cryptotrader.services.binance.models import Candle, KlineInterval
 
 logger = get_logger(__name__)
 
-async def get_klines(
+async def get_klines_ws(
     connection: BinanceWebSocketConnection,
     symbol: str,
     interval: str,
