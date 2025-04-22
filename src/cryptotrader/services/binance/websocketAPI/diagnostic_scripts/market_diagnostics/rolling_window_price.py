@@ -19,14 +19,16 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 # Add the src directory to the Python path
-project_root = Path(__file__).parent.parent.parent.parent.parent.parent.parent  # src directory
+project_root = Path(
+    __file__
+).parent.parent.parent.parent.parent.parent.parent  # src directory
 sys.path.insert(0, str(project_root))
 
 # Import our modules
 from cryptotrader.config import get_logger
 from cryptotrader.services.binance.websocketAPI.market_data_requests.rolling_window_price import (
     get_rolling_window_stats,
-    process_rolling_window_response
+    process_rolling_window_response,
 )
 
 logger = get_logger(__name__)
@@ -36,9 +38,11 @@ TEST_SYMBOL = "BTCUSDT"  # Use a common trading pair for testing
 TEST_SYMBOLS = ["BTCUSDT", "ETHUSDT"]  # Multiple symbols for testing
 TEST_WINDOW_SIZES = ["1h", "4h", "1d"]  # Window sizes to test
 
+
 def print_test_header(test_name):
     """Print a test header in cyan color"""
     logger.info(f"\n{Fore.CYAN}Test: {test_name}{Style.RESET_ALL}")
+
 
 def print_test_result(success, message=None):
     """Print a test result in green (success) or red (failure)"""
@@ -51,116 +55,135 @@ def print_test_result(success, message=None):
         if message:
             logger.error(f"  {message}")
 
+
 async def main():
     """Run the rolling window price diagnostic test"""
     logger.info(f"Added {project_root} to Python path")
-    
+
     print_test_header("Setting up WebSocket connection")
-    
+
     # Setup message handler
     response_received = False
     response_data = None
     connection = None
-    
+
     async def on_message(message):
         nonlocal response_received, response_data
         response_received = True
         response_data = message
         logger.debug(f"Received message: {message}")
-    
+
     async def on_error(error):
         logger.error(f"WebSocket error: {str(error)}")
-    
+
     try:
         # Create a simple WebSocket connection
-        from cryptotrader.services.binance.websocketAPI.base_operations import BinanceWebSocketConnection
-        connection = BinanceWebSocketConnection(
-            on_message=on_message,
-            on_error=on_error
+        from cryptotrader.services.binance.websocketAPI.base_operations import (
+            BinanceWebSocketConnection,
         )
-        
+
+        connection = BinanceWebSocketConnection(
+            on_message=on_message, on_error=on_error
+        )
+
         await connection.connect()
         logger.info("WebSocket connection established")
-        
+
         # Test different window sizes
         for window_size in TEST_WINDOW_SIZES:
-            print_test_header(f"Getting {window_size} rolling window stats for {TEST_SYMBOL}")
+            print_test_header(
+                f"Getting {window_size} rolling window stats for {TEST_SYMBOL}"
+            )
             response_received = False
-            
+
             # Send request
             msg_id = await get_rolling_window_stats(
-                connection=connection,
-                symbol=TEST_SYMBOL,
-                window_size=window_size
+                connection=connection, symbol=TEST_SYMBOL, window_size=window_size
             )
-            
+
             logger.info(f"Request sent with ID: {msg_id}")
-            
+
             # Wait for response
             for _ in range(10):  # Wait up to 5 seconds
                 if response_received:
                     break
                 await asyncio.sleep(0.5)
-            
+
             # Process response
             if response_received:
                 stats = await process_rolling_window_response(response_data)
                 if stats:
-                    print_test_result(True, f"Successfully retrieved {window_size} rolling window stats")
+                    print_test_result(
+                        True,
+                        f"Successfully retrieved {window_size} rolling window stats",
+                    )
                     logger.info(f"  Symbol: {stats.symbol}")
-                    logger.info(f"  Window: {datetime.fromtimestamp(stats.open_time/1000)} to {datetime.fromtimestamp(stats.close_time/1000)}")
-                    logger.info(f"  Price Change: {stats.price_change} ({stats.price_change_percent}%)")
-                    logger.info(f"  High: {stats.high_price}, Low: {stats.low_price}")
+                    logger.info(
+                        f"  Window: {datetime.fromtimestamp(stats.openTime / 1000)} to {datetime.fromtimestamp(stats.closeTime / 1000)}"
+                    )
+                    logger.info(
+                        f"  Price Change: {stats.priceChange} ({stats.priceChangePercent}%)"
+                    )
+                    logger.info(f"  High: {stats.highPrice}, Low: {stats.lowPrice}")
                     logger.info(f"  Volume: {stats.volume}")
                 else:
-                    print_test_result(False, f"Failed to process {window_size} rolling window response")
+                    print_test_result(
+                        False,
+                        f"Failed to process {window_size} rolling window response",
+                    )
             else:
                 print_test_result(False, "No response received")
-                
+
         # Test multiple symbols
         window_size = "1d"  # Use 1 day window for multiple symbols
-        print_test_header(f"Getting {window_size} rolling window stats for multiple symbols: {TEST_SYMBOLS}")
+        print_test_header(
+            f"Getting {window_size} rolling window stats for multiple symbols: {TEST_SYMBOLS}"
+        )
         response_received = False
-        
+
         # Send request
         msg_id = await get_rolling_window_stats(
-            connection=connection,
-            symbols=TEST_SYMBOLS,
-            window_size=window_size
+            connection=connection, symbols=TEST_SYMBOLS, window_size=window_size
         )
-        
+
         logger.info(f"Request sent with ID: {msg_id}")
-        
+
         # Wait for response
         for _ in range(10):  # Wait up to 5 seconds
             if response_received:
                 break
             await asyncio.sleep(0.5)
-        
+
         # Process response
         if response_received:
             stats_list = await process_rolling_window_response(response_data)
             if stats_list and isinstance(stats_list, list):
-                print_test_result(True, f"Successfully retrieved {window_size} rolling window stats for {len(stats_list)} symbols")
-                
+                print_test_result(
+                    True,
+                    f"Successfully retrieved {window_size} rolling window stats for {len(stats_list)} symbols",
+                )
+
                 # Display summary of all stats
                 logger.info(f"Summary of retrieved stats:")
                 for stats in stats_list:
-                    logger.info(f"  {stats.symbol}: Change: {stats.price_change} ({stats.price_change_percent}%), Volume: {stats.volume}")
+                    logger.info(
+                        f"  {stats.symbol}: Change: {stats.priceChange} ({stats.priceChangePercent}%), Volume: {stats.volume}"
+                    )
             else:
                 print_test_result(False, "Failed to process multiple symbols response")
         else:
             print_test_result(False, "No response received")
-    
+
     except Exception as e:
         logger.error(f"Error during test: {str(e)}")
         logger.error(traceback.format_exc())
-    
+
     finally:
         # Close connection
         if connection:
             await connection.close()
             logger.info("WebSocket connection closed")
+
 
 if __name__ == "__main__":
     try:

@@ -7,6 +7,7 @@ between different UI components.
 
 import tkinter as tk
 from tkinter import ttk
+from typing import Dict, List, Optional, Any, Union, cast
 
 # Import with relative imports to work within the project structure
 from src.cryptotrader.config import get_logger
@@ -36,8 +37,8 @@ class MainWindow(tk.Tk):
         apply_theme(self)
         
         # Initialize API clients
-        self.market_client = MarketOperations()
-        self.system_client = SystemOperations()
+        self.market_client: MarketOperations = MarketOperations()
+        self.system_client: SystemOperations = SystemOperations()
         
         # Create UI elements
         self.setup_ui()
@@ -50,7 +51,7 @@ class MainWindow(tk.Tk):
         
         logger.info("CryptoTrader Dashboard initialized")
     
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         """Set up the user interface components."""
         # Create main splitter (PanedWindow in Tkinter)
         self.main_splitter = ttk.PanedWindow(self, orient=tk.HORIZONTAL)
@@ -73,7 +74,7 @@ class MainWindow(tk.Tk):
         # Create and add components
         self.init_components()
     
-    def init_components(self):
+    def init_components(self) -> None:
         """Initialize dashboard components and add them to the layout."""
         # Create left side components
         self.chart_widget = ChartWidget(self.left_frame, self.market_client)
@@ -162,12 +163,16 @@ class MainWindow(tk.Tk):
         """Update live data for all components."""
         try:
             # Update price data in watchlist
-            self.watchlist.update_prices()
-            
+            result = self.watchlist.update_prices()
+            if result is False:  # If update_prices indicates a problem
+                logger.warning("Watchlist update failed, will retry in 5 seconds")
+                self.after(5000, self.update_data)  # Retry in 5 seconds
+                return
+                
             # Schedule the next update
             self.after(1500, self.update_data)
             
         except Exception as e:
             logger.error(f"Error updating data: {str(e)}")
-            # Even if there's an error, continue the update cycle
-            self.after(1500, self.update_data)
+            # Even if there's an error, continue the update cycle after a short delay
+            self.after(5000, self.update_data)  # Retry in 5 seconds

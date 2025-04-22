@@ -7,35 +7,39 @@ This module defines color schemes and styles for the CryptoTrader dashboard.
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkfont
+from typing import Dict, List, Tuple, Optional, Any, Union, cast
 
 # Color definitions
 class Colors:
     # Main colors
-    BACKGROUND = "#1e1e1e"
-    BACKGROUND_LIGHT = "#2d2d30"
-    FOREGROUND = "#d4d4d4"
-    ACCENT = "#007acc"
+    BACKGROUND: str = "#1e1e1e"
+    BACKGROUND_LIGHT: str = "#2d2d30"
+    FOREGROUND: str = "#d4d4d4"
+    ACCENT: str = "#007acc"
     
     # Status colors
-    SUCCESS = "#6A8759"  # Green
-    WARNING = "#BBB529"  # Yellow
-    ERROR = "#FF5555"    # Red
+    SUCCESS: str = "#6A8759"  # Green
+    WARNING: str = "#BBB529"  # Yellow
+    ERROR: str = "#FF5555"    # Red
     
     # Trading colors
-    BUY = "#6A8759"      # Green
-    SELL = "#CF6A4C"     # Red
-    NEUTRAL = "#A9B7C6"  # Gray
+    BUY: str = "#6A8759"      # Green
+    SELL: str = "#CF6A4C"     # Red
+    NEUTRAL: str = "#A9B7C6"  # Gray
 
 # Font definitions
 class Fonts:
     @staticmethod
-    def create_fonts(root):
+    def create_fonts(root: tk.Tk) -> Dict[str, tkfont.Font]:
         """Create font objects for the application.
         
         Args:
             root: The root Tkinter window
+            
+        Returns:
+            Dictionary mapping font names to font objects
         """
-        fonts = {}
+        fonts: Dict[str, tkfont.Font] = {}
         fonts['normal'] = tkfont.Font(family="Segoe UI", size=10)
         fonts['bold'] = tkfont.Font(family="Segoe UI", size=10, weight="bold")
         fonts['monospace'] = tkfont.Font(family="Consolas", size=10)
@@ -43,11 +47,14 @@ class Fonts:
         fonts['large'] = tkfont.Font(family="Segoe UI", size=12)
         return fonts
 
-def apply_theme(root):
+def apply_theme(root: tk.Tk) -> Dict[str, tkfont.Font]:
     """Apply a dark theme to the entire application.
     
     Args:
         root: The root Tkinter window
+        
+    Returns:
+        Dictionary of fonts created for the application
     """
     # Configure the ttk theme
     style = ttk.Style(root)
@@ -108,7 +115,9 @@ def apply_theme(root):
     # Return fonts for use in the application
     return fonts
 
-def create_table(parent, columns, height=10, column_widths=None, padding=2):
+def create_table(parent: tk.Widget, columns: List[str], height: int = 10, 
+                 column_widths: Optional[List[int]] = None, 
+                 padding: int = 2) -> Tuple[ttk.Frame, ttk.Treeview]:
     """Create a styled table widget (Treeview).
     
     Args:
@@ -163,7 +172,8 @@ def create_table(parent, columns, height=10, column_widths=None, padding=2):
     
     return frame, treeview
 
-def create_button(parent, text, command=None, width=None, style=None):
+def create_button(parent: tk.Widget, text: str, command: Optional[callable] = None, 
+                  width: Optional[int] = None, style: Optional[str] = None) -> ttk.Button:
     """Create a styled button widget.
     
     Args:

@@ -30,16 +30,18 @@ logger = get_logger(__name__)
 # Test constants
 TEST_SYMBOL = "BTCUSDT"  # Use a common trading pair for testing
 
+
 def print_test_header(test_name):
     """Print a test header in cyan color"""
     logger.info(f"\n{Fore.CYAN}Test: {test_name}{Style.RESET_ALL}")
 
+
 def main():
     logger.info(f"Added {project_root} to Python path")
-    
+
     logger.info("Initializing Binance Market client...")
     client = MarketOperations()  # No need to pass API credentials
-    
+
     # Test 1: Get bid/ask for BTC/USDT
     print_test_header("Getting current BTC/USDT price")
     try:
@@ -52,7 +54,7 @@ def main():
     except Exception as e:
         logger.error(f"Error retrieving BTC/USDT price: {str(e)}")
         logger.debug(traceback.format_exc())
-    
+
     # Test 2: Get historical candles
     print_test_header("Getting historical candles for BTC/USDT (1-hour interval)")
     try:
@@ -61,17 +63,17 @@ def main():
         if candles:
             logger.info("Most recent candle:")
             logger.info(f"  Time: {candles[-1].timestamp}")
-            logger.info(f"  Open: ${candles[-1].open_price:.2f}")
-            logger.info(f"  High: ${candles[-1].high_price:.2f}")
-            logger.info(f"  Low: ${candles[-1].low_price:.2f}")
-            logger.info(f"  Close: ${candles[-1].close_price:.2f}")
+            logger.info(f"  Open: ${candles[-1].openPrice:.2f}")
+            logger.info(f"  High: ${candles[-1].highPrice:.2f}")
+            logger.info(f"  Low: ${candles[-1].lowPrice:.2f}")
+            logger.info(f"  Close: ${candles[-1].closePrice:.2f}")
             logger.info(f"  Volume: {candles[-1].volume:.8f}")
         else:
             logger.error("Failed to retrieve candles for BTC/USDT")
     except Exception as e:
         logger.error(f"Error retrieving historical candles: {str(e)}")
         logger.debug(traceback.format_exc())
-    
+
     # Test 3: Get ticker price for BTC/USDT
     print_test_header("Getting ticker price for BTC/USDT")
     try:
@@ -83,68 +85,78 @@ def main():
     except Exception as e:
         logger.error(f"Error retrieving ticker price: {str(e)}")
         logger.debug(traceback.format_exc())
-    
+
     # Test 4: Get average price for BTC/USDT
     print_test_header("Getting average price for BTC/USDT")
     try:
         avg_price = client.get_avg_price(TEST_SYMBOL)
         if avg_price:
-            logger.info(f"BTC/USDT Average Price (mins={avg_price.mins}): ${avg_price.price:.2f}")
+            logger.info(
+                f"BTC/USDT Average Price (mins={avg_price.mins}): ${avg_price.price:.2f}"
+            )
         else:
             logger.error("Failed to retrieve BTC/USDT average price")
     except Exception as e:
         logger.error(f"Error retrieving average price: {str(e)}")
         logger.debug(traceback.format_exc())
-        
+
     # Test 5: Get order book
     print_test_header("Getting order book for BTC/USDT")
     try:
         order_book = client.get_order_book_rest(TEST_SYMBOL, limit=5)
         if order_book:
-            logger.info(f"Order Book Last Update ID: {order_book.last_update_id}")
+            logger.info(f"Order Book Last Update ID: {order_book.lastUpdateId}")
             logger.info(f"Top 5 Bids:")
             for i, bid in enumerate(order_book.bids[:5]):
-                logger.info(f"  {i+1}. Price: ${bid.price:.2f}, Quantity: {bid.quantity:.8f}")
+                logger.info(
+                    f"  {i + 1}. Price: ${bid.price:.2f}, Quantity: {bid.quantity:.8f}"
+                )
             logger.info(f"Top 5 Asks:")
             for i, ask in enumerate(order_book.asks[:5]):
-                logger.info(f"  {i+1}. Price: ${ask.price:.2f}, Quantity: {ask.quantity:.8f}")
+                logger.info(
+                    f"  {i + 1}. Price: ${ask.price:.2f}, Quantity: {ask.quantity:.8f}"
+                )
         else:
             logger.error("Failed to retrieve BTC/USDT order book")
     except Exception as e:
         logger.error(f"Error retrieving order book: {str(e)}")
         logger.debug(traceback.format_exc())
-        
+
     # Test 6: Get 24-hour price statistics
     print_test_header("Getting 24-hour price statistics for BTC/USDT")
     try:
         stats = client.get_24h_stats(TEST_SYMBOL)
         if stats:
-            logger.info(f"24h Price Change: ${stats.price_change:.2f} ({stats.price_change_percent:.2f}%)")
-            logger.info(f"24h High: ${stats.high_price:.2f}")
-            logger.info(f"24h Low: ${stats.low_price:.2f}")
+            logger.info(
+                f"24h Price Change: ${stats.priceChange:.2f} ({stats.priceChangePercent:.2f}%)"
+            )
+            logger.info(f"24h High: ${stats.highPrice:.2f}")
+            logger.info(f"24h Low: ${stats.lowPrice:.2f}")
             logger.info(f"24h Volume: {stats.volume:.8f} BTC")
-            logger.info(f"24h Quote Volume: ${stats.quote_volume:.2f}")
+            logger.info(f"24h Quote Volume: ${stats.quoteVolume:.2f}")
         else:
             logger.error("Failed to retrieve BTC/USDT 24-hour statistics")
     except Exception as e:
         logger.error(f"Error retrieving 24-hour statistics: {str(e)}")
         logger.debug(traceback.format_exc())
-    
+
     # Test 7: Get Rolling Window Statistics
     print_test_header("Getting rolling window statistics for BTC/USDT")
     try:
         rolling_stats = client.get_rolling_window_stats(TEST_SYMBOL, window_size="1d")
         if rolling_stats:
-            logger.info(f"1d Rolling Window Price Change: ${rolling_stats.price_change:.2f} ({rolling_stats.price_change_percent:.2f}%)")
-            logger.info(f"1d Window High: ${rolling_stats.high_price:.2f}")
-            logger.info(f"1d Window Low: ${rolling_stats.low_price:.2f}")
+            logger.info(
+                f"1d Rolling Window Price Change: ${rolling_stats.priceChange:.2f} ({rolling_stats.priceChangePercent:.2f}%)"
+            )
+            logger.info(f"1d Window High: ${rolling_stats.highPrice:.2f}")
+            logger.info(f"1d Window Low: ${rolling_stats.lowPrice:.2f}")
             logger.info(f"1d Window Volume: {rolling_stats.volume:.8f} BTC")
         else:
             logger.error("Failed to retrieve BTC/USDT rolling window statistics")
     except Exception as e:
         logger.error(f"Error retrieving rolling window statistics: {str(e)}")
         logger.debug(traceback.format_exc())
-    
+
     # Summary
     logger.info("\nMarket API Diagnostic Summary:")
     logger.info("----------------------------")
@@ -156,7 +168,10 @@ def main():
     logger.info("5. Getting order book for BTC/USDT")
     logger.info("6. Getting 24-hour price statistics for BTC/USDT")
     logger.info("7. Getting rolling window statistics for BTC/USDT")
-    logger.info("\nMarket API diagnostic completed. Check the logs above for any errors.")
+    logger.info(
+        "\nMarket API diagnostic completed. Check the logs above for any errors."
+    )
+
 
 if __name__ == "__main__":
     main()

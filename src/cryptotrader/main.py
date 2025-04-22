@@ -8,6 +8,7 @@ Keeps the main file clean by delegating the UI logic to the MainWindow class.
 import sys
 import logging
 from pathlib import Path
+from typing import List, Optional, Any
 
 # Add the project root to the Python path
 project_root = Path(__file__).parent.parent.parent  # Navigate to the project root from src/cryptotrader/main.py
@@ -20,7 +21,7 @@ from src.cryptotrader.config import get_logger
 # Configure logging
 logger = get_logger(__name__)
 
-def main():
+def main() -> None:
     """Application entry point."""
     # Log application startup
     logger.info("Starting CryptoTrader Application")

@@ -1,6 +1,7 @@
 Binance API Client Development Guidelines
 Project Structure
 The Binance API implementation follows a well-defined folder structure:
+
 ```bash
 src/cryptotrader/services/binance/
 ├── __init__.py                # Main package exports
@@ -35,6 +36,7 @@ src/cryptotrader/services/binance/
 │   └── staking_diagnostic.py  # Tests staking functionality
 └── websocketAPI/              # WebSocket API (covered separately)
 ```
+
 Each functional area of the Binance API should have three corresponding components:
 
 A models file in the models/ directory
@@ -43,8 +45,9 @@ A diagnostic script in the diagnostic_scripts/ directory
 
 Architecture Overview
 When creating new API endpoints for the Binance API client, follow these architectural patterns to ensure consistency across the codebase:
+
 1. Base Operations Architecture
-The BinanceAPIRequest class in base_operations.py serves as the foundation for all API requests:
+   The BinanceAPIRequest class in base_operations.py serves as the foundation for all API requests:
 
 It handles authentication by retrieving API credentials from Secrets
 It manages rate limiting
@@ -52,89 +55,93 @@ It handles request signing for authenticated endpoints
 It provides retry logic and error handling
 
 2. Implementation Pattern for API Clients
-When implementing a new API client module (e.g., for a specific group of API endpoints):
-API Class Structure:
+   When implementing a new API client module (e.g., for a specific group of API endpoints):
+   API Class Structure:
+
 ```python
 class NewAPIOperations:
     """
     Binance [Category] API client implementation.
-    
+
     Provides methods for [brief description of functionality].
     """
-    
+
     def __init__(self):
         """Initialize the client."""
         pass
-    
-    def request(self, method: str, endpoint: str, 
+
+    def request(self, method: str, endpoint: str,
                limit_type: Optional[RateLimitType] = None,
                weight: int = 1) -> BinanceAPIRequest:
         """
         Create a new API request.
-        
+
         Args:
             method: HTTP method (GET, POST, DELETE)
             endpoint: API endpoint path
             limit_type: Type of rate limit for this request
             weight: Weight of this request for rate limiting
-            
+
         Returns:
             BinanceAPIRequest object for building and executing the request
         """
         return BinanceAPIRequest(
-            method=method, 
+            method=method,
             endpoint=endpoint,
             limit_type=limit_type,
             weight=weight
         )
-        
+
     # API endpoint methods follow with actual endpoint paths in comments
-    
+
     def get_endpoint_data(self, symbol: str) -> ReturnType:
         """
         Description of what this endpoint does.
-        
+
         GET /api/v3/endpoint
         Weight: X
-        
+
         Args:
             symbol: Description of parameter
-            
+
         Returns:
             Description of return value
         """
         # Implementation...
 ```
+
 Endpoint Method Pattern:
+
 ```python
 def endpoint_method(self, required_param: str, optional_param: Optional[int] = None) -> ReturnType:
     """
     Description of what this endpoint does.
-    
+
     GET /api/v3/specific-endpoint
     Weight: X
-    
+
     Args:
         required_param: Description of parameter
         optional_param: Description of optional parameter
-        
+
     Returns:
         Description of return value
     """
     request = self.request("METHOD", "/api/v3/specific-endpoint", RateLimitType.REQUEST_WEIGHT, weight) \
         .requires_auth(True/False) \
         .with_query_params(param=required_param)
-        
+
     if optional_param is not None:
         request.with_query_params(optionalParam=optional_param)
-        
+
     response = request.execute()
-    
+
     if response:
         # Transform response into return type
         return transformed_response
     return None  # or empty list/default value
 ```
+
 Models Architecture
 The project uses a layered model architecture to represent API data:
 Base Models
@@ -150,12 +157,13 @@ Utility models used across multiple API areas (e.g., PriceData, Candle)
 class SystemStatus:
     """System status information"""
     status_code: int  # 0: normal, 1: system maintenance, -1: unknown
-    
+
     @property
     def is_normal(self) -> bool:
         """Check if system status is normal"""
         return self.status_code == 0
 ```
+
 Feature-Specific Models
 Each API area should have its own models file (e.g., order_models.py, market_models.py):
 
@@ -176,12 +184,13 @@ class OrderResponseFull:
     type: OrderType  # Referencing enum from base_models
     side: OrderSide  # Referencing enum from base_models
     fills: List[Fill]  # Referencing another model
-    
+
     @classmethod
     def from_api_response(cls, response: Dict[str, Any]) -> 'OrderResponseFull':
         """Factory method to create from API response"""
         # ... implementation ...
 ```
+
 Model Best Practices
 
 Use Data Classes: Leverage Python's @dataclass decorator for all models
@@ -194,15 +203,17 @@ Inheritance: Use inheritance when appropriate (e.g., PriceStats extends PriceSta
 
 Integration with API Implementation
 API methods should return properly typed models rather than raw dictionaries:
+
 ```python
 def get_order_status(self, symbol: str, order_id: int) -> Optional[OrderStatusResponse]:
     # ... implementation ...
     response = request.execute()
-    
+
     if response:
         return OrderStatusResponse.from_api_response(response)
     return None
 ```
+
 Key Guidelines
 
 Authentication Handling:
@@ -218,14 +229,10 @@ Create an HMAC-SHA256 signature using the secret key
 Add the signature to the request parameters
 Add the API key to the request headers
 
-
-
-
 Rate Limiting:
 
 Always specify the correct weight for each endpoint
 Use appropriate RateLimitType for each request
-
 
 Parameter Handling:
 
@@ -233,13 +240,11 @@ Validate parameters before sending (e.g., ensure limits don't exceed API maximum
 Use snake_case for method parameters
 Use camelCase when passing to the API via with_query_params()
 
-
 Response Handling:
 
 Always handle the case where the API returns None or an error
 Use model classes from models.py to transform API responses into typed objects
 For list responses, return an empty list rather than None when appropriate
-
 
 Documentation:
 
@@ -249,11 +254,10 @@ Clearly describe parameters and return values
 Note any special behavior or requirements
 Include the actual API endpoint path in the docstring
 
-
-
 Diagnostic Scripts
 Diagnostic scripts provide a way to test API functionality without integrating it into the main application. Each API area should have a corresponding diagnostic script:
 Diagnostic Script Structure
+
 ```python
 """
 Binance [Feature] API Diagnostic Script
@@ -295,10 +299,10 @@ def print_test_header(test_name):
 
 def main():
     logger.info(f"Added {project_root} to Python path")
-    
+
     logger.info("Initializing Binance client...")
     client = Client()  # No need to pass API credentials
-    
+
     # Test 1: Test basic functionality
     print_test_header("Basic Functionality Test")
     try:
@@ -307,19 +311,20 @@ def main():
     except Exception as e:
         logger.error(f"Error during test: {str(e)}")
         logger.debug(traceback.format_exc())
-    
+
     # Additional tests...
-    
+
     # Summary
     logger.info("\nDiagnostic Summary:")
     logger.info("----------------------------")
     # Summary information...
-    
+
     logger.info("\nDiagnostic completed.")
 
 if __name__ == "__main__":
     main()
 ```
+
 Diagnostic Best Practices
 
 Colorful Output: Use colorama to make output more readable with color-coded sections
@@ -333,6 +338,7 @@ Summary: Provide a summary of all test results at the end
 
 Example Diagnostic Script: order_diagnostic.py
 Here's a specific example from the order_diagnostic.py script that demonstrates how to create an effective diagnostic:
+
 ```python
 # Test 1: Get account balance
 print_test_header("Getting Account Balance")
@@ -341,9 +347,9 @@ try:
     if balance and balance.assets:
         logger.info("Account balance retrieved successfully")
         # Print assets with non-zero balances
-        non_zero_assets = {asset: data for asset, data in balance.assets.items() 
+        non_zero_assets = {asset: data for asset, data in balance.assets.items()
                         if float(data.free) > 0 or float(data.locked) > 0}
-        
+
         if non_zero_assets:
             logger.info("Assets with non-zero balance:")
             for asset, data in non_zero_assets.items():
@@ -356,6 +362,7 @@ except Exception as e:
     logger.error(f"Error retrieving account balance: {str(e)}")
     logger.debug(traceback.format_exc())
 ```
+
 Key features of this diagnostic test:
 
 Clear test header using colorama
@@ -373,11 +380,10 @@ pythonrequest = self.request("GET", "/api/v3/endpoint").requires_auth(True)
 BinanceAPIRequest internally sets self.needs_signature = True which will trigger signature generation on execution
 During execute(), if authentication is needed, the sign_request() method is called which:
 
-Adds the current timestamp: self.params['timestamp'] = str(int(time.time() * 1000))
+Adds the current timestamp: self.params['timestamp'] = str(int(time.time() \* 1000))
 Creates a query string from all parameters
 Creates an HMAC-SHA256 signature using the secret key from Secrets.BINANCE_API_SECRET
 Adds the signature to params: self.params['signature'] = signature
-
 
 The API key from Secrets.BINANCE_API_KEY is added to the request headers:
 pythonheaders['X-MBX-APIKEY'] = self.public_key
@@ -386,6 +392,7 @@ The request is then executed with these authentication credentials
 
 This ensures all authentication is handled consistently throughout the codebase, with no need to implement it in individual API client classes.
 Example Implementation
+
 ```python
 from typing import Dict, List, Optional, Any
 
@@ -399,29 +406,29 @@ class ExampleOperations:
     def __init__(self):
         """Initialize the Example API client."""
         pass
-    
-    def request(self, method: str, endpoint: str, 
+
+    def request(self, method: str, endpoint: str,
                limit_type: Optional[RateLimitType] = None,
                weight: int = 1) -> BinanceAPIRequest:
         """Create a new API request."""
         return BinanceAPIRequest(
-            method=method, 
+            method=method,
             endpoint=endpoint,
             limit_type=limit_type,
             weight=weight
         )
-    
+
     def get_example_data(self, symbol: str, limit: int = 100) -> Optional[SomeResponseModel]:
         """
         Get example data for a symbol.
-        
+
         GET /api/v3/example-data
         Weight: 1
-        
+
         Args:
             symbol: Symbol to get data for (e.g. "BTCUSDT")
             limit: Number of records to return (default 100, max 500)
-            
+
         Returns:
             SomeResponseModel object with retrieved data, or None if request fails
         """
@@ -432,14 +439,16 @@ class ExampleOperations:
                 limit=min(limit, 500)  # Ensure limit doesn't exceed API max
             ) \
             .execute()
-            
+
         if response is not None:
             return SomeResponseModel.from_api_response(response)
-        
+
         return None
 ```
-Updating __init__.py Files
-When adding a new API feature, you must update the appropriate __init__.py files to export your models and API classes. When exporting API functions, include the actual endpoint path as a comment:
+
+Updating **init**.py Files
+When adding a new API feature, you must update the appropriate **init**.py files to export your models and API classes. When exporting API functions, include the actual endpoint path as a comment:
+
 ```python
 """
 Binance API Module
@@ -459,7 +468,7 @@ __all__ = [
     'Client',
     'BinanceAPIRequest',
     'OrderOperations',
-    
+
     # API Functions
     'get_balance',           # GET /api/v3/account
     'get_order_status',      # GET /api/v3/order
@@ -472,6 +481,7 @@ __all__ = [
     'get_24h_stats',         # GET /api/v3/ticker/24hr
 ]
 ```
+
 This approach makes it easy to identify which API endpoints correspond to which exported functions, especially for developers who are new to the codebase or the Binance API.
 Creating a New Feature: Complete Process
 When adding a new API feature, follow this complete process:
