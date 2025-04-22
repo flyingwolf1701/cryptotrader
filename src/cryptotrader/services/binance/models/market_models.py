@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Any
 @dataclass
 class PriceData:
     """Data structure for bid/ask prices"""
+
     bid: float
     ask: float
 
@@ -19,68 +20,72 @@ class PriceData:
 @dataclass
 class Candle:
     """Data structure for candlestick data"""
+
     timestamp: int
-    open_price: float
-    high_price: float
-    low_price: float
-    close_price: float
+    openPrice: float
+    highPrice: float
+    lowPrice: float
+    closePrice: float
     volume: float
-    quote_volume: float
+    quoteVolume: float
 
 
 @dataclass
 class Trade:
     """Data structure for a single trade"""
+
     id: int
     price: float
     quantity: float
-    quote_quantity: float
+    quoteQuantity: float
     time: int
-    is_buyer_maker: bool
-    is_best_match: bool
+    isBuyerMaker: bool
+    isBestMatch: bool
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'Trade':
+    def from_api_response(cls, response: Dict[str, Any]) -> "Trade":
         return cls(
-            id=int(response['id']),
-            price=float(response['price']),
-            quantity=float(response['qty']),
-            quote_quantity=float(response['quoteQty']),
-            time=int(response['time']),
-            is_buyer_maker=bool(response['isBuyerMaker']),
-            is_best_match=bool(response['isBestMatch'])
+            id=int(response["id"]),
+            price=float(response["price"]),
+            quantity=float(response["qty"]),
+            quoteQuantity=float(response["quoteQty"]),
+            time=int(response["time"]),
+            isBuyerMaker=bool(response["isBuyerMaker"]),
+            isBestMatch=bool(response["isBestMatch"]),
         )
 
 
 @dataclass
 class AggTrade:
     """Data structure for aggregate trade"""
-    aggregate_trade_id: int
+
+    aggregateTradeId: int
     price: float
     quantity: float
-    first_trade_id: int
-    last_trade_id: int
+    firstTradeId: int
+    lastTradeId: int
     timestamp: int
-    is_buyer_maker: bool
-    is_best_match: bool
+    isBuyerMaker: bool
+    isBestMatch: bool
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'AggTrade':
+    def from_api_response(cls, response: Dict[str, Any]) -> "AggTrade":
         return cls(
-            aggregate_trade_id=int(response['a']),
-            price=float(response['p']),
-            quantity=float(response['q']),
-            first_trade_id=int(response['f']),
-            last_trade_id=int(response['l']),
-            timestamp=int(response['T']),
-            is_buyer_maker=bool(response['m']),
-            is_best_match=bool(response['M'])
+            aggregateTradeId=int(response["a"]),
+            price=float(response["p"]),
+            quantity=float(response["q"]),
+            firstTradeId=int(response["f"]),
+            lastTradeId=int(response["l"]),
+            timestamp=int(response["T"]),
+            isBuyerMaker=bool(response["m"]),
+            isBestMatch=bool(response["M"]),
         )
 
 
 @dataclass
 class OrderBookEntry:
     """Single order book entry (price and quantity)"""
+
     price: float
     quantity: float
 
@@ -88,86 +93,86 @@ class OrderBookEntry:
 @dataclass
 class OrderBook:
     """Data structure for order book depth"""
-    last_update_id: int
+
+    lastUpdateId: int
     bids: List[OrderBookEntry]
     asks: List[OrderBookEntry]
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'OrderBook':
-        bids = [OrderBookEntry(float(item[0]), float(item[1])) for item in response.get('bids', [])]
-        asks = [OrderBookEntry(float(item[0]), float(item[1])) for item in response.get('asks', [])]
-        return cls(
-            last_update_id=int(response['lastUpdateId']),
-            bids=bids,
-            asks=asks
-        )
+    def from_api_response(cls, response: Dict[str, Any]) -> "OrderBook":
+        bids = [
+            OrderBookEntry(float(item[0]), float(item[1]))
+            for item in response.get("bids", [])
+        ]
+        asks = [
+            OrderBookEntry(float(item[0]), float(item[1]))
+            for item in response.get("asks", [])
+        ]
+        return cls(lastUpdateId=int(response["lastUpdateId"]), bids=bids, asks=asks)
 
 
 @dataclass
 class TickerPrice:
     """Data structure for ticker price"""
+
     symbol: str
     price: float
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'TickerPrice':
-        return cls(
-            symbol=response['symbol'],
-            price=float(response['price'])
-        )
+    def from_api_response(cls, response: Dict[str, Any]) -> "TickerPrice":
+        return cls(symbol=response["symbol"], price=float(response["price"]))
 
 
 @dataclass
 class AvgPrice:
     """Data structure for average price"""
+
     mins: int
     price: float
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'AvgPrice':
-        return cls(
-            mins=int(response['mins']),
-            price=float(response['price'])
-        )
+    def from_api_response(cls, response: Dict[str, Any]) -> "AvgPrice":
+        return cls(mins=int(response["mins"]), price=float(response["price"]))
 
 
 @dataclass
 class PriceStatsMini:
     """
     Data structure for 24hr price change statistics (MINI version)
-    
+
     This contains the reduced fields returned when type=MINI is specified.
     """
+
     symbol: str
-    price_change: float
-    last_price: float
-    open_price: float
-    high_price: float
-    low_price: float
+    priceChange: float
+    lastPrice: float
+    openPrice: float
+    highPrice: float
+    lowPrice: float
     volume: float
-    quote_volume: float
-    open_time: int
-    close_time: int
-    first_id: int
-    last_id: int
+    quoteVolume: float
+    openTime: int
+    closeTime: int
+    firstId: int
+    lastId: int
     count: int
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'PriceStatsMini':
+    def from_api_response(cls, response: Dict[str, Any]) -> "PriceStatsMini":
         return cls(
-            symbol=response['symbol'],
-            price_change=float(response['priceChange']),
-            last_price=float(response['lastPrice']),
-            open_price=float(response['openPrice']),
-            high_price=float(response['highPrice']),
-            low_price=float(response['lowPrice']),
-            volume=float(response['volume']),
-            quote_volume=float(response['quoteVolume']),
-            open_time=int(response['openTime']),
-            close_time=int(response['closeTime']),
-            first_id=int(response['firstId']),
-            last_id=int(response['lastId']),
-            count=int(response['count'])
+            symbol=response["symbol"],
+            priceChange=float(response["priceChange"]),
+            lastPrice=float(response["lastPrice"]),
+            openPrice=float(response["openPrice"]),
+            highPrice=float(response["highPrice"]),
+            lowPrice=float(response["lowPrice"]),
+            volume=float(response["volume"]),
+            quoteVolume=float(response["quoteVolume"]),
+            openTime=int(response["openTime"]),
+            closeTime=int(response["closeTime"]),
+            firstId=int(response["firstId"]),
+            lastId=int(response["lastId"]),
+            count=int(response["count"]),
         )
 
 
@@ -175,47 +180,48 @@ class PriceStatsMini:
 class PriceStats(PriceStatsMini):
     """
     Data structure for 24hr price change statistics (FULL version)
-    
+
     This extends PriceStatsMini with additional fields available in the FULL response.
     """
-    price_change_percent: float
-    weighted_avg_price: float
-    prev_close_price: float
-    last_qty: float
-    bid_price: float
-    bid_qty: float
-    ask_price: float
-    ask_qty: float
-    
+
+    priceChangePercent: float
+    weightedAvgPrice: float
+    prevClosePrice: float
+    lastQty: float
+    bidPrice: float
+    bidQty: float
+    askPrice: float
+    askQty: float
+
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'PriceStats':
+    def from_api_response(cls, response: Dict[str, Any]) -> "PriceStats":
         # First create a base object with the mini fields
         mini = PriceStatsMini.from_api_response(response)
-        
+
         # Then extend it with the full fields
         return cls(
             symbol=mini.symbol,
-            price_change=mini.price_change,
-            last_price=mini.last_price,
-            open_price=mini.open_price,
-            high_price=mini.high_price,
-            low_price=mini.low_price,
+            priceChange=mini.priceChange,
+            lastPrice=mini.lastPrice,
+            openPrice=mini.openPrice,
+            highPrice=mini.highPrice,
+            lowPrice=mini.lowPrice,
             volume=mini.volume,
-            quote_volume=mini.quote_volume,
-            open_time=mini.open_time,
-            close_time=mini.close_time,
-            first_id=mini.first_id,
-            last_id=mini.last_id,
+            quoteVolume=mini.quoteVolume,
+            openTime=mini.openTime,
+            closeTime=mini.closeTime,
+            firstId=mini.firstId,
+            lastId=mini.lastId,
             count=mini.count,
             # Additional fields for FULL response
-            price_change_percent=float(response['priceChangePercent']),
-            weighted_avg_price=float(response['weightedAvgPrice']),
-            prev_close_price=float(response['prevClosePrice']),
-            last_qty=float(response.get('lastQty', 0)),
-            bid_price=float(response.get('bidPrice', 0)),
-            bid_qty=float(response.get('bidQty', 0)),
-            ask_price=float(response.get('askPrice', 0)),
-            ask_qty=float(response.get('askQty', 0))
+            priceChangePercent=float(response["priceChangePercent"]),
+            weightedAvgPrice=float(response["weightedAvgPrice"]),
+            prevClosePrice=float(response["prevClosePrice"]),
+            lastQty=float(response.get("lastQty", 0)),
+            bidPrice=float(response.get("bidPrice", 0)),
+            bidQty=float(response.get("bidQty", 0)),
+            askPrice=float(response.get("askPrice", 0)),
+            askQty=float(response.get("askQty", 0)),
         )
 
 
@@ -223,39 +229,40 @@ class PriceStats(PriceStatsMini):
 class RollingWindowStatsMini:
     """
     Data structure for rolling window price change statistics (MINI version)
-    
+
     This contains the reduced fields returned when type=MINI is specified.
     """
+
     symbol: str
-    price_change: float
-    last_price: float
-    open_price: float
-    high_price: float
-    low_price: float
+    priceChange: float
+    lastPrice: float
+    openPrice: float
+    highPrice: float
+    lowPrice: float
     volume: float
-    quote_volume: float
-    open_time: int
-    close_time: int
-    first_id: int
-    last_id: int
+    quoteVolume: float
+    openTime: int
+    closeTime: int
+    firstId: int
+    lastId: int
     count: int
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'RollingWindowStatsMini':
+    def from_api_response(cls, response: Dict[str, Any]) -> "RollingWindowStatsMini":
         return cls(
-            symbol=response['symbol'],
-            price_change=float(response['priceChange']),
-            last_price=float(response['lastPrice']),
-            open_price=float(response['openPrice']),
-            high_price=float(response['highPrice']),
-            low_price=float(response['lowPrice']),
-            volume=float(response['volume']),
-            quote_volume=float(response['quoteVolume']),
-            open_time=int(response['openTime']),
-            close_time=int(response['closeTime']),
-            first_id=int(response['firstId']),
-            last_id=int(response['lastId']),
-            count=int(response['count'])
+            symbol=response["symbol"],
+            priceChange=float(response["priceChange"]),
+            lastPrice=float(response["lastPrice"]),
+            openPrice=float(response["openPrice"]),
+            highPrice=float(response["highPrice"]),
+            lowPrice=float(response["lowPrice"]),
+            volume=float(response["volume"]),
+            quoteVolume=float(response["quoteVolume"]),
+            openTime=int(response["openTime"]),
+            closeTime=int(response["closeTime"]),
+            firstId=int(response["firstId"]),
+            lastId=int(response["lastId"]),
+            count=int(response["count"]),
         )
 
 
@@ -263,33 +270,34 @@ class RollingWindowStatsMini:
 class RollingWindowStats(RollingWindowStatsMini):
     """
     Data structure for rolling window price change statistics (FULL version)
-    
+
     This extends RollingWindowStatsMini with additional fields available in the FULL response.
     """
-    price_change_percent: float
-    weighted_avg_price: float
-    
+
+    priceChangePercent: float
+    weightedAvgPrice: float
+
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'RollingWindowStats':
+    def from_api_response(cls, response: Dict[str, Any]) -> "RollingWindowStats":
         # First create a base object with the mini fields
         mini = RollingWindowStatsMini.from_api_response(response)
-        
+
         # Then extend it with the full fields
         return cls(
             symbol=mini.symbol,
-            price_change=mini.price_change,
-            last_price=mini.last_price,
-            open_price=mini.open_price,
-            high_price=mini.high_price,
-            low_price=mini.low_price,
+            priceChange=mini.priceChange,
+            lastPrice=mini.lastPrice,
+            openPrice=mini.openPrice,
+            highPrice=mini.highPrice,
+            lowPrice=mini.lowPrice,
             volume=mini.volume,
-            quote_volume=mini.quote_volume,
-            open_time=mini.open_time,
-            close_time=mini.close_time,
-            first_id=mini.first_id,
-            last_id=mini.last_id,
+            quoteVolume=mini.quoteVolume,
+            openTime=mini.openTime,
+            closeTime=mini.closeTime,
+            firstId=mini.firstId,
+            lastId=mini.lastId,
             count=mini.count,
             # Additional fields for FULL response
-            price_change_percent=float(response['priceChangePercent']),
-            weighted_avg_price=float(response['weightedAvgPrice'])
+            priceChangePercent=float(response["priceChangePercent"]),
+            weightedAvgPrice=float(response["weightedAvgPrice"]),
         )

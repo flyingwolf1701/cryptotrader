@@ -1,6 +1,6 @@
 market_data_requests:
   description: "WebSocket API requests for market data from the Binance API"
-  
+
   dependencies:
     - cryptotrader.config.get_logger
     - cryptotrader.services.binance.websocketAPI.base_operations.BinanceWebSocketConnection
@@ -33,7 +33,7 @@ market_data_requests:
           parameters:
             - response: "WebSocket response data"
           returns: "OrderBook object"
-    
+
     recent_trades:
       description: "Retrieve recent trades for a trading symbol"
       file: "recent_trades.py"
@@ -55,7 +55,7 @@ market_data_requests:
             - response: "WebSocket response data"
           returns: "List of Trade objects"
       data_source: "Memory"
-    
+
     historical_trades:
       description: "Retrieve historical trades for a trading symbol"
       file: "historical_trades.py"
@@ -80,7 +80,7 @@ market_data_requests:
       data_source: "Database"
       notes:
         - "If fromId is not specified, the most recent trades are returned"
-    
+
     klines:
       description: "Retrieve kline/candlestick data for a trading symbol"
       file: "klines.py"
@@ -109,7 +109,7 @@ market_data_requests:
       notes:
         - "If startTime and endTime are not specified, the most recent klines are returned"
         - "Interval is case-sensitive"
-    
+
     aggregate_trades:
       description: "Retrieve aggregate trades for a trading symbol"
       file: "aggregate_trades.py"
@@ -137,7 +137,7 @@ market_data_requests:
       notes:
         - "An aggregate trade represents one or more individual trades executed at the same time, from the same taker order, with the same price"
         - "fromId cannot be used together with startTime and endTime"
-    
+
     symbol_price_ticker:
       description: "Retrieve the latest market price for a symbol or symbols"
       file: "symbol_price_ticker.py"
@@ -163,7 +163,7 @@ market_data_requests:
         - "symbol: 1"
         - "symbols: 2"
         - "none (all symbols): 2"
-    
+
     symbol_order_book_ticker:
       description: "Retrieve the current best price and quantity on the order book"
       file: "symbol_order_book_ticker.py"
@@ -189,7 +189,7 @@ market_data_requests:
         - "symbol: 1"
         - "symbols: 2"
         - "none (all symbols): 2"
-    
+
     ticker_price_24h:
       description: "Retrieve 24-hour price change statistics"
       file: "ticker_price_24h.py"
@@ -218,7 +218,7 @@ market_data_requests:
         - "21-100 symbols: 20"
         - "101 or more symbols: 40"
         - "all symbols: 40"
-    
+
     rolling_window_price:
       description: "Retrieve rolling window price change statistics"
       file: "rolling_window_price.py"
@@ -247,7 +247,7 @@ market_data_requests:
         - "1-50 symbols: 2 per symbol"
         - "51-100 symbols: 100"
       window_size_options: "1m-59m (minutes), 1h-23h (hours), 1d-7d (days)"
-    
+
     current_average_price:
       description: "Retrieve the current average price for a trading symbol"
       file: "current_average_price.py"
@@ -276,53 +276,53 @@ market_data_requests:
         - id: "Trade ID"
         - price: "Trade price"
         - quantity: "Trade quantity"
-        - quote_quantity: "Quote asset quantity"
+        - quoteQuantity: "Quote asset quantity"
         - time: "Trade time in milliseconds"
-        - is_buyer_maker: "Whether the buyer is the maker"
-        - is_best_match: "Whether this trade is the best match"
-      
+        - isBuyerMaker: "Whether the buyer is the maker"
+        - isBestMatch: "Whether this trade is the best match"
+
     agg_trade:
       description: "Model for representing an aggregate trade"
       fields:
-        - aggregate_trade_id: "Aggregate trade ID"
+        - aggregateTradeId: "Aggregate trade ID"
         - price: "Trade price"
         - quantity: "Trade quantity"
-        - first_trade_id: "First trade ID in the aggregate"
-        - last_trade_id: "Last trade ID in the aggregate"
+        - firstTradeId: "First trade ID in the aggregate"
+        - lastTradeId: "Last trade ID in the aggregate"
         - timestamp: "Trade time in milliseconds"
-        - is_buyer_maker: "Whether the buyer is the maker"
-        - is_best_match: "Whether this trade is the best match"
-      
+        - isBuyerMaker: "Whether the buyer is the maker"
+        - isBestMatch: "Whether this trade is the best match"
+
     candle:
       description: "Model for representing a candlestick"
       fields:
         - timestamp: "Open time in milliseconds"
-        - open_price: "Open price"
-        - high_price: "High price"
-        - low_price: "Low price"
-        - close_price: "Close price"
+        - openPrice: "Open price"
+        - highPrice: "High price"
+        - lowPrice: "Low price"
+        - closePrice: "Close price"
         - volume: "Volume"
-        - quote_volume: "Quote asset volume"
-      
+        - quoteVolume: "Quote asset volume"
+
     order_book:
       description: "Model for representing the order book"
       fields:
-        - last_update_id: "Last update ID"
+        - lastUpdateId: "Last update ID"
         - bids: "List of order book entries for bids"
         - asks: "List of order book entries for asks"
-      
+
     order_book_entry:
       description: "Model for representing a single order book entry"
       fields:
         - price: "Price level"
         - quantity: "Quantity at the price level"
-      
+
     ticker_price:
       description: "Model for representing a symbol price ticker"
       fields:
         - symbol: "Trading symbol"
         - price: "Current price"
-      
+
     book_ticker:
       description: "Model for representing a symbol order book ticker"
       fields:
@@ -331,67 +331,67 @@ market_data_requests:
         - bidQty: "Best bid quantity"
         - askPrice: "Best ask price"
         - askQty: "Best ask quantity"
-      
+
     price_stats_mini:
       description: "Model for representing 24hr price change statistics (MINI version)"
       fields:
         - symbol: "Trading symbol"
-        - price_change: "Price change"
-        - last_price: "Latest price"
-        - open_price: "Open price"
-        - high_price: "High price"
-        - low_price: "Low price"
+        - priceChange: "Price change"
+        - lastPrice: "Latest price"
+        - openPrice: "Open price"
+        - highPrice: "High price"
+        - lowPrice: "Low price"
         - volume: "Volume"
-        - quote_volume: "Quote asset volume"
-        - open_time: "Open time in milliseconds"
-        - close_time: "Close time in milliseconds"
-        - first_id: "First trade ID"
-        - last_id: "Last trade ID"
+        - quoteVolume: "Quote asset volume"
+        - openTime: "Open time in milliseconds"
+        - closeTime: "Close time in milliseconds"
+        - firstId: "First trade ID"
+        - lastId: "Last trade ID"
         - count: "Trade count"
-      
+
     price_stats:
       description: "Model for representing 24hr price change statistics (FULL version)"
       extends: "price_stats_mini"
       additional_fields:
-        - price_change_percent: "Price change percent"
-        - weighted_avg_price: "Weighted average price"
-        - prev_close_price: "Previous close price"
-        - last_qty: "Last trade quantity"
-        - bid_price: "Best bid price"
-        - bid_qty: "Best bid quantity"
-        - ask_price: "Best ask price"
-        - ask_qty: "Best ask quantity"
-      
+        - priceChangePercent: "Price change percent"
+        - weightedAvgPrice: "Weighted average price"
+        - prevClosePrice: "Previous close price"
+        - lastQty: "Last trade quantity"
+        - bidPrice: "Best bid price"
+        - bidQty: "Best bid quantity"
+        - askPrice: "Best ask price"
+        - askQty: "Best ask quantity"
+
     rolling_window_stats_mini:
       description: "Model for representing rolling window price change statistics (MINI version)"
       fields:
         - symbol: "Trading symbol"
-        - price_change: "Price change"
-        - last_price: "Latest price"
-        - open_price: "Open price"
-        - high_price: "High price"
-        - low_price: "Low price"
+        - priceChange: "Price change"
+        - lastPrice: "Latest price"
+        - openPrice: "Open price"
+        - highPrice: "High price"
+        - lowPrice: "Low price"
         - volume: "Volume"
-        - quote_volume: "Quote asset volume"
-        - open_time: "Open time in milliseconds"
-        - close_time: "Close time in milliseconds"
-        - first_id: "First trade ID"
-        - last_id: "Last trade ID"
+        - quoteVolume: "Quote asset volume"
+        - openTime: "Open time in milliseconds"
+        - closeTime: "Close time in milliseconds"
+        - firstId: "First trade ID"
+        - lastId: "Last trade ID"
         - count: "Trade count"
-      
+
     rolling_window_stats:
       description: "Model for representing rolling window price change statistics (FULL version)"
       extends: "rolling_window_stats_mini"
       additional_fields:
-        - price_change_percent: "Price change percent"
-        - weighted_avg_price: "Weighted average price"
-      
+        - priceChangePercent: "Price change percent"
+        - weightedAvgPrice: "Weighted average price"
+
     avg_price:
       description: "Model for representing average price"
       fields:
         - mins: "Number of minutes for the average"
         - price: "Average price"
-  
+
   diagnostic_scripts:
     order_book_diagnostic:
       description: "Tests the Order Book WebSocket API functionality"
@@ -400,21 +400,21 @@ market_data_requests:
         - "Fetches order book for a symbol with specified limit"
         - "Validates bid and ask data"
         - "Calculates bid-ask spread and volume metrics"
-    
+
     recent_trades_diagnostic:
       description: "Tests the Recent Trades WebSocket API functionality"
       file: "market_diagnostics/recent_trades_diagnostic.py"
       tests:
         - "Fetches recent trades for a symbol"
         - "Validates trade data structures"
-    
+
     historical_trades_diagnostic:
       description: "Tests the Historical Trades WebSocket API functionality"
       file: "market_diagnostics/historical_trades_diagnostic.py"
       tests:
         - "Fetches historical trades for a symbol"
         - "Validates trade data structures"
-    
+
     klines_diagnostic:
       description: "Tests the Klines WebSocket API functionality"
       file: "market_diagnostics/klines_diagnostic.py"
@@ -422,21 +422,21 @@ market_data_requests:
         - "Fetches candlestick data for a symbol and interval"
         - "Validates candlestick data"
         - "Analyzes price range in the sample"
-    
+
     aggregate_trades_diagnostic:
       description: "Tests the Aggregate Trades WebSocket API functionality"
       file: "market_diagnostics/aggregate_trades_diagnostic.py"
       tests:
         - "Fetches aggregate trades for a symbol"
         - "Validates aggregate trade data structures"
-    
+
     symbol_price_ticker_diagnostic:
       description: "Tests the Symbol Price Ticker WebSocket API functionality"
       file: "market_diagnostics/symbol_price_ticker_diagnostic.py"
       tests:
         - "Fetches price ticker for a single symbol"
         - "Fetches price tickers for multiple symbols"
-    
+
     symbol_order_book_ticker_diagnostic:
       description: "Tests the Symbol Order Book Ticker WebSocket API functionality"
       file: "market_diagnostics/symbol_order_book_ticker_diagnostic.py"
@@ -444,7 +444,7 @@ market_data_requests:
         - "Fetches order book ticker for a single symbol"
         - "Fetches order book tickers for multiple symbols"
         - "Analyzes spread percentages across symbols"
-    
+
     ticker_price_24h_diagnostic:
       description: "Tests the 24hr Ticker Price WebSocket API functionality"
       file: "market_diagnostics/ticker_price_24h_diagnostic.py"
@@ -452,14 +452,14 @@ market_data_requests:
         - "Fetches 24hr ticker (FULL) for a single symbol"
         - "Fetches 24hr ticker (MINI) for a single symbol"
         - "Fetches 24hr tickers for multiple symbols"
-    
+
     rolling_window_price_diagnostic:
       description: "Tests the Rolling Window Price WebSocket API functionality"
       file: "market_diagnostics/rolling_window_price_diagnostic.py"
       tests:
         - "Fetches rolling window stats for different window sizes"
         - "Fetches rolling window stats for multiple symbols"
-    
+
     current_average_price_diagnostic:
       description: "Tests the Current Average Price WebSocket API functionality"
       file: "market_diagnostics/current_average_price_diagnostic.py"

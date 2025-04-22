@@ -13,6 +13,7 @@ from typing import Dict, List, Optional, Any, Union
 
 class StakingTransactionType(str, Enum):
     """Staking transaction types returned by Binance API"""
+
     STAKED = "staked"
     UNSTAKED = "unstaked"
     REWARD = "reward"
@@ -20,6 +21,7 @@ class StakingTransactionType(str, Enum):
 
 class StakingTransactionStatus(str, Enum):
     """Staking transaction status returned by Binance API"""
+
     SUCCESS = "SUCCESS"
     PROCESSING = "PROCESSING"
     FAILED = "FAILED"
@@ -28,6 +30,7 @@ class StakingTransactionStatus(str, Enum):
 @dataclass
 class StakingAssetInfo:
     """Data structure for staking asset information"""
+
     stakingAsset: str
     rewardAsset: str
     apr: str
@@ -38,68 +41,70 @@ class StakingAssetInfo:
     autoRestake: bool
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'StakingAssetInfo':
+    def from_api_response(cls, response: Dict[str, Any]) -> "StakingAssetInfo":
         return cls(
-            stakingAsset=response['stakingAsset'],
-            rewardAsset=response['rewardAsset'],
-            apr=response['apr'],
-            apy=response['apy'],
-            unstakingPeriod=int(response['unstakingPeriod']),
-            minStakingLimit=response['minStakingLimit'],
-            maxStakingLimit=response['maxStakingLimit'],
-            autoRestake=response['autoRestake']
+            stakingAsset=response["stakingAsset"],
+            rewardAsset=response["rewardAsset"],
+            apr=response["apr"],
+            apy=response["apy"],
+            unstakingPeriod=int(response["unstakingPeriod"]),
+            minStakingLimit=response["minStakingLimit"],
+            maxStakingLimit=response["maxStakingLimit"],
+            autoRestake=response["autoRestake"],
         )
 
 
 @dataclass
 class StakingOperationResult:
     """Data structure for staking operation result"""
+
     code: str
     message: str
     data: Dict[str, Any]
     success: bool
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'StakingOperationResult':
+    def from_api_response(cls, response: Dict[str, Any]) -> "StakingOperationResult":
         return cls(
-            code=response['code'],
-            message=response['message'],
-            data=response['data'],
-            success=response['success']
+            code=response["code"],
+            message=response["message"],
+            data=response["data"],
+            success=response["success"],
         )
 
 
 @dataclass
 class StakingStakeResult:
     """Data structure for stake operation result"""
+
     result: str
     purchaseRecordId: str
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'StakingStakeResult':
-        data = response.get('data', {})
+    def from_api_response(cls, response: Dict[str, Any]) -> "StakingStakeResult":
+        data = response.get("data", {})
         return cls(
-            result=data.get('result', ''),
-            purchaseRecordId=data.get('purchaseRecordId', '')
+            result=data.get("result", ""),
+            purchaseRecordId=data.get("purchaseRecordId", ""),
         )
 
 
 @dataclass
 class StakingUnstakeResult:
     """Data structure for unstake operation result"""
+
     result: str
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'StakingUnstakeResult':
-        data = response.get('data', {})
-        return cls(
-            result=data.get('result', '')
-        )
+    def from_api_response(cls, response: Dict[str, Any]) -> "StakingUnstakeResult":
+        data = response.get("data", {})
+        return cls(result=data.get("result", ""))
 
 
 @dataclass
 class StakingBalanceItem:
     """Data structure for a single staking balance item"""
+
     asset: str
     stakingAmount: str
     rewardAsset: str
@@ -108,20 +113,21 @@ class StakingBalanceItem:
     autoRestake: bool
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'StakingBalanceItem':
+    def from_api_response(cls, response: Dict[str, Any]) -> "StakingBalanceItem":
         return cls(
-            asset=response['asset'],
-            stakingAmount=response['stakingAmount'],
-            rewardAsset=response['rewardAsset'],
-            apr=response['apr'],
-            apy=response['apy'],
-            autoRestake=response['autoRestake']
+            asset=response["asset"],
+            stakingAmount=response["stakingAmount"],
+            rewardAsset=response["rewardAsset"],
+            apr=response["apr"],
+            apy=response["apy"],
+            autoRestake=response["autoRestake"],
         )
 
 
 @dataclass
 class StakingBalanceResponse:
     """Data structure for staking balance response"""
+
     code: str
     message: str
     data: List[StakingBalanceItem]
@@ -129,23 +135,24 @@ class StakingBalanceResponse:
     success: bool
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'StakingBalanceResponse':
-        data_items = []
-        for item in response.get('data', []):
-            data_items.append(StakingBalanceItem.from_api_response(item))
-        
+    def from_api_response(cls, response: Dict[str, Any]) -> "StakingBalanceResponse":
+        dataItems = []
+        for item in response.get("data", []):
+            dataItems.append(StakingBalanceItem.from_api_response(item))
+
         return cls(
-            code=response['code'],
-            message=response['message'],
-            data=data_items,
-            status=response.get('status', []),
-            success=response['success']
+            code=response["code"],
+            message=response["message"],
+            data=dataItems,
+            status=response.get("status", []),
+            success=response["success"],
         )
 
 
 @dataclass
 class StakingHistoryItem:
     """Data structure for staking history item"""
+
     asset: str
     amount: str
     type: StakingTransactionType
@@ -153,19 +160,20 @@ class StakingHistoryItem:
     status: StakingTransactionStatus
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'StakingHistoryItem':
+    def from_api_response(cls, response: Dict[str, Any]) -> "StakingHistoryItem":
         return cls(
-            asset=response['asset'],
-            amount=response['amount'],
-            type=StakingTransactionType(response['type']),
-            initiatedTime=int(response['initiatedTime']),
-            status=StakingTransactionStatus(response['status'])
+            asset=response["asset"],
+            amount=response["amount"],
+            type=StakingTransactionType(response["type"]),
+            initiatedTime=int(response["initiatedTime"]),
+            status=StakingTransactionStatus(response["status"]),
         )
 
 
 @dataclass
 class StakingRewardItem:
     """Data structure for staking reward item"""
+
     asset: str
     amount: str
     usdValue: str
@@ -174,20 +182,21 @@ class StakingRewardItem:
     autoRestaked: bool
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'StakingRewardItem':
+    def from_api_response(cls, response: Dict[str, Any]) -> "StakingRewardItem":
         return cls(
-            asset=response['asset'],
-            amount=response['amount'],
-            usdValue=response['usdValue'],
-            time=int(response['time']),
-            tranId=int(response['tranId']),
-            autoRestaked=response['autoRestaked']
+            asset=response["asset"],
+            amount=response["amount"],
+            usdValue=response["usdValue"],
+            time=int(response["time"]),
+            tranId=int(response["tranId"]),
+            autoRestaked=response["autoRestaked"],
         )
 
 
 @dataclass
 class StakingRewardsResponse:
     """Data structure for staking rewards response"""
+
     code: str
     message: str
     data: List[StakingRewardItem]
@@ -195,16 +204,15 @@ class StakingRewardsResponse:
     success: bool
 
     @classmethod
-    def from_api_response(cls, response: Dict[str, Any]) -> 'StakingRewardsResponse':
-        reward_items = []
-        for item in response.get('data', []):
-            reward_items.append(StakingRewardItem.from_api_response(item))
-        
+    def from_api_response(cls, response: Dict[str, Any]) -> "StakingRewardsResponse":
+        rewardItems = []
+        for item in response.get("data", []):
+            rewardItems.append(StakingRewardItem.from_api_response(item))
+
         return cls(
-            code=response['code'],
-            message=response['message'],
-            data=reward_items,
-            total=int(response.get('total', 0)),
-            success=response['success']
+            code=response["code"],
+            message=response["message"],
+            data=rewardItems,
+            total=int(response.get("total", 0)),
+            success=response["success"],
         )
-    
