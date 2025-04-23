@@ -22,7 +22,7 @@ project_root = Path(__file__).parent.parent.parent.parent.parent.parent.parent  
 sys.path.insert(0, str(project_root))
 
 # Import our modules
-from cryptotrader.config import get_logger
+from config import get_logger
 from cryptotrader.services.binance.websocketAPI.market_data_requests.symbol_order_book_ticker import (
     get_book_ticker,
     process_book_ticker_response

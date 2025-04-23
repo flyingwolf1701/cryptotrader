@@ -25,7 +25,7 @@ project_root = Path(
 sys.path.insert(0, str(project_root))
 
 # Import our modules
-from cryptotrader.config import get_logger
+from config import get_logger
 from cryptotrader.services.binance.websocketAPI.market_data_requests.klines import (
     get_klines_ws,
     process_klines_response,

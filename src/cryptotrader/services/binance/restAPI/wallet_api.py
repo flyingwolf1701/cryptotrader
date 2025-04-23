@@ -14,7 +14,7 @@ These endpoints provide wallet functionality for managing funds on the Binance p
 
 from typing import Dict, List, Optional, Any, Union
 
-from cryptotrader.config import get_logger
+from config import get_logger
 from src.cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
 from cryptotrader.services.binance.models import (
     AssetDetail,

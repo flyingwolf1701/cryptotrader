@@ -25,7 +25,7 @@ from urllib.parse import parse_qs, urlparse
 import websockets
 from websockets.exceptions import ConnectionClosed
 
-from cryptotrader.config import get_logger, Secrets
+from config import get_logger, Secrets
 from cryptotrader.services.binance.restAPI.base_operations import RateLimiter
 from cryptotrader.services.binance.models import (
     RateLimit,

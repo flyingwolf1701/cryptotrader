@@ -31,7 +31,7 @@ sys.path.insert(0, str(project_root))
 
 # Import our modules
 try:
-    from cryptotrader.config import get_logger, Secrets
+    from config import get_logger, Secrets
     from cryptotrader.services.binance.websocketAPI.base_operations import (
         BinanceWebSocketConnection,
         SecurityType
