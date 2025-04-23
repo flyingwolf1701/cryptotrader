@@ -7,7 +7,7 @@ and rate limits.
 """
 
 # Import base operations
-from cryptotrader.services.binance.websocketAPI.base_operations import (
+from services.binance.websockets.base_operations import (
     BinanceWebSocketConnection,
     SecurityType
 )
@@ -28,7 +28,7 @@ from cryptotrader.services.binance.websocketAPI.account_requests.acct_order_hist
     process_order_history_response
 )
 
-from cryptotrader.services.binance.websocketAPI.account_requests.acct_oco_history import (
+from services.binance.websockets.account_requests.acct_oco_history import (
     get_oco_history,
     process_oco_history_response
 )

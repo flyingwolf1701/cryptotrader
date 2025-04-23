@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, Any, Callable, Awaitable
 from enum import Enum
 
 from config import get_logger
-from cryptotrader.services.binance.websocketAPI import (
+from services.binance.websockets import (
     BinanceWebSocketConnection,
     SecurityType,
 )

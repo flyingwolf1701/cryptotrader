@@ -8,7 +8,7 @@ It follows the Binance WebSocket API specifications for the 'ticker.24hr' endpoi
 from typing import Dict, List, Optional, Any, Callable, Awaitable, Union
 
 from config import get_logger
-from cryptotrader.services.binance.websocketAPI.base_operations import BinanceWebSocketConnection, SecurityType
+from services.binance.websockets.base_operations import BinanceWebSocketConnection, SecurityType
 from cryptotrader.services.binance.models import PriceStats, PriceStatsMini
 
 logger = get_logger(__name__)
