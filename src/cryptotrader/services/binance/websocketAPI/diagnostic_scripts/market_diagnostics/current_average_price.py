@@ -23,7 +23,7 @@ project_root = Path(__file__).parent.parent.parent.parent.parent.parent.parent  
 sys.path.insert(0, str(project_root))
 
 # Import our modules
-from cryptotrader.config import get_logger
+from config import get_logger
 from cryptotrader.services.binance.websocketAPI.market_data_requests.current_average_price import (
     get_avg_price,
     process_avg_price_response

@@ -10,7 +10,7 @@ from tkinter import ttk
 from typing import Dict, List, Optional, Any, Union, cast
 
 # Import with relative imports to work within the project structure
-from src.cryptotrader.config import get_logger
+from config import get_logger
 from src.cryptotrader.services.binance.restAPI import MarketOperations, SystemOperations
 
 # Import components

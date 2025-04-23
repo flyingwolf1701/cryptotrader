@@ -13,7 +13,7 @@ from typing import Dict, List, Optional, Any, Callable, Awaitable, Union
 import websockets
 from websockets.exceptions import ConnectionClosed
 
-from cryptotrader.config import get_logger, Secrets
+from config import get_logger, Secrets
 
 logger = get_logger(__name__)
 

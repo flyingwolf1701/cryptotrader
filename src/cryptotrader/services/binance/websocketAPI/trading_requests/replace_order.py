@@ -8,7 +8,7 @@ It follows the Binance WebSocket API specifications for the 'order.cancelReplace
 from typing import Dict, List, Optional, Any, Callable, Awaitable
 from enum import Enum
 
-from cryptotrader.config import get_logger
+from config import get_logger
 from cryptotrader.services.binance.websocketAPI import (
     BinanceWebSocketConnection,
     SecurityType,

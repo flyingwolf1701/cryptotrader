@@ -8,7 +8,7 @@ It follows the Binance WebSocket API specifications for the 'ticker.book' endpoi
 from typing import Dict, List, Optional, Any, Callable, Awaitable, Union
 from dataclasses import dataclass
 
-from cryptotrader.config import get_logger
+from config import get_logger
 from cryptotrader.services.binance.websocketAPI.base_operations import BinanceWebSocketConnection, SecurityType
 
 logger = get_logger(__name__)

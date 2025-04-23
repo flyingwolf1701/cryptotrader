@@ -8,7 +8,7 @@ import time
 import tkinter as tk
 from tkinter import ttk
 
-from src.cryptotrader.config import get_logger
+from config import get_logger
 from src.cryptotrader.gui.components.styles import Colors
 
 logger = get_logger(__name__)

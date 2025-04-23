@@ -10,7 +10,7 @@ from tkinter import ttk
 from functools import partial
 from typing import Dict, Set, List, Callable, Any, Optional, Union, cast
 
-from src.cryptotrader.config import get_logger
+from config import get_logger
 from src.cryptotrader.gui.components.styles import Colors, create_table, create_button
 
 logger = get_logger(__name__)
