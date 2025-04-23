@@ -15,7 +15,7 @@ project_root = Path(__file__).parent.parent.parent  # Navigate to the project ro
 sys.path.insert(0, str(project_root))
 
 # Now import from the local modules
-from src.cryptotrader.gui.main_window import MainWindow
+from gui.main_window import MainWindow
 from config import get_logger
 
 # Configure logging

@@ -8,7 +8,7 @@ It follows the Binance WebSocket API specifications for the 'orderList.place' en
 from typing import Dict, List, Optional, Any, Callable, Awaitable
 
 from config import get_logger
-from cryptotrader.services.binance.websocketAPI.base_operations import (
+from services.binance.websockets.base_operations import (
     BinanceWebSocketConnection,
     SecurityType,
 )

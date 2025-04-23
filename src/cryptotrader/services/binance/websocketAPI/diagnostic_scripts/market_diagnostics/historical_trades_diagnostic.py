@@ -66,7 +66,7 @@ async def main():
     try:
         # Create a simple WebSocket connection
         # The get_historical_trades_ws function will use this connection
-        from cryptotrader.services.binance.websocketAPI.base_operations import (
+        from services.binance.websockets.base_operations import (
             BinanceWebSocketConnection,
         )
 
