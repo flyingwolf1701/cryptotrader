@@ -16,7 +16,7 @@ from src.cryptotrader.services.binance.restAPI import MarketOperations, SystemOp
 from src.cryptotrader.gui.components.watchlist import WatchlistWidget
 from src.cryptotrader.gui.components.logging_panel import LoggingPanel
 from src.cryptotrader.gui.components.strategy_panel import StrategyPanel
-from src.cryptotrader.gui.components.trade_history import TradeHistoryWidget
+from src.cryptotrader.gui.components.trades_watch import TradesWatch
 from src.cryptotrader.gui.components.chart_widget import ChartWidget
 from src.cryptotrader.gui.components.styles import Colors, apply_theme
 
@@ -55,33 +55,69 @@ class MainWindow(tk.Tk):
         # Configure root window
         self.configure(bg=Colors.BACKGROUND)
         
-        # Create left and right frames directly (like in the example)
-        self._left_frame = ttk.Frame(self)
-        self._left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        # Create main container with notebook
+        self.notebook = ttk.Notebook(self)
+        self.notebook.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self._right_frame = ttk.Frame(self)
-        self._right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        # Create tabs for different views
+        self.market_tab = ttk.Frame(self.notebook)
+        self.trading_tab = ttk.Frame(self.notebook)
         
-        # Left side components - stacked vertically
-        self.watchlist = WatchlistWidget(self._left_frame, self.market_client)
+        # Add tabs to notebook
+        self.notebook.add(self.market_tab, text="Market View")
+        self.notebook.add(self.trading_tab, text="Trading View")
+        
+        # Setup market tab - split into left and right panes
+        self._market_left_frame = ttk.Frame(self.market_tab)
+        self._market_left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        self._market_right_frame = ttk.Frame(self.market_tab)
+        self._market_right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        # Setup trading tab - split into left and right panes
+        self._trading_left_frame = ttk.Frame(self.trading_tab)
+        self._trading_left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        self._trading_right_frame = ttk.Frame(self.trading_tab)
+        self._trading_right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        # Market Tab - Left side components
+        self.watchlist = WatchlistWidget(self._market_left_frame, self.market_client)
         self.watchlist.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=(0, 5))
         
-        self.logging_panel = LoggingPanel(self._left_frame)
+        self.logging_panel = LoggingPanel(self._market_left_frame)
         self.logging_panel.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=(5, 0))
         
-        # Right side components - stacked vertically
-        self.strategy_panel = StrategyPanel(self._right_frame, self.market_client)
-        self.strategy_panel.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=(0, 5))
+        # Market Tab - Right side components
+        self.chart_frame = ttk.LabelFrame(self._market_right_frame, text="Market Chart")
+        self.chart_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=(0, 5))
         
-        self.trade_history = TradeHistoryWidget(self._right_frame)
-        self.trade_history.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=(5, 0))
+        # Add a button to open charts in separate windows
+        self.chart_btn = ttk.Button(
+            self.chart_frame, 
+            text="Open Chart", 
+            command=lambda: self.open_chart_window(self.watchlist.watched_symbols.pop() if self.watchlist.watched_symbols else "BTCUSDT")
+        )
+        self.chart_btn.pack(padx=10, pady=10)
+        
+        # Trading Tab - Left side components
+        self.strategy_panel = StrategyPanel(self._trading_left_frame, self.market_client)
+        self.strategy_panel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        
+        # Trading Tab - Right side components
+        self.trades_frame = ttk.LabelFrame(self._trading_right_frame, text="Trade Monitoring")
+        self.trades_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Create trades watch component
+        self.trades_watch = TradesWatch(self.trades_frame)
+        self.trades_watch.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # Wire up event handlers
         self.strategy_panel.log_callback = self.logging_panel.add_log
         self.watchlist.symbol_selected_callback = self.on_symbol_selected
         
         # Add mock trades for demo purposes
-        self.trade_history.add_mock_trades()
+        self.trades_watch.add_mock_trades()
     
     def on_symbol_selected(self, symbol):
         """Handle symbol selection from watchlist."""
