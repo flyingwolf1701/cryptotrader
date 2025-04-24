@@ -10,26 +10,26 @@ project_structure:
   src:
     cryptotrader:
       - __init__.py
-      config:
+      - config:
         - __init__.py
         - logging.py  # Logging configuration
         - secrets.py  # API credentials and configuration
-      gui:
+      - gui:
         - __init__.py
         - main_window.py  # Main application window
-        components:
+        - components:
           - __init__.py
           - watchlist.py  # Symbol watchlist component
           - chart_widget.py  # Candlestick chart visualization
           - logging_panel.py  # Application log display
           - strategy_panel.py  # Trading strategy configuration
-          - trade_history.py  # Trade history viewer
+          - trades_watch.py  # Trades monitoring component
           - styles.py  # UI styling utilities
-      services:
+      - services:
         - __init__.py
-        binance:
+        - binance:
           - __init__.py
-          models:
+          - models:
             - __init__.py
             - base_models.py  # Core data models
             - order_models.py  # Order-related models
@@ -211,21 +211,20 @@ components:
       - tkinter.ttk
       - src.cryptotrader.config.get_logger
 
-  trade_history:
-    description: "Displays a history of executed trades"
-    class: TradeHistoryWidget
+  trades_watch:
+    description: "Displays real-time information about executed trades"
+    class: TradesWatch
     base_class: tkinter.Frame
     responsibilities:
-      - Display trade history with details
-      - Update trade status and P&L
-      - Allow clearing history
+      - Display trade information with details
+      - Update trade status and P&L in real time
+      - Track trades by time index
     ui_elements:
-      - table: "Table widget to display trades"
-      - clear_btn: "Button to clear history"
+      - table_frame: "Frame containing the trade data grid"
+      - body_widgets: "Dictionary of UI elements for displaying trade data"
     methods:
-      - add_trade: "Add a trade to the history"
-      - update_trade_status: "Update the status of a trade"
-      - clear_history: "Clear all trades from history"
+      - add_trade: "Add a trade to the watch list"
+      - update_trade: "Update the status and PNL of a trade"
       - add_mock_trades: "Add mock trades for testing"
     imports:
       - tkinter
@@ -284,10 +283,10 @@ interaction_flow:
     - "StrategyPanel validates inputs and changes status to ACTIVE"
     - "Strategy execution logs are displayed in LoggingPanel"
   
-  trade_history_interaction:
-    - "When trades are executed, they appear in TradeHistoryWidget"
-    - "TradeHistoryWidget updates trade status as trades progress"
-    - "User can view trade details and P&L information"
+  trades_watch_interaction:
+    - "When trades are executed, they appear in TradesWatch"
+    - "TradesWatch updates trade status as trades progress"
+    - "User can view trade details and P&L information in real-time"
 
 implementation_guidelines:
   tkinter_matplotlib_integration:
@@ -373,23 +372,31 @@ ui_design:
   description: "Design specifications for the application UI"
   layout:
     main_window:
-      description: "Split-panel design with chart and watchlist on left, tabs on right"
+      description: "Tabbed interface with Market View and Trading View"
       components:
-        - left_frame:
-            width_percentage: 60
+        - market_tab:
             components:
-              - chart_widget:
-                  height_percentage: 75
-              - watchlist:
-                  height_percentage: 25
-        - right_frame:
-            width_percentage: 40
+              - left_frame:
+                  width_percentage: 40
+                  components:
+                    - watchlist:
+                        height_percentage: 50
+                    - logging_panel:
+                        height_percentage: 50
+              - right_frame:
+                  width_percentage: 60
+                  components:
+                    - chart_frame
+        - trading_tab:
             components:
-              - tabbed_interface:
-                  tabs:
+              - left_frame:
+                  width_percentage: 50
+                  components:
                     - strategy_panel
-                    - trade_history
-                    - logging_panel
+              - right_frame:
+                  width_percentage: 50
+                  components:
+                    - trades_watch
   color_scheme:
     - bg_color: "#1e1e1e"  # Dark background
     - fg_color: "#d4d4d4"  # Light text
