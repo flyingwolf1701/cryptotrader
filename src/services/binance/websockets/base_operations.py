@@ -27,7 +27,7 @@ from websockets.exceptions import ConnectionClosed
 
 from config import get_logger, Secrets
 from services.binance.restAPI.base_operations import RateLimiter
-from cryptotrader.services.binance.models import (
+from services.binance.models import (
     RateLimit,
     RateLimitType,
     RateLimitInterval,

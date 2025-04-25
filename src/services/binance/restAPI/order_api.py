@@ -18,7 +18,7 @@ These functions handle trading operations via the Binance API.
 from typing import Dict, List, Optional, Any, Union
 
 from config import get_logger
-from cryptotrader.services.binance.models import (
+from services.binance.models import (
     OrderRequest,
     OrderStatusResponse,
     RateLimitType,

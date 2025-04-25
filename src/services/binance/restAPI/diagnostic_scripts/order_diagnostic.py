@@ -28,7 +28,7 @@ sys.path.insert(0, str(project_root))
 # Import our modules
 from config import get_logger
 from services.binance.restAPI import OrderOperations
-from cryptotrader.services.binance.models import (
+from services.binance.models import (
     OrderRequest,
     OrderType,
     OrderSide,
