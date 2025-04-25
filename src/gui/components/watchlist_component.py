@@ -1,24 +1,18 @@
 """
-
-# Fix import path
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))  # Add project root to Python path
-
 Watchlist Component
 
 Displays current market prices for selected cryptocurrency pairs.
-Based on the simpler grid-based approach but updated to work with your architecture.
+Uses the reusable SymbolSearchWidget for symbol selection.
 """
 
 import tkinter as tk
 from tkinter import ttk
-from typing import Dict, List, Callable, Any, Optional
+from typing import Dict, List, Callable, Any, Optional, Set
 
 from src.config import get_logger
 from src.gui.components.styles import Colors
+from src.gui.components.search_symbol import SymbolSearchWidget
 from src.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
-
 
 logger = get_logger(__name__)
 
@@ -33,7 +27,6 @@ class WatchlistWidget(ttk.Frame):
         self.unified_client = BinanceRestUnifiedClient()
         self.market_client = self.unified_client.market
         
-        self.available_symbols = []
         self.watched_symbols = set()
         self.price_data = {}
         self.symbol_selected_callback = None
@@ -56,25 +49,13 @@ class WatchlistWidget(ttk.Frame):
         self._commands_frame = ttk.Frame(self)
         self._commands_frame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
-        # Create symbol label
-        self._symbol_label = ttk.Label(
-            self._commands_frame, text="Symbol", font=("Segoe UI", 10, "bold")
+        # Create symbol search widget (replaces the old combobox approach)
+        self.symbol_search = SymbolSearchWidget(
+            self._commands_frame,
+            on_add=self.add_symbol,
+            width=30
         )
-        self._symbol_label.grid(row=0, column=0, padx=5, pady=2)
-
-        # Create entry with dropdown
-        self._symbol_var = tk.StringVar()
-        self._symbol_entry = ttk.Combobox(
-            self._commands_frame, textvariable=self._symbol_var
-        )
-        self._symbol_entry.grid(row=1, column=0, padx=5, pady=2)
-        self._symbol_entry.bind("<Return>", self._add_symbol_from_entry)
-
-        # Add button
-        self._add_button = ttk.Button(
-            self._commands_frame, text="Add", command=self._add_symbol_from_button
-        )
-        self._add_button.grid(row=1, column=1, padx=5, pady=2)
+        self.symbol_search.pack(fill=tk.X, padx=5, pady=5)
 
         # Create table frame
         self._table_frame = ttk.Frame(self)
@@ -102,40 +83,9 @@ class WatchlistWidget(ttk.Frame):
             if h in ["bid", "ask"]:
                 self.body_widgets[h + "_var"] = {}
 
-    def set_available_symbols(self, symbols):
-        """Set the list of available trading symbols."""
-        self.available_symbols = sorted(symbols)
-        self._symbol_entry["values"] = self.available_symbols
-
-    def _add_symbol_from_entry(self, event):
-        """Add symbol from entry when Enter is pressed."""
-        symbol = self._symbol_var.get().strip().upper()
-        if (
-            symbol
-            and symbol in self.available_symbols
-            and symbol not in self.watched_symbols
-        ):
-            self.add_symbol(symbol)
-            self._symbol_var.set("")  # Clear entry
-
-    def _add_symbol_from_button(self):
-        """Add symbol when button is clicked."""
-        symbol = self._symbol_var.get().strip().upper()
-        if (
-            symbol
-            and symbol in self.available_symbols
-            and symbol not in self.watched_symbols
-        ):
-            self.add_symbol(symbol)
-            self._symbol_var.set("")  # Clear entry
-
-    def add_symbol(self, symbol):
+    def add_symbol(self, symbol: str):
         """Add a symbol to the watchlist table."""
-        if (
-            not symbol
-            or symbol in self.watched_symbols
-            or symbol not in self.available_symbols
-        ):
+        if not symbol or symbol in self.watched_symbols:
             return
 
         # Add to tracked symbols
