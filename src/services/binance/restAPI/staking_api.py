@@ -15,7 +15,7 @@ from typing import Dict, List, Optional, Any, Union
 
 from config import get_logger
 from services.binance.restAPI.base_operations import BinanceAPIRequest
-from cryptotrader.services.binance.models import (
+from services.binance.models import (
     StakingAssetInfo,
     StakingOperationResult,
     StakingStakeResult,

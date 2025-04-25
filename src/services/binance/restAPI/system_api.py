@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Any, Union
 
 from config import get_logger
 from services.binance.restAPI.base_operations import BinanceAPIRequest
-from cryptotrader.services.binance.models import SystemStatus, SymbolInfo, RateLimitType
+from services.binance.models import SystemStatus, SymbolInfo, RateLimitType
 
 logger = get_logger(__name__)
 
