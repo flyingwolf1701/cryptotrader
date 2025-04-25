@@ -283,8 +283,8 @@ project_root = Path(__file__).parent.parent.parent.parent.parent  # src director
 sys.path.insert(0, str(project_root))
 
 # Import our modules
-from cryptotrader.config import get_logger
-from cryptotrader.services.binance.models import (
+from .config import get_logger
+from .services.binance.models import (
     # Import relevant models...
 )
 
@@ -396,9 +396,9 @@ Example Implementation
 ```python
 from typing import Dict, List, Optional, Any
 
-from cryptotrader.config import get_logger
-from src.cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
-from cryptotrader.services.binance.models import RateLimitType, SomeResponseModel
+from .config import get_logger
+from src.services.binance.restAPI.base_operations import BinanceAPIRequest
+from .services.binance.models import RateLimitType, SomeResponseModel
 
 logger = get_logger(__name__)
 

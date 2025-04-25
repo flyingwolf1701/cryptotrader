@@ -2,10 +2,10 @@ trading_requests:
   description: "WebSocket API requests for order management and trading operations"
 
   dependencies:
-    - cryptotrader.config.get_logger
-    - cryptotrader.services.binance.websocketAPI.base_operations.BinanceWebSocketConnection
-    - cryptotrader.services.binance.websocketAPI.base_operations.SecurityType
-    - cryptotrader.services.binance.models
+    - .config.get_logger
+    - .services.binance.websocketAPI.base_operations.BinanceWebSocketConnection
+    - .services.binance.websocketAPI.base_operations.SecurityType
+    - .services.binance.models
 
   requests:
     place_new_order:

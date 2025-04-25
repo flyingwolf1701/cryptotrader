@@ -9,16 +9,16 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Dict, List, Optional, Any
 
-from src.cryptotrader.config import get_logger
-from src.cryptotrader.services.binance.restAPI import MarketOperations, SystemOperations
+from src.config import get_logger
+from src.services.binance.restAPI import MarketOperations, SystemOperations
 
 # Import components
-from src.cryptotrader.gui.components.watchlist import WatchlistWidget
-from src.cryptotrader.gui.components.logging_panel import LoggingPanel
-from src.cryptotrader.gui.components.strategy_panel import StrategyPanel
-from src.cryptotrader.gui.components.trades_watch import TradesWatch
-from src.cryptotrader.gui.components.chart_widget import ChartWidget
-from src.cryptotrader.gui.components.styles import Colors, apply_theme
+from src.gui.components.watchlist import WatchlistWidget
+from src.gui.components.logging_panel import LoggingPanel
+from src.gui.components.strategy_panel import StrategyPanel
+from src.gui.components.trades_component import TradesWatch
+from src.gui.components.chart_widget import ChartWidget
+from src.gui.components.styles import Colors, apply_theme
 
 logger = get_logger(__name__)
 

@@ -2,12 +2,12 @@ binance_websocket_api:
   description: "API functions available in the CryptoTrader Binance WebSocket API implementation"
   
   dependencies:
-    - cryptotrader.config.Secrets
-    - cryptotrader.config.get_logger
-    - cryptotrader.services.binance.restAPI.RateLimiter
-    - cryptotrader.services.binance.models.base_models.RateLimit
-    - cryptotrader.services.binance.models.base_models.RateLimitType
-    - cryptotrader.services.binance.models.base_models.RateLimitInterval
+    - .config.Secrets
+    - .config.get_logger
+    - .services.binance.restAPI.RateLimiter
+    - .services.binance.models.base_models.RateLimit
+    - .services.binance.models.base_models.RateLimitType
+    - .services.binance.models.base_models.RateLimitInterval
   
   core_components:
     base_operations:

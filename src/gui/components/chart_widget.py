@@ -18,9 +18,9 @@ from matplotlib.patches import Rectangle
 import matplotlib.axes
 import numpy as np
 
-from src.cryptotrader.config import get_logger
-from src.cryptotrader.services.binance.models import Candle
-from src.cryptotrader.gui.components.styles import Colors
+from src.config import get_logger
+from src.services.binance.models import Candle
+from src.gui.components.styles import Colors
 
 logger = get_logger(__name__)
 

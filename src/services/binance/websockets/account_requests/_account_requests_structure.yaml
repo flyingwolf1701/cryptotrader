@@ -1,18 +1,18 @@
 binance_websocket_account_api:
   description: "API functions for account-related operations in the CryptoTrader Binance WebSocket API implementation"
-  
+
   dependencies:
-    - cryptotrader.config.Secrets
-    - cryptotrader.config.get_logger
-    - cryptotrader.services.binance.websocketAPI.base_operations.BinanceWebSocketConnection
-    - cryptotrader.services.binance.websocketAPI.base_operations.SecurityType
-    - cryptotrader.services.binance.models.AccountBalance
-    - cryptotrader.services.binance.models.order_models.OrderStatusResponse
-    - cryptotrader.services.binance.models.order_models.OcoOrderResponse
-    - cryptotrader.services.binance.models.order_models.OrderTrade
-    - cryptotrader.services.binance.models.order_models.PreventedMatch
-    - cryptotrader.services.binance.models.order_models.RateLimitInfo
-  
+    - .config.Secrets
+    - .config.get_logger
+    - .services.binance.websocketAPI.base_operations.BinanceWebSocketConnection
+    - .services.binance.websocketAPI.base_operations.SecurityType
+    - .services.binance.models.AccountBalance
+    - .services.binance.models.order_models.OrderStatusResponse
+    - .services.binance.models.order_models.OcoOrderResponse
+    - .services.binance.models.order_models.OrderTrade
+    - .services.binance.models.order_models.PreventedMatch
+    - .services.binance.models.order_models.RateLimitInfo
+
   account_requests:
     description: "WebSocket requests for account data from the Binance API"
     modules:
@@ -28,7 +28,7 @@ binance_websocket_account_api:
               - recv_window: "Maximum time in milliseconds the request is valid for (optional, max 60000)"
             returns: "Account information with balances, permissions, and commission rates"
             data_source: "Memory => Database"
-      
+
       get_order_rate_limits:
         description: "Retrieve order rate limits"
         requests:
@@ -41,7 +41,7 @@ binance_websocket_account_api:
               - recv_window: "Maximum time in milliseconds the request is valid for (optional, max 60000)"
             returns: "List of rate limit information for orders"
             data_source: "Memory"
-      
+
       acct_order_history:
         description: "Retrieve order history"
         requests:
@@ -64,7 +64,7 @@ binance_websocket_account_api:
               - "Orders are filtered by time of the last execution status update"
               - "If orderId is specified, return orders with order ID >= orderId"
               - "If no condition is specified, the most recent orders are returned"
-      
+
       acct_oco_history:
         description: "Retrieve OCO order history"
         requests:
@@ -86,7 +86,7 @@ binance_websocket_account_api:
               - "OCOs are filtered by transactionTime of the last OCO execution status update"
               - "If fromId is specified, return OCOs with order list ID >= fromId"
               - "If no condition is specified, the most recent OCOs are returned"
-      
+
       acct_trade_history:
         description: "Retrieve trade history"
         requests:
@@ -112,7 +112,7 @@ binance_websocket_account_api:
               - "If orderId is specified, only trades related to that order are returned"
               - "startTime and endTime cannot be used together with orderId"
               - "If no condition is specified, the most recent trades are returned"
-      
+
       acct_prevented_matches:
         description: "Retrieve self-trade prevention matches"
         requests:
@@ -138,7 +138,7 @@ binance_websocket_account_api:
               - "symbol + orderId"
               - "symbol + orderId + fromPreventedMatchId (limit defaults to 500)"
               - "symbol + orderId + fromPreventedMatchId + limit"
-  
+
   response_models:
     account_info:
       description: "Account information response model"
@@ -157,7 +157,7 @@ binance_websocket_account_api:
         - accountType: "Account type (e.g., 'SPOT')"
         - balances: "List of asset balances"
         - permissions: "List of account permissions"
-    
+
     order_rate_limit:
       description: "Order rate limit information"
       fields:
@@ -166,7 +166,7 @@ binance_websocket_account_api:
         - intervalNum: "Number of intervals"
         - limit: "Maximum limit"
         - count: "Current count"
-    
+
     order_history:
       description: "Order history information"
       fields:
@@ -192,7 +192,7 @@ binance_websocket_account_api:
         - selfTradePreventionMode: "Self-trade prevention mode"
         - preventedMatchId: "Prevented match ID (only if order expired due to STP)"
         - preventedQuantity: "Prevented quantity (only if order expired due to STP)"
-    
+
     oco_order:
       description: "OCO order information"
       fields:
@@ -204,7 +204,7 @@ binance_websocket_account_api:
         - transactionTime: "Transaction time"
         - symbol: "Trading symbol"
         - orders: "List of orders in the OCO"
-    
+
     trade_history:
       description: "Trade history information"
       fields:
@@ -221,7 +221,7 @@ binance_websocket_account_api:
         - isBuyer: "Whether the user is the buyer"
         - isMaker: "Whether the user is the maker"
         - isBestMatch: "Whether it's the best match"
-    
+
     prevented_match:
       description: "Prevented match information"
       fields:
