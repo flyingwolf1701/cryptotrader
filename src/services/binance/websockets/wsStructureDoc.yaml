@@ -1,0 +1,445 @@
+binance_websocket_api:
+  description: "API functions available in the CryptoTrader Binance WebSocket API implementation"
+  
+  dependencies:
+    - .config.Secrets
+    - .config.get_logger
+    - .services.binance.restAPI.RateLimiter
+    - .services.binance.models.base_models.RateLimit
+    - .services.binance.models.base_models.RateLimitType
+    - .services.binance.models.base_models.RateLimitInterval
+  
+  core_components:
+    base_operations:
+      description: "Core WebSocket connection management and authentication"
+      classes:
+        SecurityType:
+          description: "Security types for Binance API endpoints"
+          type: "Enum"
+          values:
+            - NONE: "Public market data"
+            - TRADE: "Trading on the exchange (requires API key and signature)"
+            - USER_DATA: "Private account information (requires API key and signature)"
+            - USER_STREAM: "Managing user data stream (requires API key only)"
+            - MARKET_DATA: "Historical market data (requires API key only)"
+        
+        BinanceWebSocketConnection:
+          description: "Manages a WebSocket connection to the Binance API"
+          dependencies:
+            - websockets
+            - asyncio
+            - hmac, hashlib
+            - urllib.parse
+          properties:
+            - on_message: "Callback function for received messages"
+            - on_error: "Callback function for errors"
+            - on_reconnect: "Callback function when reconnection happens"
+            - on_close: "Callback function when connection closes"
+            - ping_interval: "How often to send ping frames (seconds), default 180s (3 minutes)"
+            - pong_timeout: "How long to wait for pong response (seconds), default 10s"
+            - reconnect_attempts: "Maximum number of reconnection attempts"
+            - base_url: "Base URL for WebSocket API, default is wss://ws-api.binance.us:443"
+            - return_rate_limits: "Whether to return rate limits in responses, default True"
+            - websocket: "Active WebSocket connection"
+            - is_connected: "Connection state flag"
+            - is_closing: "Closing state flag"
+            - reconnect_count: "Current reconnection attempt count"
+            - rate_limiter: "Rate limit tracking instance"
+            - ip_banned_until: "Timestamp when IP ban expires (if banned)"
+            - retry_after: "Timestamp when to retry after rate limit (if limited)"
+            - connection_start_time: "Timestamp when connection was established"
+            - message_id: "Counter for request message IDs"
+          methods:
+            - connect: 
+                description: "Establish WebSocket connection to Binance WebSocket API"
+                weight: 1
+                security_type: "NONE"
+                parameters: []
+                returns: "Boolean indicating success"
+            - close: 
+                description: "Close the WebSocket connection"
+                parameters: []
+                returns: "None"
+            - send: 
+                description: "Send a message to the Binance WebSocket API server"
+                parameters:
+                  - method: "API method to call (e.g., 'ping', 'time', 'exchangeInfo')"
+                  - params: "Parameters for the method"
+                  - security_type: "Type of security required for this request"
+                  - return_rate_limits: "Override default setting for returning rate limits"
+                returns: "Message ID that can be used to match the response"
+            - send_signed: 
+                description: "Send a signed message to the Binance WebSocket API server"
+                parameters:
+                  - method: "API method to call (e.g., 'order.place', 'account.status')"
+                  - params: "Parameters for the method"
+                  - return_rate_limits: "Override default setting for returning rate limits"
+                returns: "Message ID that can be used to match the response"
+          internal_methods:
+            - _ping_loop: "Send periodic pings to keep connection alive"
+            - _receive_loop: "Receive and process incoming WebSocket messages"
+            - _reconnect: "Handle reconnection after connection loss"
+            - _update_rate_limits: "Update rate limit counters from WebSocket response"
+            - _handle_error: "Handle error responses from WebSocket API"
+            - _monitor_connection_age: "Monitor connection age for 24h limit"
+          error_handling:
+            - "400": "Bad request - client-side error"
+            - "403": "Blocked by Web Application Firewall"
+            - "409": "Request partially failed but also partially succeeded"
+            - "418": "Auto-banned for repeated rate limit violations"
+            - "429": "Rate limit exceeded, needs to back off"
+            - "5XX": "Internal server errors"
+  
+  account_requests:
+    description: "WebSocket requests for account data from the Binance API"
+    modules:
+      acct_oco_history:
+        description: "Retrieve OCO order history"
+        requests:
+          get_oco_history:
+            description: "Get historical OCO orders for an account"
+            endpoint: "allOrderList"
+            weight: 10
+            security_type: "USER_DATA"
+            parameters:
+              - fromId: "OCO order ID to fetch from (optional)"
+              - startTime: "Start time in milliseconds (optional)"
+              - endTime: "End time in milliseconds (optional)"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of OCO order details"
+      
+      acct_order_history:
+        description: "Retrieve order history"
+        requests:
+          get_order_history:
+            description: "Get historical orders for an account"
+            endpoint: "allOrders"
+            weight: 10
+            security_type: "USER_DATA"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - orderId: "Order ID to fetch from (optional)"
+              - startTime: "Start time in milliseconds (optional)"
+              - endTime: "End time in milliseconds (optional)"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of order details"
+      
+      acct_prevented_matches:
+        description: "Retrieve self-trade prevention matches"
+        requests:
+          get_prevented_matches:
+            description: "Get prevented matches due to self-trade prevention"
+            endpoint: "myPreventedMatches"
+            weight: 10
+            security_type: "USER_DATA"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - preventedMatchId: "Prevented match ID to fetch from (optional)"
+              - orderId: "Order ID (optional)"
+              - fromPreventedMatchId: "Prevented match ID to fetch from (optional)"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of prevented match details"
+      
+      acct_trade_history:
+        description: "Retrieve trade history"
+        requests:
+          get_trade_history:
+            description: "Get trade history for an account"
+            endpoint: "myTrades"
+            weight: 10
+            security_type: "USER_DATA"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - orderId: "Order ID (optional)"
+              - startTime: "Start time in milliseconds (optional)"
+              - endTime: "End time in milliseconds (optional)"
+              - fromId: "Trade ID to fetch from (optional)"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of trade details"
+      
+      get_order_rate_limits:
+        description: "Retrieve order rate limits"
+        requests:
+          get_order_rate_limits:
+            description: "Get current order rate limits for all time intervals"
+            endpoint: "rateLimit.order"
+            weight: 20
+            security_type: "USER_DATA"
+            parameters: []
+            returns: "List of rate limit information"
+      
+      get_user_acct_info:
+        description: "Retrieve user account information"
+        requests:
+          get_account_info:
+            description: "Get current account information including balances"
+            endpoint: "account"
+            weight: 10
+            security_type: "USER_DATA"
+            parameters: []
+            returns: "Account information with balances"
+  
+  market_data_requests:
+    description: "WebSocket requests for market data from the Binance API"
+    modules:
+      aggregate_trades:
+        description: "Retrieve aggregate trades data"
+        requests:
+          get_aggregate_trades_ws:
+            description: "Get aggregate trades data for a symbol"
+            endpoint: "aggTrades"
+            weight: 1
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - fromId: "Aggregate trade ID to fetch from (optional)"
+              - startTime: "Start time in milliseconds (optional)"
+              - endTime: "End time in milliseconds (optional)"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of aggregate trade data"
+      
+      current_average_price:
+        description: "Retrieve current average price"
+        requests:
+          get_avg_price:
+            description: "Get current average price for a symbol"
+            endpoint: "avgPrice"
+            weight: 1
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+            returns: "Average price information"
+      
+      historical_trades:
+        description: "Retrieve historical trades"
+        requests:
+          get_historical_trades_ws:
+            description: "Get historical trades for a symbol"
+            endpoint: "trades.historical"
+            weight: 5
+            security_type: "MARKET_DATA"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - fromId: "Trade ID to fetch from (optional)"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of historical trades"
+            note: "If fromId is not specified, the most recent trades are returned"
+            data_source: "Database"
+      
+      klines:
+        description: "Retrieve kline/candlestick data"
+        requests:
+          get_klines_ws:
+            description: "Get kline/candlestick data for a symbol"
+            endpoint: "klines"
+            weight: 1
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - interval: "Kline interval (e.g., '1m', '1h', '1d')"
+              - startTime: "Start time in milliseconds (optional)"
+              - endTime: "End time in milliseconds (optional)"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of kline/candlestick data"
+      
+      order_book:
+        description: "Retrieve order book data"
+        requests:
+          get_order_book_ws:
+            description: "Get order book for a symbol"
+            endpoint: "depth"
+            weight: "Adjusted based on limit: 1-100 (1), 101-500 (5), 501-1000 (10), 1001-5000 (50)"
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - limit: "Number of price levels (default 100, max 5000)"
+            returns: "Order book data with bids and asks, including lastUpdateId"
+            note: "Bid levels are sorted from highest to lowest price. Ask levels are sorted from lowest to highest price."
+      
+      recent_trades:
+        description: "Retrieve recent trades"
+        requests:
+          get_recent_trades_ws:
+            description: "Get recent trades for a symbol"
+            endpoint: "trades.recent"
+            weight: 1
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - limit: "Number of results (default 500, max 1000)"
+            returns: "List of recent trades"
+            data_source: "Memory"
+      
+      rolling_window_price:
+        description: "Retrieve rolling window price statistics"
+        requests:
+          get_rolling_window_stats:
+            description: "Get price statistics for a rolling window"
+            endpoint: "ticker"
+            weight: "1-40 based on parameters"
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
+              - symbols: "List of symbols (optional)"
+              - windowSize: "Window size (e.g., '1d', '7d') (default '1d')"
+              - type: "Stats type (FULL or MINI) (default FULL)"
+            returns: "Rolling window price statistics"
+      
+      symbol_order_book_ticker:
+        description: "Retrieve order book ticker"
+        requests:
+          get_book_ticker:
+            description: "Get best bid/ask price and quantity"
+            endpoint: "ticker.bookTicker"
+            weight: "1-2 based on parameters"
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
+              - symbols: "List of symbols (optional)"
+            returns: "Book ticker with best bid/ask information"
+      
+      symbol_price_ticker:
+        description: "Retrieve price ticker"
+        requests:
+          get_price_ticker:
+            description: "Get latest price for a symbol or symbols"
+            endpoint: "ticker.price"
+            weight: "1-2 based on parameters"
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
+              - symbols: "List of symbols (optional)"
+            returns: "Price ticker information"
+      
+      ticker_price_24h:
+        description: "Retrieve 24-hour price statistics"
+        requests:
+          get_24h_ticker:
+            description: "Get 24-hour price change statistics"
+            endpoint: "ticker.24hr"
+            weight: "1-40 based on parameters"
+            security_type: "NONE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
+              - symbols: "List of symbols (optional)"
+              - type: "Stats type (FULL or MINI) (default FULL)"
+            returns: "24-hour price statistics"
+  
+  trading_requests:
+    description: "WebSocket requests for trading operations"
+    modules:
+      cancel_oco_order:
+        description: "Cancel OCO order"
+        requests:
+          cancel_oco_order:
+            description: "Cancel an existing OCO order"
+            endpoint: "orderList"
+            weight: 1
+            security_type: "TRADE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - orderListId: "OCO order list ID (optional if using clientOrderId)"
+              - listClientOrderId: "Client order list ID (optional if using orderListId)"
+              - newClientOrderId: "New client order ID for the cancel (optional)"
+            returns: "Cancelled OCO order information"
+      
+      cancel_open_orders:
+        description: "Cancel all open orders"
+        requests:
+          cancel_open_orders:
+            description: "Cancel all open orders on a symbol"
+            endpoint: "openOrders"
+            weight: 1
+            security_type: "TRADE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+            returns: "List of cancelled orders"
+      
+      cancel_order:
+        description: "Cancel an existing order"
+        requests:
+          cancel_order:
+            description: "Cancel an existing order"
+            endpoint: "order"
+            weight: 1
+            security_type: "TRADE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - orderId: "Order ID (optional if using clientOrderId)"
+              - origClientOrderId: "Original client order ID (optional if using orderId)"
+              - newClientOrderId: "New client order ID for the cancel (optional)"
+            returns: "Cancelled order information"
+      
+      create_new_oco_order:
+        description: "Create a new OCO order"
+        requests:
+          create_oco_order:
+            description: "Create a new OCO (One-Cancels-the-Other) order"
+            endpoint: "order.oco"
+            weight: 1
+            security_type: "TRADE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - side: "Order side (BUY or SELL)"
+              - quantity: "Order quantity"
+              - price: "Limit order price"
+              - stopPrice: "Stop order price"
+              - stopLimitPrice: "Stop limit order price (optional)"
+              - stopLimitTimeInForce: "Time in force for stop limit order (optional)"
+              - listClientOrderId: "Client order list ID (optional)"
+              - limitClientOrderId: "Client order ID for limit order (optional)"
+              - stopClientOrderId: "Client order ID for stop order (optional)"
+              - newOrderRespType: "Response type (ACK, RESULT, FULL) (optional)"
+            returns: "New OCO order information"
+      
+      current_open_orders:
+        description: "Get current open orders"
+        requests:
+          get_open_orders:
+            description: "Get all open orders on a symbol or all symbols"
+            endpoint: "openOrders"
+            weight: "1-40 based on parameters"
+            security_type: "USER_DATA"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT') (optional)"
+            returns: "List of open orders"
+      
+      get_oco_order:
+        description: "Get OCO order details"
+        requests:
+          get_oco_order:
+            description: "Get details of a specific OCO order"
+            endpoint: "orderList"
+            weight: 2
+            security_type: "USER_DATA"
+            parameters:
+              - orderListId: "OCO order list ID (optional if using origClientOrderId)"
+              - origClientOrderId: "Original client order list ID (optional if using orderListId)"
+            returns: "OCO order details"
+      
+      get_open_oco_orders:
+        description: "Get all open OCO orders"
+        requests:
+          get_open_oco_orders:
+            description: "Get all open OCO orders"
+            endpoint: "openOrderList"
+            weight: 3
+            security_type: "USER_DATA"
+            parameters: []
+            returns: "List of open OCO orders"
+      
+      place_new_order:
+        description: "Place a new order"
+        requests:
+          place_order:
+            description: "Place a new order"
+            endpoint: "order"
+            weight: 1
+            security_type: "TRADE"
+            parameters:
+              - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+              - side: "Order side (BUY or SELL)"
+              - type: "Order type (LIMIT, MARKET, STOP_LOSS, etc.)"
+              - timeInForce: "Time in force (GTC, IOC, FOK) (optional)"
+              - quantity: "Order quantity (optional)"
+              - quoteOrderQty: "

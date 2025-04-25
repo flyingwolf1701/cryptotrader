@@ -1,0 +1,279 @@
+trading_requests:
+  description: "WebSocket API requests for order management and trading operations"
+
+  dependencies:
+    - .config.get_logger
+    - .services.binance.websocketAPI.base_operations.BinanceWebSocketConnection
+    - .services.binance.websocketAPI.base_operations.SecurityType
+    - .services.binance.models
+
+  requests:
+    place_new_order:
+      description: "Place a new order on Binance"
+      file: "place_new_order.py"
+      endpoint: "order.place"
+      weight: 1
+      security_type: "TRADE"
+      functions:
+        place_new_order:
+          description: "Send a request to place a new order"
+          parameters:
+            - connection: "Active WebSocket connection"
+            - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+            - side: "Order side (BUY or SELL)"
+            - orderType: "Order type (LIMIT, MARKET, etc.)"
+            - quantity: "Order quantity (optional depending on order type)"
+            - quote_order_qty: "Quote order quantity (optional)"
+            - price: "Order price (optional depending on order type)"
+            - timeInForce: "Time in force (GTC, IOC, FOK) (optional)"
+            - stopPrice: "Stop price (optional)"
+            - trailing_delta: "Trailing delta (optional)"
+            - icebergQty: "Iceberg quantity (optional)"
+            - newClientOrderId: "Client order ID (optional)"
+            - new_order_resp_type: "Response type (ACK, RESULT, FULL) (optional)"
+            - selfTradePreventionMode: "Self trade prevention mode (optional)"
+            - callback: "Callback function for the response (optional)"
+          returns: "Message ID of the request"
+        process_place_order_response:
+          description: "Process the place order response"
+          parameters:
+            - response: "WebSocket response data"
+          returns: "OrderResponseAck, OrderResponseResult, or OrderResponseFull object"
+
+    test_new_order:
+      description: "Test order placement without actually placing an order"
+      file: "test_new_order.py"
+      endpoint: "order.test"
+      weight: 1
+      security_type: "TRADE"
+      functions:
+        test_new_order:
+          description: "Send a request to test a new order"
+          parameters:
+            # Same parameters as place_new_order except new_order_resp_type
+          returns: "Message ID of the request"
+        process_test_order_response:
+          description: "Process the test order response"
+          parameters:
+            - response: "WebSocket response data"
+          returns: "Boolean indicating success"
+
+    query_order:
+      description: "Check execution status of an order"
+      file: "query_order.py"
+      endpoint: "order.status"
+      weight: 2
+      security_type: "USER_DATA"
+      functions:
+        query_order:
+          description: "Send a request to query order status"
+          parameters:
+            - connection: "Active WebSocket connection"
+            - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+            - order_id: "Order ID (optional if orig_client_order_id is provided)"
+            - orig_client_order_id: "Original client order ID (optional if order_id is provided)"
+            - callback: "Callback function for the response (optional)"
+          returns: "Message ID of the request"
+        process_query_order_response:
+          description: "Process the query order response"
+          parameters:
+            - response: "WebSocket response data"
+          returns: "OrderStatusResponse object"
+
+    cancel_order:
+      description: "Cancel an active order"
+      file: "cancel_order.py"
+      endpoint: "order.cancel"
+      weight: 1
+      security_type: "TRADE"
+      functions:
+        cancel_order:
+          description: "Send a request to cancel an order"
+          parameters:
+            - connection: "Active WebSocket connection"
+            - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+            - order_id: "Order ID (optional if orig_client_order_id is provided)"
+            - orig_client_order_id: "Original client order ID (optional if order_id is provided)"
+            - newClientOrderId: "New client order ID (optional)"
+            - cancel_restrictions: "Cancel restrictions (ONLY_NEW or ONLY_PARTIALLY_FILLED) (optional)"
+            - callback: "Callback function for the response (optional)"
+          returns: "Message ID of the request"
+        process_cancel_order_response:
+          description: "Process the cancel order response"
+          parameters:
+            - response: "WebSocket response data"
+          returns: "OrderStatusResponse object"
+
+    replace_order:
+      description: "Cancel an existing order and immediately place a new one"
+      file: "replace_order.py"
+      endpoint: "order.cancelReplace"
+      weight: 1
+      security_type: "TRADE"
+      functions:
+        replace_order:
+          description: "Send a request to cancel and replace an order"
+          parameters:
+            - connection: "Active WebSocket connection"
+            - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+            - cancel_replace_mode: "STOP_ON_FAILURE or ALLOW_FAILURE"
+            - side: "Order side (BUY or SELL)"
+            - orderType: "Order type (LIMIT, MARKET, etc.)"
+            - cancel_order_id: "ID of the order to cancel (optional if cancel_orig_client_order_id is provided)"
+            - cancel_orig_client_order_id: "Original client order ID (optional if cancel_order_id is provided)"
+            - cancel_new_client_order_id: "New client order ID for the canceled order (optional)"
+            - quantity: "Order quantity (optional depending on order type)"
+            - quote_order_qty: "Quote order quantity (optional)"
+            - price: "Order price (optional depending on order type)"
+            - timeInForce: "Time in force (GTC, IOC, FOK) (optional)"
+            - stopPrice: "Stop price (optional)"
+            - trailing_delta: "Trailing delta (optional)"
+            - icebergQty: "Iceberg quantity (optional)"
+            - newClientOrderId: "Client order ID for the new order (optional)"
+            - new_order_resp_type: "Response type (ACK, RESULT, FULL) (optional)"
+            - cancel_restrictions: "Cancel restrictions (ONLY_NEW or ONLY_PARTIALLY_FILLED) (optional)"
+            - selfTradePreventionMode: "Self trade prevention mode (optional)"
+            - callback: "Callback function for the response (optional)"
+          returns: "Message ID of the request"
+        process_replace_order_response:
+          description: "Process the replace order response"
+          parameters:
+            - response: "WebSocket response data"
+          returns: "CancelReplaceResponse object"
+
+    current_open_orders:
+      description: "Query execution status of all open orders"
+      file: "current_open_orders.py"
+      endpoint: "openOrders.status"
+      weight: "Symbol: 3, None: 40"
+      security_type: "USER_DATA"
+      functions:
+        get_current_open_orders:
+          description: "Send a request to get all open orders"
+          parameters:
+            - connection: "Active WebSocket connection"
+            - symbol: "Trading symbol (optional)"
+            - callback: "Callback function for the response (optional)"
+          returns: "Message ID of the request"
+        process_open_orders_response:
+          description: "Process the open orders response"
+          parameters:
+            - response: "WebSocket response data"
+          returns: "List of OrderStatusResponse objects"
+
+    cancel_open_orders:
+      description: "Cancel all open orders on a symbol"
+      file: "cancel_open_orders.py"
+      endpoint: "openOrders.cancelAll"
+      weight: 1
+      security_type: "TRADE"
+      functions:
+        cancel_open_orders:
+          description: "Send a request to cancel all open orders"
+          parameters:
+            - connection: "Active WebSocket connection"
+            - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+            - callback: "Callback function for the response (optional)"
+          returns: "Message ID of the request"
+        process_cancel_open_orders_response:
+          description: "Process the cancel open orders response"
+          parameters:
+            - response: "WebSocket response data"
+          returns: "List of OrderStatusResponse objects and OCO cancellation data"
+
+    create_new_oco_order:
+      description: "Place a new one-cancels-the-other (OCO) order pair"
+      file: "create_new_oco_order.py"
+      endpoint: "orderList.place"
+      weight: 1
+      security_type: "TRADE"
+      functions:
+        create_new_oco_order:
+          description: "Send a request to create a new OCO order"
+          parameters:
+            - connection: "Active WebSocket connection"
+            - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+            - side: "Order side (BUY or SELL)"
+            - quantity: "Order quantity"
+            - price: "Price for the limit order"
+            - stopPrice: "Stop price for the stop order (required unless trailing_delta is provided)"
+            - trailing_delta: "Trailing delta for trailing stop orders (required unless stopPrice is provided)"
+            - stop_limit_price: "Stop limit price (optional)"
+            - stop_limit_time_in_force: "Time in force for stop limit order (optional)"
+            - list_client_order_id: "Client order ID for the OCO as a whole (optional)"
+            - limit_client_order_id: "Client order ID for the limit leg (optional)"
+            - stop_client_order_id: "Client order ID for the stop leg (optional)"
+            - limit_iceberg_qty: "Iceberg quantity for limit leg (optional)"
+            - stop_iceberg_qty: "Iceberg quantity for stop leg (optional)"
+            - new_order_resp_type: "Response type (ACK, RESULT, FULL) (optional)"
+            - selfTradePreventionMode: "Self trade prevention mode (optional)"
+            - callback: "Callback function for the response (optional)"
+          returns: "Message ID of the request"
+        process_create_oco_order_response:
+          description: "Process the create OCO order response"
+          parameters:
+            - response: "WebSocket response data"
+          returns: "OcoOrderResponse object"
+
+    get_oco_order:
+      description: "Check execution status of an OCO order"
+      file: "get_oco_order.py"
+      endpoint: "orderList.status"
+      weight: 2
+      security_type: "USER_DATA"
+      functions:
+        get_oco_order:
+          description: "Send a request to get OCO order status"
+          parameters:
+            - connection: "Active WebSocket connection"
+            - order_list_id: "OCO order list ID (optional if orig_client_order_id is provided)"
+            - orig_client_order_id: "Original client order list ID (optional if order_list_id is provided)"
+            - callback: "Callback function for the response (optional)"
+          returns: "Message ID of the request"
+        process_get_oco_order_response:
+          description: "Process the get OCO order response"
+          parameters:
+            - response: "WebSocket response data"
+          returns: "OcoOrderResponse object"
+
+    cancel_oco_order:
+      description: "Cancel an active OCO order"
+      file: "cancel_oco_order.py"
+      endpoint: "orderList.cancel"
+      weight: 1
+      security_type: "TRADE"
+      functions:
+        cancel_oco_order:
+          description: "Send a request to cancel an OCO order"
+          parameters:
+            - connection: "Active WebSocket connection"
+            - symbol: "Trading symbol (e.g., 'BTCUSDT')"
+            - order_list_id: "OCO order list ID (optional if list_client_order_id is provided)"
+            - list_client_order_id: "List client order ID (optional if order_list_id is provided)"
+            - newClientOrderId: "New client order ID (optional)"
+            - callback: "Callback function for the response (optional)"
+          returns: "Message ID of the request"
+        process_cancel_oco_order_response:
+          description: "Process the cancel OCO order response"
+          parameters:
+            - response: "WebSocket response data"
+          returns: "OcoOrderResponse object"
+
+    get_open_oco_orders:
+      description: "Query execution status of all open OCO orders"
+      file: "get_open_oco_orders.py"
+      endpoint: "openOrderLists.status"
+      weight: 3
+      security_type: "USER_DATA"
+      functions:
+        get_open_oco_orders:
+          description: "Send a request to get all open OCO orders"
+          parameters:
+            - connection: "Active WebSocket connection"
+            - callback: "Callback function for the response (optional)"
+          returns: "Message ID of the request"
+        process_open_oco_orders_response:
+          description: "Process the open OCO orders response"
+          parameters:
+            - response: "WebSocket response data"
+          returns: "List of OcoOrderResponse objects"
