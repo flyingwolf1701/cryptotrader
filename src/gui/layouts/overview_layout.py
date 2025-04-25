@@ -10,7 +10,7 @@ from tkinter import ttk
 import logging
 
 from src.config import get_logger  # Use when integrating with the main app
-from ..components.watchlist import WatchlistWidget
+from gui.components.watchlist_component import WatchlistWidget
 
 # Configure basic logging (use this for standalone testing)
 logging.basicConfig(
@@ -40,7 +40,7 @@ class OverviewLayout(ttk.Frame):
         self.rowconfigure(1, weight=1)
         
         # Create four panels
-        self.watchlist_panel = self._create_panel(0, 0, "Watchlist Panel")
+        self.watchlist_panel = self._create_watchlist_panel(0, 0, "Watchlist Panel")
         self.strategy_panel = self._create_panel(0, 1, "Strategy Panel")
         self.logging_panel = self._create_panel(1, 0, "Logging Panel")
         self.trading_panel = self._create_panel(1, 1, "Trading Panel")
@@ -60,21 +60,21 @@ class OverviewLayout(ttk.Frame):
         
         return panel
     
-    def _create_watchlist_panel(self, row, column, title, market_client):
+    def _create_watchlist_panel(self, row, column, title):
         """Create the watchlist panel with the WatchlistWidget."""
         # Create a frame with a border
         panel = ttk.LabelFrame(self, text=title, padding=10)
         panel.grid(row=row, column=column, padx=10, pady=10, sticky="nsew")
         
-        # Add the watchlist widget
-        watchlist = WatchlistWidget(panel, market_client)
-        watchlist.pack(fill=tk.BOTH, expand=True)
+        # Add the watchlist widget (no market_client needed anymore)
+        self.watchlist = WatchlistWidget(panel)
+        self.watchlist.pack(fill=tk.BOTH, expand=True)
         
         # Set available symbols
         available_symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT"]
-        watchlist.set_available_symbols(available_symbols)
+        self.watchlist.set_available_symbols(available_symbols)
         
-        return panel, watchlist
+        return panel
 
 
 # For testing this component individually

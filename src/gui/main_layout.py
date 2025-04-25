@@ -10,8 +10,8 @@ from tkinter import ttk
 import tkinter.font as tkfont
 import logging
 from typing import Dict
-from .layouts.overview_layout import OverviewLayout
-from .components.watchlist import WatchlistWidget
+from src.gui.layouts.overview_layout import OverviewLayout
+from gui.components.watchlist_component import WatchlistWidget
 
 # Configure basic logging
 logging.basicConfig(
@@ -194,7 +194,7 @@ class MainLayout(tk.Tk):
     def _setup_watchlist_tab(self):
         """Set up the Watchlist tab with the WatchlistWidget."""
         # Create and configure the watchlist widget
-        self.watchlist_widget = WatchlistWidget(self.watchlist_tab, self.market_client)
+        self.watchlist_widget = WatchlistWidget(self.watchlist_tab)
         self.watchlist_widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
         # Set available symbols

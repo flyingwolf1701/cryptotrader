@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from src.config import get_logger
 from src.services.binance.restAPI import MarketOperations
 from src.gui.components.chart_widget import ChartWidget
-from src.gui.components.watchlist import WatchlistWidget
+from gui.components.watchlist_component import WatchlistWidget
 
 logger = get_logger(__name__)
 
