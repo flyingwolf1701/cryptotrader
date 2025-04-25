@@ -18,7 +18,7 @@ from typing import Dict, List, Callable, Any, Optional
 from src.config import get_logger
 from src.gui.components.styles import Colors
 from src.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
-
+from src.services.symbol_service import SymbolService
 
 logger = get_logger(__name__)
 
@@ -37,6 +37,10 @@ class WatchlistWidget(ttk.Frame):
         self.watched_symbols = set()
         self.price_data = {}
         self.symbol_selected_callback = None
+        # self.symbol_service = SymbolService.get_instance()
+        
+        # # Register for symbol updates
+        # self.symbol_service.register_listener(self._on_symbols_updated)
 
         # Widget collections for dynamic management
         self.body_widgets = {}

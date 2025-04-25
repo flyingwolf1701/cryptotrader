@@ -197,9 +197,7 @@ class MainLayout(tk.Tk):
         self.watchlist_widget = WatchlistWidget(self.watchlist_tab)
         self.watchlist_widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
-        # Set available symbols
-        available_symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "ADAUSDT", "DOGEUSDT"]
-        self.watchlist_widget.set_available_symbols(available_symbols)
+        # The WatchlistWidget will handle fetching available symbols internally
         
         logger.info("Watchlist tab initialized")
     
