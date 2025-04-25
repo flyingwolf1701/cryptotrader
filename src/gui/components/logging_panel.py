@@ -1,4 +1,10 @@
 """
+
+# Fix import path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))  # Add project root to Python path
+
 Logging Panel Component
 
 Displays application logs and system messages in a scrollable text view.
