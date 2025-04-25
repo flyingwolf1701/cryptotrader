@@ -7,6 +7,6 @@ This package contains all configuration-related modules:
 """
 
 from .secrets import Secrets
-from .logging import get_logger
+from .log_config import get_logger
 
 __all__ = ['Secrets', 'get_logger']

@@ -5,7 +5,7 @@ Configuration module for the CryptoTrader application.
 import os
 from dotenv import load_dotenv
 
-from .logging import get_logger
+from .log_config import get_logger
 
 # Get a logger for this module
 logger = get_logger(__name__)
