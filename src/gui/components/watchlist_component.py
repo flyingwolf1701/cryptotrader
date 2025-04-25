@@ -17,6 +17,8 @@ from typing import Dict, List, Callable, Any, Optional
 
 from src.config import get_logger
 from src.gui.components.styles import Colors
+from src.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
+
 
 logger = get_logger(__name__)
 
@@ -24,10 +26,13 @@ logger = get_logger(__name__)
 class WatchlistWidget(ttk.Frame):
     """Widget for displaying cryptocurrency price information."""
 
-    def __init__(self, parent: tk.Widget, market_client: Any):
+    def __init__(self, parent: tk.Widget):
         super().__init__(parent)
 
-        self.market_client = market_client
+        # Create our own client
+        self.unified_client = BinanceRestUnifiedClient()
+        self.market_client = self.unified_client.market
+        
         self.available_symbols = []
         self.watched_symbols = set()
         self.price_data = {}

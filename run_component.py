@@ -11,6 +11,6 @@ if __name__ == "__main__":
     component_name = sys.argv[1] if len(sys.argv) > 1 else "watchlist"
     
     if component_name == "watchlist":
-        from src.gui.components.watchlist import WatchlistWidget
+        from gui.components.watchlist_component import WatchlistWidget
         WatchlistWidget.demo()
     # Add other components as needed

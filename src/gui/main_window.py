@@ -19,9 +19,9 @@ from src.config import get_logger
 from src.services.binance.restAPI import MarketOperations, SystemOperations
 
 # Import components
-from src.gui.components.watchlist import WatchlistWidget
-from src.gui.components.logging_panel import LoggingPanel
-from src.gui.components.strategy_panel import StrategyPanel
+from gui.components.watchlist_component import WatchlistWidget
+from gui.components.logging_componenet import LoggingPanel
+from gui.components.strategy_component import StrategyPanel
 from src.gui.components.trades_component import TradesWatch
 from src.gui.components.chart_widget import ChartWidget
 from src.gui.components.styles import Colors, apply_theme
