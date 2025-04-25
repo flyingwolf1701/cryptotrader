@@ -7,12 +7,12 @@
 # """
 
 # # Import stream components
-# from cryptotrader.services.binance.websocketAPI.streams.websocket_stream_manager import (
+# from .services.binance.websocketAPI.streams.websocket_stream_manager import (
 #     BinanceStreamManager,
 #     create_market_stream
 # )
 
-# from cryptotrader.services.binance.websocketAPI.streams.user_data_stream import (
+# from .services.binance.websocketAPI.streams.user_data_stream import (
 #     UserDataStream
 # )
 
@@ -20,7 +20,7 @@
 #     # Stream Manager
 #     'BinanceStreamManager',
 #     'create_market_stream',
-    
+
 #     # User Data Stream
 #     'UserDataStream'
 # ]

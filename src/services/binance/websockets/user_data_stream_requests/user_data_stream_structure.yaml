@@ -2,10 +2,10 @@ binance_websocket_user_data_stream_api:
 description: "API functions for managing User Data Stream in the CryptoTrader Binance WebSocket API implementation"
 
 dependencies:
-- cryptotrader.config.Secrets
-- cryptotrader.config.get_logger
-- cryptotrader.services.binance.websocketAPI.base_operations.BinanceWebSocketConnection
-- cryptotrader.services.binance.websocketAPI.base_operations.SecurityType
+- .config.Secrets
+- .config.get_logger
+- .services.binance.websocketAPI.base_operations.BinanceWebSocketConnection
+- .services.binance.websocketAPI.base_operations.SecurityType
 
 user_data_stream_requests:
 description: "WebSocket requests for managing User Data Stream from the Binance API"
