@@ -126,6 +126,16 @@ class RateLimit:
     intervalNum: int
     limit: int
 
+@dataclass
+class ExchangeInfo:
+    """
+    Represents the full response from GET /api/v3/exchangeInfo.
+    """
+    timezone: str
+    serverTime: int
+    rateLimits: List[RateLimit]
+    exchangeFilters: List[Dict[str, Any]]
+    symbols: List[SymbolInfo]
 
 @dataclass
 class SystemStatus:

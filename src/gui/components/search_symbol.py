@@ -9,10 +9,17 @@ from tkinter import ttk
 from typing import List, Set, Callable, Optional
 import re
 import threading
+import os
+import sys
+from pathlib import Path
 
 from src.config import get_logger
 from src.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
 from src.gui.components.styles import Colors
+
+project_root = Path(__file__).resolve().parent.parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 logger = get_logger(__name__)
 

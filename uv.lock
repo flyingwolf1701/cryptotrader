@@ -363,6 +363,15 @@ wheels = [
 ]
 
 [[package]]
+name = "py-automapper"
+version = "2.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a4/37/65d3d3c2700b3fd64a70792c49218f11e0c83d2417174f0b04c1f04761d9/py_automapper-2.2.0.tar.gz", hash = "sha256:6641e75807138fb7330384f391417c60b288f98dad6a0ad5b8e5ee5d48ef4f55", size = 20414 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fd/39/1358b2f46ee65d810ccc2c98c7783d8c3a3507a63f30b1040b4a58fca259/py_automapper-2.2.0-py3-none-any.whl", hash = "sha256:5bf06bf4eaa333f3cb9cb57428d3f70e12f9199befad8839a27d66b48266b317", size = 13947 },
+]
+
+[[package]]
 name = "pydantic"
 version = "2.11.3"
 source = { registry = "https://pypi.org/simple" }
@@ -439,6 +448,7 @@ dependencies = [
     { name = "httpx" },
     { name = "matplotlib" },
     { name = "numpy" },
+    { name = "py-automapper" },
     { name = "python-dotenv" },
     { name = "ruff" },
     { name = "sqlalchemy" },
@@ -458,6 +468,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "matplotlib", specifier = ">=3.10.1" },
     { name = "numpy", specifier = ">=2.2.5" },
+    { name = "py-automapper", specifier = ">=2.2.0" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "ruff", specifier = ">=0.9.7" },
     { name = "sqlalchemy", specifier = ">=2.0.38" },
