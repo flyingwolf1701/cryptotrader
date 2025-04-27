@@ -2,9 +2,10 @@
 """
 Business logic for fetching, caching, and filtering trading symbols.
 """
+
 import threading
 from typing import List, Set, Callable, Optional
-from src.config import get_logger
+from config import get_logger
 
 from src.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
 
@@ -13,10 +14,8 @@ logger = get_logger(__name__)
 
 class SymbolSearchLogic:
     """Logic for loading and filtering trading symbols (cached)."""
-    def __init__(
-        self,
-        client: Optional[BinanceRestUnifiedClient] = None
-    ):
+
+    def __init__(self, client: Optional[BinanceRestUnifiedClient] = None):
         # Injected REST client (defaults to real unified client)
         self.client = client or BinanceRestUnifiedClient()
         # Cached symbol lists
@@ -37,16 +36,22 @@ class SymbolSearchLogic:
         try:
             # Fetch exchange info via MarketOperations REST method
             # Try standard and REST-specific methods for exchange info
-            if hasattr(self.client.market, 'get_exchange_info'):
+            if hasattr(self.client.market, "get_exchange_info"):
                 exchange_info = self.client.market.get_exchange_info()
-            elif hasattr(self.client.market, 'get_exchange_info_rest'):
+            elif hasattr(self.client.market, "get_exchange_info_rest"):
                 exchange_info = self.client.market.get_exchange_info_rest()
             else:
-                raise AttributeError("MarketOperations client missing exchange info method")
+                raise AttributeError(
+                    "MarketOperations client missing exchange info method"
+                )
 
             symbols = []
-            if exchange_info and 'symbols' in exchange_info:
-                symbols = [s['symbol'] for s in exchange_info['symbols'] if s.get('status') == 'TRADING']
+            if exchange_info and "symbols" in exchange_info:
+                symbols = [
+                    s["symbol"]
+                    for s in exchange_info["symbols"]
+                    if s.get("status") == "TRADING"
+                ]
 
             if symbols:
                 self.available_symbols = sorted(symbols)
@@ -59,7 +64,9 @@ class SymbolSearchLogic:
 
             logger.warning("No trading symbols found in exchange_info")
         except AttributeError:
-            logger.error("MarketOperations client missing 'get_exchange_info' or 'get_exchange_info_rest' method")
+            logger.error(
+                "MarketOperations client missing 'get_exchange_info' or 'get_exchange_info_rest' method"
+            )
         except Exception as e:
             logger.error(f"Error fetching symbols: {e}")
 
@@ -88,12 +95,22 @@ class SymbolSearchLogic:
                     self.filtered_symbols = contains
                 else:
                     # Split pairs into base/quote
-                    quote_currencies = ["USDT", "BTC", "ETH", "BNB", "BUSD", "USD", "EUR"]
+                    quote_currencies = [
+                        "USDT",
+                        "BTC",
+                        "ETH",
+                        "BNB",
+                        "BUSD",
+                        "USD",
+                        "EUR",
+                    ]
                     base_matches = []
                     quote_matches = []
                     for s in self.available_symbols:
-                        quote = next((q for q in quote_currencies if s.endswith(q)), None)
-                        base = s[:-len(quote)] if quote else s[:-3]
+                        quote = next(
+                            (q for q in quote_currencies if s.endswith(q)), None
+                        )
+                        base = s[: -len(quote)] if quote else s[:-3]
                         if text in base:
                             base_matches.append(s)
                         elif quote and text in quote:
@@ -107,17 +124,23 @@ class SymbolSearchLogic:
         if self.is_initialized:
             callback(self.available_symbols)
 
-    def unregister_symbols_listener(self, callback: Callable[[List[str]], None]) -> None:
+    def unregister_symbols_listener(
+        self, callback: Callable[[List[str]], None]
+    ) -> None:
         """Unregister a full-symbols listener."""
         self.on_symbols_updated.discard(callback)
 
-    def register_filtered_symbols_listener(self, callback: Callable[[List[str]], None]) -> None:
+    def register_filtered_symbols_listener(
+        self, callback: Callable[[List[str]], None]
+    ) -> None:
         """Register for updates to the filtered symbol list."""
         self.on_filtered_symbols_updated.add(callback)
         if self.is_initialized:
             callback(self.filtered_symbols)
 
-    def unregister_filtered_symbols_listener(self, callback: Callable[[List[str]], None]) -> None:
+    def unregister_filtered_symbols_listener(
+        self, callback: Callable[[List[str]], None]
+    ) -> None:
         """Unregister a filtered-symbols listener."""
         self.on_filtered_symbols_updated.discard(callback)
 

@@ -9,7 +9,7 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Dict, List, Callable, Any, Optional, Set
 
-from src.config import get_logger
+from config import get_logger
 from src.gui.components.styles import Colors
 from src.gui.components.search_symbol import SymbolSearchWidget
 from src.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
@@ -26,7 +26,7 @@ class WatchlistWidget(ttk.Frame):
         # Create our own client
         self.unified_client = BinanceRestUnifiedClient()
         self.market_client = self.unified_client.market
-        
+
         self.watched_symbols = set()
         self.price_data = {}
         self.symbol_selected_callback = None
@@ -51,9 +51,7 @@ class WatchlistWidget(ttk.Frame):
 
         # Create symbol search widget (replaces the old combobox approach)
         self.symbol_search = SymbolSearchWidget(
-            self._commands_frame,
-            on_add=self.add_symbol,
-            width=30
+            self._commands_frame, on_add=self.add_symbol, width=30
         )
         self.symbol_search.pack(fill=tk.X, padx=5, pady=5)
 

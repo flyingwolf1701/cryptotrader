@@ -183,7 +183,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 
 import_guidelines:
 description: "Guidelines for organizing imports in the application"
-rules: - "Use absolute imports from the src directory (e.g., from src.config import get_logger)" - "Group imports by standard library, third-party, and local modules" - "Import specific classes/functions rather than entire modules when possible" - "Keep import statements at the top of the file" - "Avoid circular imports by careful module organization"
+rules: - "Use absolute imports from the src directory (e.g., from config import get_logger)" - "Group imports by standard library, third-party, and local modules" - "Import specific classes/functions rather than entire modules when possible" - "Keep import statements at the top of the file" - "Avoid circular imports by careful module organization"
 example: | # Standard library imports
 import os
 import time
@@ -197,7 +197,7 @@ from datetime import datetime
       import matplotlib.pyplot as plt
 
       # Local imports
-      from src.config import get_logger
+      from config import get_logger
       from src.services.binance.restAPI import MarketOperations
 
 error_handling:

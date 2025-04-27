@@ -15,7 +15,7 @@ from tkinter import ttk
 from datetime import datetime
 import typing
 
-from src.config import get_logger
+from config import get_logger
 from src.gui.components.styles import Colors
 
 logger = get_logger(__name__)
