@@ -1,11 +1,11 @@
 ```
 src/
-├── config/
 ├── find_me/
 ├── gui/
 │   └── components/
 │       ├── demos/
-│       └── logic/
+│       ├── logic/
+│       └── ui/
 ├── notes/
 │   ├── brainstorms/
 │   ├── project_plan/

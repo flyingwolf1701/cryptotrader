@@ -126,16 +126,6 @@ class RateLimit:
     intervalNum: int
     limit: int
 
-@dataclass
-class ExchangeInfo:
-    """
-    Represents the full response from GET /api/v3/exchangeInfo.
-    """
-    timezone: str
-    serverTime: int
-    rateLimits: List[RateLimit]
-    exchangeFilters: List[Dict[str, Any]]
-    symbols: List[SymbolInfo]
 
 @dataclass
 class SystemStatus:
@@ -283,7 +273,6 @@ class OrderStatusResponse:
             isWorking=bool(response.get("isWorking", False)),
         )
 
-
 @dataclass
 class SymbolInfo:
     """Data structure for symbol information"""
@@ -311,7 +300,16 @@ class SymbolInfo:
                 OrderType(orderType) for orderType in response.get("orderTypes", [])
             ],
         )
-
+@dataclass
+class ExchangeInfo:
+    """
+    Represents the full response from GET /api/v3/exchangeInfo.
+    """
+    timezone: str
+    serverTime: int
+    rateLimits: List[RateLimit]
+    exchangeFilters: List[Dict[str, Any]]
+    symbols: List[SymbolInfo]
 
 @dataclass
 class Trade:

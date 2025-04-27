@@ -13,7 +13,7 @@ from .base_models import (
     AccountAsset, AccountBalance, OrderStatusResponse,
     SymbolInfo, Trade, AggTrade, OrderBookEntry, OrderBook,
     TickerPrice, AvgPrice, PriceStatsMini, PriceStats, 
-    RollingWindowStatsMini, RollingWindowStats, BinanceEndpoints
+    RollingWindowStatsMini, RollingWindowStats, BinanceEndpoints, ExchangeInfo
 )
 
 # Import from order_models
