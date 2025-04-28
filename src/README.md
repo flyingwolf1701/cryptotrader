@@ -22,7 +22,7 @@ components:
 main:
 description: "Application entry point that initializes the application and starts the main UI"
 responsibilities: - Initialize logging - Create Tkinter application - Create MainWindow instance - Start main event loop
-imports: - tkinter - src.gui.main_window.MainWindow - src.config.get_logger
+imports: - tkinter - src.gui.main_window.MainWindow - config.get_logger
 exports: []
 
 main_window:
@@ -31,7 +31,7 @@ class: MainWindow
 base_class: tkinter.Tk
 responsibilities: - Set up application layout - Initialize API clients - Create and manage UI components - Handle data updates and refreshes - Load initial market data
 components: - left_frame: "Frame for chart and watchlist" - right_frame: "Frame for tabbed panels" - tabs: "Notebook widget for tabbed interface"
-imports: - tkinter - tkinter.ttk - matplotlib - src.config.get_logger - src.services.binance.restAPI
+imports: - tkinter - tkinter.ttk - matplotlib - config.get_logger - src.services.binance.restAPI
 exports: - MainWindow
 
 watchlist:
@@ -42,7 +42,7 @@ responsibilities: - Display real-time price information for selected symbols - A
 ui_elements: - symbol_selector: "Entry with dropdown for selecting symbols" - add_button: "Button to add symbols to watchlist" - table: "Table widget to display price data" - remove_buttons: "Buttons to remove symbols from watchlist"
 signals: - symbol_selected: "Emitted when a symbol is selected"
 methods: - set_available_symbols: "Set the list of available trading symbols" - add_symbol: "Add a symbol to the watchlist" - remove_symbol: "Remove a symbol from the watchlist" - update_prices: "Update price data for all watched symbols" - fetch_symbol_data: "Fetch price data for a specific symbol"
-imports: - tkinter - tkinter.ttk - src.config.get_logger
+imports: - tkinter - tkinter.ttk - config.get_logger
 
 chart_widget:
 description: "Displays interactive candlestick charts for cryptocurrency trading"
@@ -76,7 +76,7 @@ methods: - plot_candles: "Plot candlestick data on the chart"
       - matplotlib
       - matplotlib.backends.backend_tkagg
       - matplotlib.figure
-      - src.config.get_logger
+      - config.get_logger
 
 logging_panel:
 description: "Displays application logs and system messages"
@@ -85,7 +85,7 @@ base_class: tkinter.Frame
 responsibilities: - Display timestamped log messages - Support different log levels with color coding - Allow clearing of logs
 ui_elements: - log_view: "Text widget with scrollbar for displaying logs" - clear_btn: "Button to clear logs"
 methods: - add_log: "Add a log message to the view" - clear_logs: "Clear all log messages"
-imports: - tkinter - time - src.config.get_logger
+imports: - tkinter - time - config.get_logger
 
 strategy_panel:
 description: "Allows users to configure and execute trading strategies"
@@ -117,7 +117,7 @@ methods: - get_parameters: "Get the configured parameters"
     imports:
       - tkinter
       - tkinter.ttk
-      - src.config.get_logger
+      - config.get_logger
 
 trade_history:
 description: "Displays a history of executed trades"
@@ -126,7 +126,7 @@ base_class: tkinter.Frame
 responsibilities: - Display trade history with details - Update trade status and P&L - Allow clearing history
 ui_elements: - table: "Table widget to display trades" - clear_btn: "Button to clear history"
 methods: - add_trade: "Add a trade to the history" - update_trade_status: "Update the status of a trade" - clear_history: "Clear all trades from history" - add_mock_trades: "Add mock trades for testing"
-imports: - tkinter - tkinter.ttk - src.config.get_logger
+imports: - tkinter - tkinter.ttk - config.get_logger
 
 styles:
 description: "UI styling utilities for consistent appearance"
@@ -183,7 +183,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 
 import_guidelines:
 description: "Guidelines for organizing imports in the application"
-rules: - "Use absolute imports from the src directory (e.g., from src.config import get_logger)" - "Group imports by standard library, third-party, and local modules" - "Import specific classes/functions rather than entire modules when possible" - "Keep import statements at the top of the file" - "Avoid circular imports by careful module organization"
+rules: - "Use absolute imports from the src directory (e.g., from config import get_logger)" - "Group imports by standard library, third-party, and local modules" - "Import specific classes/functions rather than entire modules when possible" - "Keep import statements at the top of the file" - "Avoid circular imports by careful module organization"
 example: | # Standard library imports
 import os
 import time
@@ -197,7 +197,7 @@ from datetime import datetime
       import matplotlib.pyplot as plt
 
       # Local imports
-      from src.config import get_logger
+      from config import get_logger
       from src.services.binance.restAPI import MarketOperations
 
 error_handling:

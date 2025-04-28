@@ -14,7 +14,7 @@ import tkinter as tk
 from tkinter import ttk
 from functools import partial
 
-from src.config import get_logger
+from config import get_logger
 from src.gui.components.styles import Colors, create_table
 
 logger = get_logger(__name__)

@@ -1,0 +1,105 @@
+binance_rest_api:
+  description: "API functions available in the Binance REST API module."
+
+  apis:
+    - group: system_api
+      description: "Functions related to Binance system-wide information."
+      functions:
+        - name: get_server_time
+          endpoint: "GET /api/v3/time"
+          description: "Retrieves the current server time in milliseconds."
+          request_shape: None
+          response_shape: ServerTimeResponse
+
+        - name: get_system_status
+          endpoint: "GET /sapi/v1/system/status"
+          description: "Retrieves the current system status (normal or maintenance)."
+          request_shape: None
+          response_shape: SystemStatusResponse
+
+        - name: get_exchange_info
+          endpoint: "GET /api/v3/exchangeInfo"
+          description: "Retrieves exchange info, optionally filtered by symbol, permissions, or status."
+          request_shape: ExchangeInfoRequest
+          response_shape: ExchangeInfoResponse
+
+    - group: market_api
+      description: "Market data endpoints."
+      functions:
+        - name: get_bid_ask
+          endpoint: "GET /api/v3/ticker/bookTicker"
+          description: "Retrieves best bid/ask prices for a symbol."
+          request_shape: BidAskRequest
+          response_shape: BidAskResponse
+
+        - name: get_historical_candles
+          endpoint: "GET /api/v3/klines"
+          description: "Retrieves historical candlestick data for a symbol and interval."
+          request_shape: HistoricalCandlesRequest
+          response_shape: HistoricalCandlesResponse
+
+    - group: order_api
+      description: "Order management endpoints."
+      functions:
+        - name: place_order
+          endpoint: "POST /api/v3/order"
+          description: "Places a new spot order."
+          request_shape: PlaceOrderRequest
+          response_shape: OrderResult
+
+        - name: cancel_order
+          endpoint: "DELETE /api/v3/order"
+          description: "Cancels an existing spot order."
+          request_shape: CancelOrderRequest
+          response_shape: CancelResult
+
+        - name: get_order_status
+          endpoint: "GET /api/v3/order"
+          description: "Retrieves the current status of a specific spot order."
+          request_shape: GetOrderStatusRequest
+          response_shape: OrderStatus
+
+    - group: user_api
+      description: "User account related endpoints."
+      functions:
+        - name: get_account_info
+          endpoint: "GET /api/v3/account"
+          description: "Retrieves current account balances and permissions."
+          request_shape: None
+          response_shape: AccountInfoResponse
+
+    - group: subaccount_api
+      description: "Subaccount management endpoints."
+      functions:
+        - name: get_subaccount_list
+          endpoint: "GET /sapi/v1/sub-account/list"
+          description: "Retrieves a list of subaccounts."
+          request_shape: None
+          response_shape: SubaccountListResponse
+
+    - group: wallet_api
+      description: "Wallet operations endpoints."
+      functions:
+        - name: get_system_status_wallet
+          endpoint: "GET /sapi/v1/system/status"
+          description: "Fetch system status for wallet operations."
+          request_shape: None
+          response_shape: SystemStatusResponse
+
+    - group: staking_api
+      description: "Staking operations endpoints."
+      functions:
+        - name: get_staking_product_list
+          endpoint: "GET /sapi/v1/staking/productList"
+          description: "Retrieves a list of staking products."
+          request_shape: StakingProductListRequest
+          response_shape: StakingProductListResponse
+
+    - group: otc_api
+      description: "OTC trading endpoints."
+      functions:
+        - name: get_quote
+          endpoint: "POST /sapi/v1/otc/quote"
+          description: "Request a quote for OTC trading."
+          request_shape: OtcQuoteRequest
+          response_shape: OtcQuoteResponse

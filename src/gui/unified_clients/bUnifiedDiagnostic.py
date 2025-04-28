@@ -22,7 +22,7 @@ project_root = Path(__file__).parent.parent.parent.parent.parent  # src director
 sys.path.insert(0, str(project_root))
 
 # Import our modules
-from src.config import get_logger
+from config import get_logger
 from services.binance.models import OrderSide, OrderType, TimeInForce
 from gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
 
