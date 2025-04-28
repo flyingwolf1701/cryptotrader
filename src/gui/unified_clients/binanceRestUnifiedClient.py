@@ -18,16 +18,16 @@ from typing import Optional, List, Union
 
 from config import get_logger
 from services.binance.restAPI.systemApi import SystemOperations
-from services.binance.restAPI.order_api import OrderOperations
+from services.binance.restAPI.orderApi import OrderOperations
 from services.binance.models import (
-    PlaceOrderRequest, # does not exist halucination
-    CancelReplaceRequest, # does not exist halucination
-    OrderResult, # does not exist halucination
-    CancelResult, # does not exist halucination
+    PlaceOrderRequest,  # does not exist halucination
+    CancelReplaceRequest,  # does not exist halucination
+    OrderResult,  # does not exist halucination
+    CancelResult,  # does not exist halucination
     OrderStatus,
-    OrderSummary, # does not exist halucination
-    TradeRecord, # does not exist halucination
-    ExchangeInfo
+    OrderSummary,  # does not exist halucination
+    TradeRecord,  # does not exist halucination
+    ExchangeInfo,
 )
 
 logger = get_logger(__name__)
@@ -49,21 +49,32 @@ class BinanceRestUnifiedClient:
         """
         return self.system.getExchangeInfo()
 
-    def get_24h_ticker_price(self, symbol: Optional[str] = None) -> Union[List[dict], dict]:
+    def get_24h_ticker_price(
+        self, symbol: Optional[str] = None
+    ) -> Union[List[dict], dict]:
         """
         Fetch 24-hour ticker price change statistics for a symbol or all symbols.
         """
         if symbol:
-            response = self.system.request(
-                method="GET",
-                endpoint="/api/v3/ticker/24hr",
-            ).with_query_params(symbol=symbol).requires_auth(False).execute()
+            response = (
+                self.system.request(
+                    method="GET",
+                    endpoint="/api/v3/ticker/24hr",
+                )
+                .withQueryParams(symbol=symbol)
+                .requiresAuth(False)
+                .execute()
+            )
             return response
         else:
-            response = self.system.request(
-                method="GET",
-                endpoint="/api/v3/ticker/24hr",
-            ).requires_auth(False).execute()
+            response = (
+                self.system.request(
+                    method="GET",
+                    endpoint="/api/v3/ticker/24hr",
+                )
+                .requiresAuth(False)
+                .execute()
+            )
             return response
 
     def place_order(self, request: PlaceOrderRequest) -> OrderResult:
@@ -72,11 +83,11 @@ class BinanceRestUnifiedClient:
         """
         return self.orders.place_order(request)
 
-    def cancel_order(self, order_id: str, symbol: str) -> CancelResult:
+    def cancelOrderRest(self, order_id: str, symbol: str) -> CancelResult:
         """
         Cancel an existing spot order by order ID and symbol.
         """
-        return self.orders.cancel_order(order_id, symbol)
+        return self.orders.cancelOrderRest(order_id, symbol)
 
     def get_order_status(self, order_id: str, symbol: str) -> OrderStatus:
         """

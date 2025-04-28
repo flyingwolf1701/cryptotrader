@@ -67,7 +67,7 @@ class BinanceAPIRequest:
         self.params = {}
         self.needs_signature = False  # Default to unauthenticated
 
-    def requires_auth(self, needed: bool = True) -> "BinanceAPIRequest":
+    def requiresAuth(self, needed: bool = True) -> "BinanceAPIRequest":
         """
         Set whether this request requires authentication.
 
@@ -82,7 +82,7 @@ class BinanceAPIRequest:
         )
         return self
 
-    def with_query_params(self, **kwargs) -> "BinanceAPIRequest":
+    def withQueryParams(self, **kwargs) -> "BinanceAPIRequest":
         """
         Add query parameters to the request.
 
@@ -97,7 +97,7 @@ class BinanceAPIRequest:
                 self.params[key] = value
         return self
 
-    def sign_request(self) -> None:
+    def _signRequest(self) -> None:
         """
         Sign the request with the API secret.
 
@@ -136,8 +136,8 @@ class BinanceAPIRequest:
         while retries <= max_retries:
             try:
                 # Check rate limits
-                if not self.rate_limiter.check_rate_limit(self.limit_type, self.weight):
-                    retry_after = self.rate_limiter.get_retry_after()
+                if not self.rate_limiter._checkRateLimit(self.limit_type, self.weight):
+                    retry_after = self.rate_limiter._getRetryAfter()
                     if retry_after > 0:
                         logger.warning(f"Rate limit hit, retrying after {retry_after}s")
                         time.sleep(retry_after)
@@ -153,7 +153,7 @@ class BinanceAPIRequest:
 
                 # Sign the request if needed
                 if self.needs_signature:
-                    self.sign_request()
+                    self._signRequest()
 
                 # Set up headers
                 headers = {}
@@ -197,12 +197,12 @@ class BinanceAPIRequest:
                         return None
 
                 # Update rate limiter with response headers
-                self.rate_limiter.update_limits(response.headers)
+                self.rate_limiter._updateLimits(response.headers)
 
                 # Handle response status
                 if response.status_code == 200:
                     # Successful response - increment the rate limiter usage
-                    self.rate_limiter.increment_usage(self.limit_type, self.weight)
+                    self.rate_limiter._incrementUsage(self.limit_type, self.weight)
                     return response.json()
                 elif response.status_code == 429 or response.status_code == 418:
                     # Rate limit exceeded
@@ -238,14 +238,14 @@ class BinanceAPIRequest:
         logger.error(f"Failed to execute request after {max_retries} retries")
         return None
 
-    def get_rate_limit_usage(self) -> Dict[str, int]:
+    def getRateLimitUsage(self) -> Dict[str, int]:
         """
         Get current rate limit usage information.
 
         Returns:
             Dictionary with rate limit usage statistics
         """
-        return self.rate_limiter.get_rate_limit_usage()
+        return self.rate_limiter.getRateLimitUsage()
 
 
 class RateLimiter:
@@ -277,7 +277,7 @@ class RateLimiter:
         # Last response headers for updating limits
         self.last_headers = {}
 
-    def update_limits(self, headers: Dict[str, str]):
+    def _updateLimits(self, headers: Dict[str, str]):
         """
         Update rate limits based on response headers.
         """
@@ -297,7 +297,7 @@ class RateLimiter:
                 self.usage[usage_key] = int(headers[header_key])
                 logger.debug(f"Updated {usage_key} usage to {self.usage[usage_key]}")
 
-    def check_rate_limit(self, limit_type: RateLimitType, weight: int = 1) -> bool:
+    def _checkRateLimit(self, limit_type: RateLimitType, weight: int = 1) -> bool:
         """
         Check if a request can be made without exceeding rate limits.
         """
@@ -335,7 +335,7 @@ class RateLimiter:
 
         return True
 
-    def increment_usage(self, limit_type: RateLimitType, weight: int = 1):
+    def _incrementUsage(self, limit_type: RateLimitType, weight: int = 1):
         """
         Increment usage counter for a rate limit.
 
@@ -351,7 +351,7 @@ class RateLimiter:
                     f"Incremented {key} usage by {weight} to {self.usage[key]}"
                 )
 
-    def get_retry_after(self) -> int:
+    def _getRetryAfter(self) -> int:
         """
         Get retry-after time from last response headers.
 
@@ -362,7 +362,7 @@ class RateLimiter:
             return int(self.last_headers["Retry-After"])
         return 0
 
-    def get_rate_limit_usage(self) -> Dict[str, int]:
+    def getRateLimitUsage(self) -> Dict[str, int]:
         """
         Get current rate limit usage.
 

@@ -15,7 +15,7 @@ These endpoints provide wallet functionality for managing funds on the Binance p
 from typing import Dict, List, Optional, Any, Union
 
 from config import get_logger
-from services.binance.restAPI.base_operations import BinanceAPIRequest
+from services.binance.restAPI.baseOperations import BinanceAPIRequest
 from services.binance.models import (
     AssetDetail,
     FiatWithdrawResponse,
@@ -81,10 +81,10 @@ class WalletOperations:
         """
         request = self.request(
             "GET", "/sapi/v1/capital/config/getall", RateLimitType.REQUEST_WEIGHT, 1
-        ).requires_auth(True)
+        ).requiresAuth(True)
 
         if recv_window is not None:
-            request.with_query_params(recvWindow=recv_window)
+            request.withQueryParams(recvWindow=recv_window)
 
         response = request.execute()
 
@@ -126,8 +126,8 @@ class WalletOperations:
                 RateLimitType.REQUEST_WEIGHT,
                 1,
             )
-            .requires_auth(True)
-            .with_query_params(
+            .requiresAuth(True)
+            .withQueryParams(
                 paymentMethod=payment_method,
                 paymentAccount=payment_account,
                 amount=str(amount),  # Ensure amount is a string
@@ -135,10 +135,10 @@ class WalletOperations:
         )
 
         if fiat_currency:
-            request.with_query_params(fiatCurrency=fiat_currency)
+            request.withQueryParams(fiatCurrency=fiat_currency)
 
         if recv_window is not None:
-            request.with_query_params(recvWindow=recv_window)
+            request.withQueryParams(recvWindow=recv_window)
 
         response = request.execute()
 
@@ -181,8 +181,8 @@ class WalletOperations:
                 RateLimitType.REQUEST_WEIGHT,
                 1,
             )
-            .requires_auth(True)
-            .with_query_params(
+            .requiresAuth(True)
+            .withQueryParams(
                 coin=coin,
                 network=network,
                 address=address,
@@ -191,13 +191,13 @@ class WalletOperations:
         )
 
         if withdraw_order_id:
-            request.with_query_params(withdrawOrderId=withdraw_order_id)
+            request.withQueryParams(withdrawOrderId=withdraw_order_id)
 
         if address_tag:
-            request.with_query_params(addressTag=address_tag)
+            request.withQueryParams(addressTag=address_tag)
 
         if recv_window is not None:
-            request.with_query_params(recvWindow=recv_window)
+            request.withQueryParams(recvWindow=recv_window)
 
         response = request.execute()
 
@@ -238,33 +238,33 @@ class WalletOperations:
         """
         request = self.request(
             "GET", "/sapi/v1/capital/withdraw/history", RateLimitType.REQUEST_WEIGHT, 1
-        ).requires_auth(True)
+        ).requiresAuth(True)
 
         if coin:
-            request.with_query_params(coin=coin)
+            request.withQueryParams(coin=coin)
 
         if withdraw_order_id:
-            request.with_query_params(withdrawOrderId=withdraw_order_id)
+            request.withQueryParams(withdrawOrderId=withdraw_order_id)
 
         if status is not None:
-            request.with_query_params(status=status)
+            request.withQueryParams(status=status)
 
         if start_time:
-            request.with_query_params(startTime=start_time)
+            request.withQueryParams(startTime=start_time)
 
         if end_time:
-            request.with_query_params(endTime=end_time)
+            request.withQueryParams(endTime=end_time)
 
         if offset is not None:
-            request.with_query_params(offset=offset)
+            request.withQueryParams(offset=offset)
 
         if limit:
-            request.with_query_params(
+            request.withQueryParams(
                 limit=min(limit, 1000)
             )  # Ensure limit doesn't exceed API max
 
         if recv_window is not None:
-            request.with_query_params(recvWindow=recv_window)
+            request.withQueryParams(recvWindow=recv_window)
 
         response = request.execute()
 
@@ -310,31 +310,31 @@ class WalletOperations:
             "/sapi/v1/fiatpayment/query/withdraw/history",
             RateLimitType.REQUEST_WEIGHT,
             1,
-        ).requires_auth(True)
+        ).requiresAuth(True)
 
         if fiat_currency:
-            request.with_query_params(fiatCurrency=fiat_currency)
+            request.withQueryParams(fiatCurrency=fiat_currency)
 
         if order_id:
-            request.with_query_params(orderId=order_id)
+            request.withQueryParams(orderId=order_id)
 
         if offset is not None:
-            request.with_query_params(offset=offset)
+            request.withQueryParams(offset=offset)
 
         if payment_channel:
-            request.with_query_params(paymentChannel=payment_channel)
+            request.withQueryParams(paymentChannel=payment_channel)
 
         if payment_method:
-            request.with_query_params(paymentMethod=payment_method)
+            request.withQueryParams(paymentMethod=payment_method)
 
         if start_time:
-            request.with_query_params(startTime=start_time)
+            request.withQueryParams(startTime=start_time)
 
         if end_time:
-            request.with_query_params(endTime=end_time)
+            request.withQueryParams(endTime=end_time)
 
         if recv_window is not None:
-            request.with_query_params(recvWindow=recv_window)
+            request.withQueryParams(recvWindow=recv_window)
 
         response = request.execute()
 
@@ -369,15 +369,15 @@ class WalletOperations:
                 RateLimitType.REQUEST_WEIGHT,
                 1,
             )
-            .requires_auth(True)
-            .with_query_params(coin=coin)
+            .requiresAuth(True)
+            .withQueryParams(coin=coin)
         )
 
         if network:
-            request.with_query_params(network=network)
+            request.withQueryParams(network=network)
 
         if recv_window is not None:
-            request.with_query_params(recvWindow=recv_window)
+            request.withQueryParams(recvWindow=recv_window)
 
         response = request.execute()
 
@@ -415,30 +415,30 @@ class WalletOperations:
         """
         request = self.request(
             "GET", "/sapi/v1/capital/deposit/hisrec", RateLimitType.REQUEST_WEIGHT, 1
-        ).requires_auth(True)
+        ).requiresAuth(True)
 
         if coin:
-            request.with_query_params(coin=coin)
+            request.withQueryParams(coin=coin)
 
         if status is not None:
-            request.with_query_params(status=status)
+            request.withQueryParams(status=status)
 
         if start_time:
-            request.with_query_params(startTime=start_time)
+            request.withQueryParams(startTime=start_time)
 
         if end_time:
-            request.with_query_params(endTime=end_time)
+            request.withQueryParams(endTime=end_time)
 
         if offset is not None:
-            request.with_query_params(offset=offset)
+            request.withQueryParams(offset=offset)
 
         if limit:
-            request.with_query_params(
+            request.withQueryParams(
                 limit=min(limit, 1000)
             )  # Ensure limit doesn't exceed API max
 
         if recv_window is not None:
-            request.with_query_params(recvWindow=recv_window)
+            request.withQueryParams(recvWindow=recv_window)
 
         response = request.execute()
 
@@ -484,31 +484,31 @@ class WalletOperations:
             "/sapi/v1/fiatpayment/query/deposit/history",
             RateLimitType.REQUEST_WEIGHT,
             1,
-        ).requires_auth(True)
+        ).requiresAuth(True)
 
         if fiat_currency:
-            request.with_query_params(fiatCurrency=fiat_currency)
+            request.withQueryParams(fiatCurrency=fiat_currency)
 
         if order_id:
-            request.with_query_params(orderId=order_id)
+            request.withQueryParams(orderId=order_id)
 
         if offset is not None:
-            request.with_query_params(offset=offset)
+            request.withQueryParams(offset=offset)
 
         if payment_channel:
-            request.with_query_params(paymentChannel=payment_channel)
+            request.withQueryParams(paymentChannel=payment_channel)
 
         if payment_method:
-            request.with_query_params(paymentMethod=payment_method)
+            request.withQueryParams(paymentMethod=payment_method)
 
         if start_time:
-            request.with_query_params(startTime=start_time)
+            request.withQueryParams(startTime=start_time)
 
         if end_time:
-            request.with_query_params(endTime=end_time)
+            request.withQueryParams(endTime=end_time)
 
         if recv_window is not None:
-            request.with_query_params(recvWindow=recv_window)
+            request.withQueryParams(recvWindow=recv_window)
 
         response = request.execute()
 
@@ -540,12 +540,12 @@ class WalletOperations:
                 RateLimitType.REQUEST_WEIGHT,
                 1,
             )
-            .requires_auth(True)
-            .with_query_params(email=email, coin=coin)
+            .requiresAuth(True)
+            .withQueryParams(email=email, coin=coin)
         )
 
         if network:
-            request.with_query_params(network=network)
+            request.withQueryParams(network=network)
 
         response = request.execute()
 
@@ -588,27 +588,27 @@ class WalletOperations:
                 RateLimitType.REQUEST_WEIGHT,
                 1,
             )
-            .requires_auth(True)
-            .with_query_params(email=email)
+            .requiresAuth(True)
+            .withQueryParams(email=email)
         )
 
         if coin:
-            request.with_query_params(coin=coin)
+            request.withQueryParams(coin=coin)
 
         if status is not None:
-            request.with_query_params(status=status)
+            request.withQueryParams(status=status)
 
         if start_time:
-            request.with_query_params(startTime=start_time)
+            request.withQueryParams(startTime=start_time)
 
         if end_time:
-            request.with_query_params(endTime=end_time)
+            request.withQueryParams(endTime=end_time)
 
         if limit:
-            request.with_query_params(limit=limit)
+            request.withQueryParams(limit=limit)
 
         if offset is not None:
-            request.with_query_params(offset=offset)
+            request.withQueryParams(offset=offset)
 
         response = request.execute()
 

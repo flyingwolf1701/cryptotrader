@@ -126,7 +126,7 @@ def main():
         try:
             test_success = False
             # This will succeed only if API credentials are configured
-            test_success = client.test_new_order(test_order)
+            test_success = client.testNewOrderRest(test_order)
             if test_success:
                 logger.info(
                     f"{Fore.GREEN}Order test successful - API credentials validated"
@@ -211,7 +211,7 @@ def main():
     # Test 6: Get prevented matches
     print_test_header("Getting Prevented Matches")
     try:
-        prevented_matches = client.get_prevented_matches(TEST_SYMBOL, limit=10)
+        prevented_matches = client.getPreventedMatchesRest(TEST_SYMBOL, limit=10)
 
         if prevented_matches:
             logger.info(
@@ -237,7 +237,7 @@ def main():
     # New Test 7: Get Open OCO Orders
     print_test_header("Getting Open OCO Orders")
     try:
-        open_oco_orders = client.get_open_oco_orders()
+        open_oco_orders = client.getOpenOcoOrdersRest()
         logger.info(f"Retrieved open OCO orders")
         logger.info(
             f"Number of open OCO orders: {len(open_oco_orders) if open_oco_orders else 0}"
@@ -262,7 +262,7 @@ def main():
         end_time = int(time.time() * 1000)
         start_time = end_time - (7 * 24 * 60 * 60 * 1000)  # 7 days ago
 
-        all_oco_orders = client.get_all_oco_orders(
+        all_oco_orders = client.getAllOcoOrders(
             start_time=start_time, end_time=end_time, limit=10
         )
 
@@ -322,7 +322,7 @@ def main():
         f"{Fore.YELLOW}For safety, we're not actually cancelling any orders during diagnostics"
     )
     logger.info("To cancel orders, you would use:")
-    logger.info("  client.cancel_order(symbol, order_id) - for a single order")
+    logger.info("  client.cancelOrderRest(symbol, order_id) - for a single order")
     logger.info("  client.cancel_all_orders(symbol) - for all orders on a symbol")
     logger.info("  client.cancel_oco_order(symbol, order_list_id) - for an OCO order")
 

@@ -14,7 +14,7 @@ These endpoints provide staking functionality for earning rewards on supported a
 from typing import Dict, List, Optional, Any, Union
 
 from config import get_logger
-from services.binance.restAPI.base_operations import BinanceAPIRequest
+from services.binance.restAPI.baseOperations import BinanceAPIRequest
 from services.binance.models import (
     StakingAssetInfo,
     StakingOperationResult,
@@ -64,7 +64,7 @@ class StakingOperations:
             method=method, endpoint=endpoint, limit_type=limit_type, weight=weight
         )
 
-    def get_staking_asset_info(
+    def getStakingAssetInfo(
         self, staking_asset: Optional[str] = None
     ) -> List[StakingAssetInfo]:
         """
@@ -81,10 +81,10 @@ class StakingOperations:
         """
         request = self.request(
             "GET", "/sapi/v1/staking/asset", RateLimitType.REQUEST_WEIGHT, 1
-        ).requires_auth(True)
+        ).requiresAuth(True)
 
         if staking_asset:
-            request.with_query_params(stakingAsset=staking_asset)
+            request.withQueryParams(stakingAsset=staking_asset)
 
         response = request.execute()
 
@@ -119,8 +119,8 @@ class StakingOperations:
             self.request(
                 "POST", "/sapi/v1/staking/stake", RateLimitType.REQUEST_WEIGHT, 1
             )
-            .requires_auth(True)
-            .with_query_params(
+            .requiresAuth(True)
+            .withQueryParams(
                 stakingAsset=staking_asset,
                 amount=str(amount),  # Ensure amount is a string
             )
@@ -128,7 +128,7 @@ class StakingOperations:
 
         # Include autoRestake parameter
         if auto_restake is not None:
-            request.with_query_params(
+            request.withQueryParams(
                 autoRestake=str(auto_restake).lower()
             )  # Convert boolean to lowercase string
 
@@ -158,8 +158,8 @@ class StakingOperations:
             self.request(
                 "POST", "/sapi/v1/staking/unstake", RateLimitType.REQUEST_WEIGHT, 1
             )
-            .requires_auth(True)
-            .with_query_params(
+            .requiresAuth(True)
+            .withQueryParams(
                 stakingAsset=staking_asset,
                 amount=str(amount),  # Ensure amount is a string
             )
@@ -170,7 +170,7 @@ class StakingOperations:
             return StakingUnstakeResult.from_api_response(response)
         return None
 
-    def get_staking_balance(
+    def getStakingBalance(
         self, asset: Optional[str] = None
     ) -> Optional[StakingBalanceResponse]:
         """
@@ -187,10 +187,10 @@ class StakingOperations:
         """
         request = self.request(
             "GET", "/sapi/v1/staking/stakingBalance", RateLimitType.REQUEST_WEIGHT, 1
-        ).requires_auth(True)
+        ).requiresAuth(True)
 
         if asset:
-            request.with_query_params(asset=asset)
+            request.withQueryParams(asset=asset)
 
         response = request.execute()
 
@@ -198,7 +198,7 @@ class StakingOperations:
             return StakingBalanceResponse.from_api_response(response)
         return None
 
-    def get_staking_history(
+    def getStakingHistory(
         self,
         asset: Optional[str] = None,
         start_time: Optional[int] = None,
@@ -224,22 +224,22 @@ class StakingOperations:
         """
         request = self.request(
             "GET", "/sapi/v1/staking/history", RateLimitType.REQUEST_WEIGHT, 1
-        ).requires_auth(True)
+        ).requiresAuth(True)
 
         if asset:
-            request.with_query_params(asset=asset)
+            request.withQueryParams(asset=asset)
 
         if start_time:
-            request.with_query_params(startTime=start_time)
+            request.withQueryParams(startTime=start_time)
 
         if end_time:
-            request.with_query_params(endTime=end_time)
+            request.withQueryParams(endTime=end_time)
 
         if page:
-            request.with_query_params(page=page)
+            request.withQueryParams(page=page)
 
         if limit:
-            request.with_query_params(
+            request.withQueryParams(
                 limit=min(limit, 500)
             )  # Ensure limit doesn't exceed API max
 
@@ -252,7 +252,7 @@ class StakingOperations:
 
         return history_items
 
-    def get_staking_rewards_history(
+    def getStakingRewardsHistory(
         self,
         asset: Optional[str] = None,
         start_time: Optional[int] = None,
@@ -281,22 +281,22 @@ class StakingOperations:
             "/sapi/v1/staking/stakingRewardsHistory",
             RateLimitType.REQUEST_WEIGHT,
             1,
-        ).requires_auth(True)
+        ).requiresAuth(True)
 
         if asset:
-            request.with_query_params(asset=asset)
+            request.withQueryParams(asset=asset)
 
         if start_time:
-            request.with_query_params(startTime=start_time)
+            request.withQueryParams(startTime=start_time)
 
         if end_time:
-            request.with_query_params(endTime=end_time)
+            request.withQueryParams(endTime=end_time)
 
         if page:
-            request.with_query_params(page=page)
+            request.withQueryParams(page=page)
 
         if limit:
-            request.with_query_params(
+            request.withQueryParams(
                 limit=min(limit, 500)
             )  # Ensure limit doesn't exceed API max
 

@@ -143,15 +143,15 @@ src/
     │       │   ├── acct_oco_history.py
     │       │   ├── cancel_oco_order.py
     │       │   ├── cancel_open_orders.py
-    │       │   ├── cancel_order.py
+    │       │   ├── cancelOrderRest.py
     │       │   ├── create_new_oco_order.py
     │       │   ├── current_open_orders.py
-    │       │   ├── get_oco_order.py
-    │       │   ├── get_open_oco_orders.py
+    │       │   ├── getOcoOrderRest.py
+    │       │   ├── getOpenOcoOrdersRest.py
     │       │   ├── place_new_order.py
     │       │   ├── query_order.py
     │       │   ├── replace_order.py
-    │       │   ├── test_new_order.py
+    │       │   ├── testNewOrderRest.py
     │       │   └── trading_requests_structure.yaml
     │       ├── user_data_stream_requests/
     │       │   ├── __init__.py

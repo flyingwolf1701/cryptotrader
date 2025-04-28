@@ -58,7 +58,7 @@ class UserOperations:
             method=method, endpoint=endpoint, limit_type=limit_type, weight=weight
         )
 
-    def getAccountRest(
+    def get_account(
         self, recv_window: Optional[int] = None
     ) -> Optional[AccountBalance]:
         """
@@ -83,7 +83,7 @@ class UserOperations:
             return AccountBalance.from_api_response(response)
         return None
 
-    def getAccountRestStatus(
+    def get_account_status(
         self, recv_window: Optional[int] = None
     ) -> Optional[Dict[str, Any]]:
         """
@@ -108,7 +108,7 @@ class UserOperations:
         response = request.execute()
         return response
 
-    def getApiTradingStatus(
+    def get_api_trading_status(
         self, recv_window: Optional[int] = None
     ) -> Optional[Dict[str, Any]]:
         """
@@ -133,7 +133,7 @@ class UserOperations:
         response = request.execute()
         return response
 
-    def getAssetDistributionHistory(
+    def get_asset_distribution_history(
         self,
         asset: Optional[str] = None,
         category: Optional[str] = None,
@@ -177,7 +177,7 @@ class UserOperations:
         response = request.execute()
         return response
 
-    def getTradeFee(
+    def get_trade_fee(
         self, symbol: Optional[str] = None
     ) -> Optional[List[Dict[str, Any]]]:
         """
@@ -202,7 +202,7 @@ class UserOperations:
         response = request.execute()
         return response
 
-    def getTradingVolume(self) -> Optional[Dict[str, Any]]:
+    def get_trading_volume(self) -> Optional[Dict[str, Any]]:
         """
         Get past 30 days trading volume.
 

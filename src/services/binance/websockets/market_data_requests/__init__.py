@@ -54,12 +54,12 @@
 # )
 
 # from .services.binance.websocketAPI.market_data_requests.rolling_window_price import (
-#     get_rolling_window_stats,
+#     getRollingWindowStatsWS,
 #     process_rolling_window_response
 # )
 
 # from .services.binance.websocketAPI.market_data_requests.current_average_price import (
-#     get_avg_price,
+#     getAvgPriceWS,
 #     process_avg_price_response
 # )
 
@@ -101,10 +101,10 @@
 #     'process_24h_ticker_response',
 
 #     # Rolling Window Price Statistics
-#     'get_rolling_window_stats',
+#     'getRollingWindowStatsWS',
 #     'process_rolling_window_response',
 
 #     # Current Average Price
-#     'get_avg_price',
+#     'getAvgPriceWS',
 #     'process_avg_price_response'
 # ]

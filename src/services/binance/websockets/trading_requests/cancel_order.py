@@ -8,7 +8,7 @@ It follows the Binance WebSocket API specifications for the 'order.cancel' endpo
 from typing import Dict, List, Optional, Any, Callable, Awaitable
 
 from config import get_logger
-from services.binance.websockets.base_operations import (
+from services.binance.websockets.baseOperations import (
     BinanceWebSocketConnection,
     SecurityType,
 )
@@ -17,7 +17,7 @@ from services.binance.models import OrderStatusResponse
 logger = get_logger(__name__)
 
 
-async def cancel_order(
+async def cancelOrderWS(
     connection: BinanceWebSocketConnection,
     symbol: str,
     order_id: Optional[int] = None,

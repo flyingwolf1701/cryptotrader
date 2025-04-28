@@ -116,7 +116,7 @@ binance_websocket_account_api:
       acct_prevented_matches:
         description: "Retrieve self-trade prevention matches"
         requests:
-          get_prevented_matches:
+          getPreventedMatchesWS:
             description: "Get prevented matches due to self-trade prevention"
             endpoint: "myPreventedMatches"
             weight:

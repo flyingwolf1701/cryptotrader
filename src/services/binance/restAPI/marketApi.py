@@ -18,7 +18,7 @@ import time
 from typing import Dict, List, Optional, Any, Union
 
 from config import get_logger
-from services.binance.restAPI.base_operations import BinanceAPIRequest
+from services.binance.restAPI.baseOperations import BinanceAPIRequest
 from services.binance.models import (
     PriceData,
     Candle,
@@ -72,7 +72,7 @@ class MarketOperations:
             method=method, endpoint=endpoint, limit_type=limit_type, weight=weight
         )
 
-    def get_bid_ask(self, symbol: str) -> Optional[PriceData]:
+    def getBidAsk(self, symbol: str) -> Optional[PriceData]:
         """
         Get current bid/ask prices for a symbol.
 
@@ -89,8 +89,8 @@ class MarketOperations:
             self.request(
                 "GET", "/api/v3/ticker/bookTicker", RateLimitType.REQUEST_WEIGHT, 1
             )
-            .requires_auth(False)
-            .with_query_params(symbol=symbol)
+            .requiresAuth(False)
+            .withQueryParams(symbol=symbol)
             .execute()
         )
 
@@ -100,7 +100,7 @@ class MarketOperations:
             )
         return None
 
-    def get_historical_candles(
+    def getHistoricalCandles(
         self,
         symbol: str,
         interval: str,
@@ -126,8 +126,8 @@ class MarketOperations:
         """
         request = (
             self.request("GET", "/api/v3/klines", RateLimitType.REQUEST_WEIGHT, 1)
-            .requires_auth(False)
-            .with_query_params(
+            .requiresAuth(False)
+            .withQueryParams(
                 symbol=symbol,
                 interval=interval,
                 limit=min(limit, 1000),  # Ensure limit doesn't exceed API max
@@ -135,9 +135,9 @@ class MarketOperations:
         )
 
         if start_time:
-            request.with_query_params(startTime=start_time)
+            request.withQueryParams(startTime=start_time)
         if end_time:
-            request.with_query_params(endTime=end_time)
+            request.withQueryParams(endTime=end_time)
 
         response = request.execute()
 
@@ -158,7 +158,7 @@ class MarketOperations:
 
         return candles
 
-    def get_recent_trades_rest(self, symbol: str, limit: int = 500) -> List[Trade]:
+    def getRecentTradesRest(self, symbol: str, limit: int = 500) -> List[Trade]:
         """
         Get recent trades for a symbol.
 
@@ -174,8 +174,8 @@ class MarketOperations:
         """
         response = (
             self.request("GET", "/api/v3/trades", RateLimitType.REQUEST_WEIGHT, 1)
-            .requires_auth(False)
-            .with_query_params(
+            .requiresAuth(False)
+            .withQueryParams(
                 symbol=symbol,
                 limit=min(limit, 1000),  # Ensure limit doesn't exceed API max
             )
@@ -189,7 +189,7 @@ class MarketOperations:
 
         return trades
 
-    def get_historical_trades_rest(
+    def getHistoricalTradesRest(
         self, symbol: str, limit: int = 500, from_id: Optional[int] = None
     ) -> List[Trade]:
         """
@@ -212,15 +212,15 @@ class MarketOperations:
             self.request(
                 "GET", "/api/v3/historicalTrades", RateLimitType.REQUEST_WEIGHT, 5
             )
-            .requires_auth(True)
-            .with_query_params(
+            .requiresAuth(True)
+            .withQueryParams(
                 symbol=symbol,
                 limit=min(limit, 1000),  # Ensure limit doesn't exceed API max
             )
         )
 
         if from_id is not None:
-            request.with_query_params(fromId=from_id)
+            request.withQueryParams(fromId=from_id)
 
         response = request.execute()
 
@@ -231,7 +231,7 @@ class MarketOperations:
 
         return trades
 
-    def get_aggregate_trades_rest(
+    def getAggregateTradesRest(
         self,
         symbol: str,
         limit: int = 500,
@@ -261,8 +261,8 @@ class MarketOperations:
         """
         request = (
             self.request("GET", "/api/v3/aggTrades", RateLimitType.REQUEST_WEIGHT, 1)
-            .requires_auth(False)
-            .with_query_params(
+            .requiresAuth(False)
+            .withQueryParams(
                 symbol=symbol,
                 limit=min(limit, 1000),  # Ensure limit doesn't exceed API max
             )
@@ -270,11 +270,11 @@ class MarketOperations:
 
         # Add optional parameters
         if from_id is not None:
-            request.with_query_params(fromId=from_id)
+            request.withQueryParams(fromId=from_id)
         if start_time is not None:
-            request.with_query_params(startTime=start_time)
+            request.withQueryParams(startTime=start_time)
         if end_time is not None:
-            request.with_query_params(endTime=end_time)
+            request.withQueryParams(endTime=end_time)
 
         response = request.execute()
 
@@ -285,7 +285,7 @@ class MarketOperations:
 
         return agg_trades
 
-    def get_order_book_rest(self, symbol: str, limit: int = 100) -> Optional[OrderBook]:
+    def getOrderBookRest(self, symbol: str, limit: int = 100) -> Optional[OrderBook]:
         """
         Get order book (market depth) for a symbol.
 
@@ -315,8 +315,8 @@ class MarketOperations:
 
         response = (
             self.request("GET", "/api/v3/depth", RateLimitType.REQUEST_WEIGHT, weight)
-            .requires_auth(False)
-            .with_query_params(
+            .requiresAuth(False)
+            .withQueryParams(
                 symbol=symbol,
                 limit=min(limit, 5000),  # Ensure limit doesn't exceed API max
             )
@@ -328,7 +328,7 @@ class MarketOperations:
 
         return None
 
-    def get_ticker_price(
+    def getTickerPrice(
         self, symbol: Optional[str] = None
     ) -> Union[TickerPrice, List[TickerPrice], None]:
         """
@@ -353,10 +353,10 @@ class MarketOperations:
 
         request = self.request(
             "GET", "/api/v3/ticker/price", RateLimitType.REQUEST_WEIGHT, weight
-        ).requires_auth(False)
+        ).requiresAuth(False)
 
         if symbol is not None:
-            request.with_query_params(symbol=symbol)
+            request.withQueryParams(symbol=symbol)
 
         response = request.execute()
 
@@ -368,7 +368,7 @@ class MarketOperations:
         else:
             return TickerPrice.from_api_response(response)
 
-    def get_avg_price(self, symbol: str) -> Optional[AvgPrice]:
+    def getAvgPriceRest(self, symbol: str) -> Optional[AvgPrice]:
         """
         Get current average price for a symbol.
 
@@ -383,8 +383,8 @@ class MarketOperations:
         """
         response = (
             self.request("GET", "/api/v3/avgPrice", RateLimitType.REQUEST_WEIGHT, 1)
-            .requires_auth(False)
-            .with_query_params(symbol=symbol)
+            .requiresAuth(False)
+            .withQueryParams(symbol=symbol)
             .execute()
         )
 
@@ -393,7 +393,7 @@ class MarketOperations:
 
         return None
 
-    def get_24h_stats(
+    def get24hStats(
         self,
         symbol: Optional[str] = None,
         symbols: Optional[List[str]] = None,
@@ -436,18 +436,18 @@ class MarketOperations:
 
         request = self.request(
             "GET", "/api/v3/ticker/24hr", RateLimitType.REQUEST_WEIGHT, weight
-        ).requires_auth(False)
+        ).requiresAuth(False)
 
         if symbol is not None:
-            request.with_query_params(symbol=symbol)
+            request.withQueryParams(symbol=symbol)
         elif symbols is not None:
             # Format the symbols parameter correctly for Binance API
             # The API requires a JSON array as a string
             symbols_str = json.dumps(symbols)
-            request.with_query_params(symbols=symbols_str)
+            request.withQueryParams(symbols=symbols_str)
 
         if type is not None:
-            request.with_query_params(type=type)
+            request.withQueryParams(type=type)
 
         response = request.execute()
 
@@ -463,7 +463,7 @@ class MarketOperations:
         else:
             return model_class.from_api_response(response)
 
-    def get_rolling_window_stats(
+    def getRollingWindowStatsRest(
         self, symbol: str, window_size: Optional[str] = None, type: Optional[str] = None
     ) -> Optional[Union[RollingWindowStats, RollingWindowStatsMini]]:
         """
@@ -488,15 +488,15 @@ class MarketOperations:
         """
         request = (
             self.request("GET", "/api/v3/ticker", RateLimitType.REQUEST_WEIGHT, 2)
-            .requires_auth(False)
-            .with_query_params(symbol=symbol)
+            .requiresAuth(False)
+            .withQueryParams(symbol=symbol)
         )
 
         if window_size is not None:
-            request.with_query_params(windowSize=window_size)
+            request.withQueryParams(windowSize=window_size)
 
         if type is not None:
-            request.with_query_params(type=type)
+            request.withQueryParams(type=type)
 
         response = request.execute()
 

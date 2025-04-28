@@ -33,15 +33,15 @@ src/cryptotrader/services/binance/websocketAPI/
 │ ├── **init**.py # Package exports
 │ ├── cancel_oco_order.py # Cancel OCO order requests
 │ ├── cancel_open_orders.py # Cancel open orders requests
-│ ├── cancel_order.py # Cancel order requests
+│ ├── cancelOrderWS.py # Cancel order requests
 │ ├── create_new_oco_order.py # Create OCO order requests
 │ ├── current_open_orders.py # Get open orders requests
-│ ├── get_oco_order.py # Get OCO order details
-│ ├── get_open_oco_orders.py # Get open OCO orders requests
+│ ├── getOcoOrderWS.py # Get OCO order details
+│ ├── getOpenOcoOrdersWS.py # Get open OCO orders requests
 │ ├── place_new_order.py # Place order requests
 │ ├── query_order.py # Query order details requests
 │ ├── replace_order.py # Replace order requests
-│ └── test_new_order.py # Test order placement requests
+│ └── testNewOrderWS.py # Test order placement requests
 ├── user_data_stream_requests/ # User data stream operations
 │ ├── **init**.py # Package exports
 │ ├── ping_user_data_stream.py # Ping user data stream requests

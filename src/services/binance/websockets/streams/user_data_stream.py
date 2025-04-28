@@ -125,7 +125,7 @@ class UserDataStream:
             pass
 
         # Start ping task to keep listenKey alive
-        self.ping_task = asyncio.create_task(self._ping_loop())
+        self.ping_task = asyncio.create_task(self._pingLoop())
 
         self.is_active = True
         logger.info(
@@ -255,7 +255,7 @@ class UserDataStream:
                 await self.on_error(e)
             return False
 
-    async def _ping_loop(self):
+    async def _pingLoop(self):
         """
         Periodically extend the listenKey validity to keep the stream alive.
 

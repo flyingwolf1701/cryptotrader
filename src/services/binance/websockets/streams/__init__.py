@@ -9,7 +9,7 @@
 # # Import stream components
 # from .services.binance.websocketAPI.streams.websocket_stream_manager import (
 #     BinanceStreamManager,
-#     create_market_stream
+#     createMarketStream
 # )
 
 # from .services.binance.websocketAPI.streams.user_data_stream import (
@@ -19,7 +19,7 @@
 # __all__ = [
 #     # Stream Manager
 #     'BinanceStreamManager',
-#     'create_market_stream',
+#     'createMarketStream',
 
 #     # User Data Stream
 #     'UserDataStream'

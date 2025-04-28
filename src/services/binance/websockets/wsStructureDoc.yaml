@@ -76,12 +76,12 @@ binance_websocket_api:
                   - return_rate_limits: "Override default setting for returning rate limits"
                 returns: "Message ID that can be used to match the response"
           internal_methods:
-            - _ping_loop: "Send periodic pings to keep connection alive"
+            - _pingLoop: "Send periodic pings to keep connection alive"
             - _receive_loop: "Receive and process incoming WebSocket messages"
             - _reconnect: "Handle reconnection after connection loss"
             - _update_rate_limits: "Update rate limit counters from WebSocket response"
             - _handle_error: "Handle error responses from WebSocket API"
-            - _monitor_connection_age: "Monitor connection age for 24h limit"
+            - _monitorConnectionAge: "Monitor connection age for 24h limit"
           error_handling:
             - "400": "Bad request - client-side error"
             - "403": "Blocked by Web Application Firewall"
@@ -127,7 +127,7 @@ binance_websocket_api:
       acct_prevented_matches:
         description: "Retrieve self-trade prevention matches"
         requests:
-          get_prevented_matches:
+          getPreventedMatchesWS:
             description: "Get prevented matches due to self-trade prevention"
             endpoint: "myPreventedMatches"
             weight: 10
@@ -201,7 +201,7 @@ binance_websocket_api:
       current_average_price:
         description: "Retrieve current average price"
         requests:
-          get_avg_price:
+          getAvgPriceWS:
             description: "Get current average price for a symbol"
             endpoint: "avgPrice"
             weight: 1
@@ -273,7 +273,7 @@ binance_websocket_api:
       rolling_window_price:
         description: "Retrieve rolling window price statistics"
         requests:
-          get_rolling_window_stats:
+          getRollingWindowStatsWS:
             description: "Get price statistics for a rolling window"
             endpoint: "ticker"
             weight: "1-40 based on parameters"
@@ -355,10 +355,10 @@ binance_websocket_api:
               - symbol: "Trading symbol (e.g., 'BTCUSDT')"
             returns: "List of cancelled orders"
       
-      cancel_order:
+      cancelOrderWS:
         description: "Cancel an existing order"
         requests:
-          cancel_order:
+          cancelOrderWS:
             description: "Cancel an existing order"
             endpoint: "order"
             weight: 1
@@ -417,10 +417,10 @@ binance_websocket_api:
               - origClientOrderId: "Original client order list ID (optional if using orderListId)"
             returns: "OCO order details"
       
-      get_open_oco_orders:
+      getOpenOcoOrdersWS:
         description: "Get all open OCO orders"
         requests:
-          get_open_oco_orders:
+          getOpenOcoOrdersWS:
             description: "Get all open OCO orders"
             endpoint: "openOrderList"
             weight: 3

@@ -128,11 +128,11 @@ def endpoint_method(self, required_param: str, optional_param: Optional[int] = N
         Description of return value
     """
     request = self.request("METHOD", "/api/v3/specific-endpoint", RateLimitType.REQUEST_WEIGHT, weight) \
-        .requires_auth(True/False) \
-        .with_query_params(param=required_param)
+        .requiresAuth(True/False) \
+        .withQueryParams(param=required_param)
 
     if optional_param is not None:
-        request.with_query_params(optionalParam=optional_param)
+        request.withQueryParams(optionalParam=optional_param)
 
     response = request.execute()
 
@@ -220,9 +220,9 @@ Authentication Handling:
 
 Never pass API credentials to the client class constructor
 Let BinanceAPIRequest handle authentication via Secrets.BINANCE_API_KEY and Secrets.BINANCE_API_SECRET
-Use .requires_auth(True) for endpoints requiring authentication
-Use .requires_auth(False) for public endpoints that don't need authentication
-The requires_auth() method will:
+Use .requiresAuth(True) for endpoints requiring authentication
+Use .requiresAuth(False) for public endpoints that don't need authentication
+The requiresAuth() method will:
 
 Add a timestamp to the request parameters
 Create an HMAC-SHA256 signature using the secret key
@@ -238,7 +238,7 @@ Parameter Handling:
 
 Validate parameters before sending (e.g., ensure limits don't exceed API maximums)
 Use snake_case for method parameters
-Use camelCase when passing to the API via with_query_params()
+Use camelCase when passing to the API via withQueryParams()
 
 Response Handling:
 
@@ -374,11 +374,11 @@ Appropriate logging levels for different information
 Authentication Flow in Detail
 The authentication process is handled by BinanceAPIRequest in these steps:
 
-When you call .requires_auth(True) on a request:
-pythonrequest = self.request("GET", "/api/v3/endpoint").requires_auth(True)
+When you call .requiresAuth(True) on a request:
+pythonrequest = self.request("GET", "/api/v3/endpoint").requiresAuth(True)
 
 BinanceAPIRequest internally sets self.needs_signature = True which will trigger signature generation on execution
-During execute(), if authentication is needed, the sign_request() method is called which:
+During execute(), if authentication is needed, the \_signRequest() method is called which:
 
 Adds the current timestamp: self.params['timestamp'] = str(int(time.time() \* 1000))
 Creates a query string from all parameters
@@ -433,8 +433,8 @@ class ExampleOperations:
             SomeResponseModel object with retrieved data, or None if request fails
         """
         response = self.request("GET", "/api/v3/example-data", RateLimitType.REQUEST_WEIGHT, 1) \
-            .requires_auth(False) \
-            .with_query_params(
+            .requiresAuth(False) \
+            .withQueryParams(
                 symbol=symbol,
                 limit=min(limit, 500)  # Ensure limit doesn't exceed API max
             ) \
@@ -473,12 +473,12 @@ __all__ = [
     'get_balance',           # GET /api/v3/account
     'get_order_status',      # GET /api/v3/order
     'place_order',           # POST /api/v3/order
-    'cancel_order',          # DELETE /api/v3/order
+    'cancelOrderRest',          # DELETE /api/v3/order
     'get_open_orders',       # GET /api/v3/openOrders
     'get_all_orders',        # GET /api/v3/allOrders
     'getServerTime',       # GET /api/v3/time
-    'get_ticker_price',      # GET /api/v3/ticker/price
-    'get_24h_stats',         # GET /api/v3/ticker/24hr
+    'getTickerPrice',      # GET /api/v3/ticker/price
+    'get24hStats',         # GET /api/v3/ticker/24hr
 ]
 ```
 

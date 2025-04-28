@@ -62,7 +62,7 @@ async def main():
     try:
         # Create a simple WebSocket connection
         # The get_aggregate_trades_ws function will use this connection
-        from services.binance.websockets.base_operations import BinanceWebSocketConnection
+        from services.binance.websockets.baseOperations import BinanceWebSocketConnection
         connection = BinanceWebSocketConnection(
             on_message=on_message,
             on_error=on_error

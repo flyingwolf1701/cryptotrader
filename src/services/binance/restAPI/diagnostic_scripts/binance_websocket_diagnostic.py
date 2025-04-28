@@ -32,7 +32,7 @@ sys.path.insert(0, str(project_root))
 # Import our modules
 try:
     from config import get_logger, Secrets
-    from services.binance.websockets.base_operations import (
+    from services.binance.websockets.baseOperations import (
         BinanceWebSocketConnection,
         SecurityType
     )

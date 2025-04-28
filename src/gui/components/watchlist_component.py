@@ -192,7 +192,7 @@ class WatchlistWidget(ttk.Frame):
         """Fetch price data for a specific symbol."""
         try:
             # Get ticker data
-            ticker = self.market_client.get_24h_stats(symbol)
+            ticker = self.market_client.get24hStats(symbol)
 
             if ticker:
                 self.update_symbol_data(symbol, ticker)
@@ -255,7 +255,7 @@ class WatchlistWidget(ttk.Frame):
 
         try:
             # Get all symbols data
-            all_tickers = self.market_client.get_24h_stats(
+            all_tickers = self.market_client.get24hStats(
                 None
             )  # None fetches all tickers
 

@@ -40,14 +40,14 @@ trading_requests:
             - response: "WebSocket response data"
           returns: "OrderResponseAck, OrderResponseResult, or OrderResponseFull object"
 
-    test_new_order:
+    testNewOrderWS:
       description: "Test order placement without actually placing an order"
-      file: "test_new_order.py"
+      file: "testNewOrderWS.py"
       endpoint: "order.test"
       weight: 1
       security_type: "TRADE"
       functions:
-        test_new_order:
+        testNewOrderWS:
           description: "Send a request to test a new order"
           parameters:
             # Same parameters as place_new_order except new_order_resp_type
@@ -80,14 +80,14 @@ trading_requests:
             - response: "WebSocket response data"
           returns: "OrderStatusResponse object"
 
-    cancel_order:
+    cancelOrderWS:
       description: "Cancel an active order"
-      file: "cancel_order.py"
+      file: "cancelOrderWS.py"
       endpoint: "order.cancel"
       weight: 1
       security_type: "TRADE"
       functions:
-        cancel_order:
+        cancelOrderWS:
           description: "Send a request to cancel an order"
           parameters:
             - connection: "Active WebSocket connection"
@@ -215,14 +215,14 @@ trading_requests:
             - response: "WebSocket response data"
           returns: "OcoOrderResponse object"
 
-    get_oco_order:
+    getOcoOrderWS:
       description: "Check execution status of an OCO order"
-      file: "get_oco_order.py"
+      file: "getOcoOrderWS.py"
       endpoint: "orderList.status"
       weight: 2
       security_type: "USER_DATA"
       functions:
-        get_oco_order:
+        getOcoOrderWS:
           description: "Send a request to get OCO order status"
           parameters:
             - connection: "Active WebSocket connection"
@@ -259,14 +259,14 @@ trading_requests:
             - response: "WebSocket response data"
           returns: "OcoOrderResponse object"
 
-    get_open_oco_orders:
+    getOpenOcoOrdersWS:
       description: "Query execution status of all open OCO orders"
-      file: "get_open_oco_orders.py"
+      file: "getOpenOcoOrdersWS.py"
       endpoint: "openOrderLists.status"
       weight: 3
       security_type: "USER_DATA"
       functions:
-        get_open_oco_orders:
+        getOpenOcoOrdersWS:
           description: "Send a request to get all open OCO orders"
           parameters:
             - connection: "Active WebSocket connection"

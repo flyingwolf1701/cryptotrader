@@ -26,13 +26,13 @@ binance_rest_api:
     - group: market_api
       description: "Market data endpoints."
       functions:
-        - name: get_bid_ask
+        - name: getBidAsk
           endpoint: "GET /api/v3/ticker/bookTicker"
           description: "Retrieves best bid/ask prices for a symbol."
           request_shape: BidAskRequest
           response_shape: BidAskResponse
 
-        - name: get_historical_candles
+        - name: getHistoricalCandles
           endpoint: "GET /api/v3/klines"
           description: "Retrieves historical candlestick data for a symbol and interval."
           request_shape: HistoricalCandlesRequest
@@ -47,7 +47,7 @@ binance_rest_api:
           request_shape: PlaceOrderRequest
           response_shape: OrderResult
 
-        - name: cancel_order
+        - name: cancelOrderRest
           endpoint: "DELETE /api/v3/order"
           description: "Cancels an existing spot order."
           request_shape: CancelOrderRequest
@@ -71,7 +71,7 @@ binance_rest_api:
     - group: subaccount_api
       description: "Subaccount management endpoints."
       functions:
-        - name: get_subaccount_list
+        - name: getSubaccountList
           endpoint: "GET /sapi/v1/sub-account/list"
           description: "Retrieves a list of subaccounts."
           request_shape: None

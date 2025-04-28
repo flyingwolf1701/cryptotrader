@@ -11,8 +11,8 @@
 #     place_new_order,
 #     process_place_order_response
 # )
-# from .services.binance.websocketAPI.trading_requests.test_new_order import (
-#     test_new_order,
+# from .services.binance.websocketAPI.trading_requests.testNewOrderWS import (
+#     testNewOrderWS,
 #     process_test_order_response
 # )
 # from .services.binance.websocketAPI.trading_requests.replace_order import (
@@ -31,8 +31,8 @@
 # )
 
 # # Order cancellation
-# from .services.binance.websocketAPI.trading_requests.cancel_order import (
-#     cancel_order,
+# from .services.binance.websocketAPI.trading_requests.cancelOrderWS import (
+#     cancelOrderWS,
 #     process_cancel_order_response
 # )
 # from .services.binance.websocketAPI.trading_requests.cancel_open_orders import (
@@ -45,12 +45,12 @@
 #     create_new_oco_order,
 #     process_create_oco_order_response
 # )
-# from .services.binance.websocketAPI.trading_requests.get_oco_order import (
-#     get_oco_order,
+# from .services.binance.websocketAPI.trading_requests.getOcoOrderWS import (
+#     getOcoOrderWS,
 #     process_get_oco_order_response
 # )
-# from .services.binance.websocketAPI.trading_requests.get_open_oco_orders import (
-#     get_open_oco_orders,
+# from .services.binance.websocketAPI.trading_requests.getOpenOcoOrdersWS import (
+#     getOpenOcoOrdersWS,
 #     process_open_oco_orders_response
 # )
 # from .services.binance.websocketAPI.trading_requests.cancel_oco_order import (
@@ -62,7 +62,7 @@
 #     # Order creation/modification
 #     'place_new_order',
 #     'process_place_order_response',
-#     'test_new_order',
+#     'testNewOrderWS',
 #     'process_test_order_response',
 #     'replace_order',
 #     'process_replace_order_response',
@@ -74,7 +74,7 @@
 #     'process_open_orders_response',
 
 #     # Order cancellation
-#     'cancel_order',
+#     'cancelOrderWS',
 #     'process_cancel_order_response',
 #     'cancel_open_orders',
 #     'process_cancel_open_orders_response',
@@ -82,9 +82,9 @@
 #     # OCO order operations
 #     'create_new_oco_order',
 #     'process_create_oco_order_response',
-#     'get_oco_order',
+#     'getOcoOrderWS',
 #     'process_get_oco_order_response',
-#     'get_open_oco_orders',
+#     'getOpenOcoOrdersWS',
 #     'process_open_oco_orders_response',
 #     'cancel_oco_order',
 #     'process_cancel_oco_order_response'

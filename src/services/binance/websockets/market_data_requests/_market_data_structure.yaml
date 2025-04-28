@@ -226,7 +226,7 @@ market_data_requests:
       weight: "2-100 based on parameters"
       security_type: "NONE"
       functions:
-        get_rolling_window_stats:
+        getRollingWindowStatsWS:
           description: "Send a request to retrieve rolling window price statistics"
           parameters:
             - connection: "Active WebSocket connection"
@@ -255,7 +255,7 @@ market_data_requests:
       weight: 1
       security_type: "NONE"
       functions:
-        get_avg_price:
+        getAvgPriceWS:
           description: "Send a request to retrieve the current average price"
           parameters:
             - connection: "Active WebSocket connection"

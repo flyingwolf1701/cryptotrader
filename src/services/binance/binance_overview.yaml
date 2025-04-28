@@ -1,6 +1,6 @@
 binance_service:
   description: "Complete structure of the Binance service package for CryptoTrader application"
-  
+
   # Root package structure
   root_structure:
     package: "src/cryptotrader/services/binance"
@@ -11,14 +11,14 @@ binance_service:
       - client.py:
           description: "High-level unified client combining REST and WebSocket APIs"
           classes: ["BinanceClient"]
-    
+
     # Main directories
     directories:
       - models: "Data models for API requests and responses"
       - restAPI: "REST API implementation"
       - websocketAPI: "WebSocket API implementation"
       - diagnostic_scripts: "Testing and diagnostic scripts"
-  
+
   # Models structure
   models:
     description: "Data structures and enumerations for Binance API"
@@ -26,33 +26,76 @@ binance_service:
     files:
       - base_models.py:
           description: "Core models used across APIs"
-          key_models: ["OrderType", "OrderSide", "TimeInForce", "OrderStatus", "RateLimit", "SystemStatus"]
+          key_models:
+            [
+              "OrderType",
+              "OrderSide",
+              "TimeInForce",
+              "OrderStatus",
+              "RateLimit",
+              "SystemStatus",
+            ]
       - order_models.py:
           description: "Order-specific models"
-          key_models: ["Fill", "OrderResponseFull", "OrderResponseResult", "OrderResponseAck", "CancelReplaceResponse"]
+          key_models:
+            [
+              "Fill",
+              "OrderResponseFull",
+              "OrderResponseResult",
+              "OrderResponseAck",
+              "CancelReplaceResponse",
+            ]
       - market_models.py:
           description: "Market data models"
-          key_models: ["PriceData", "Candle", "Trade", "OrderBook", "TickerPrice", "PriceStats"]
+          key_models:
+            [
+              "PriceData",
+              "Candle",
+              "Trade",
+              "OrderBook",
+              "TickerPrice",
+              "PriceStats",
+            ]
       - user_models.py:
           description: "User account models"
           key_models: ["AccountAsset", "AccountBalance"]
       - wallet_models.py:
           description: "Wallet operation models"
-          key_models: ["WithdrawStatus", "DepositStatus", "NetworkInfo", "AssetDetail", "WithdrawHistoryItem"]
+          key_models:
+            [
+              "WithdrawStatus",
+              "DepositStatus",
+              "NetworkInfo",
+              "AssetDetail",
+              "WithdrawHistoryItem",
+            ]
       - otc_models.py:
           description: "OTC trading models"
-          key_models: ["OtcOrderStatus", "OtcCoinPair", "OtcQuote", "OtcOrderResponse", "OtcOrderDetail"]
+          key_models:
+            [
+              "OtcOrderStatus",
+              "OtcCoinPair",
+              "OtcQuote",
+              "OtcOrderResponse",
+              "OtcOrderDetail",
+            ]
       - staking_models.py:
           description: "Staking operation models"
-          key_models: ["StakingTransactionType", "StakingAssetInfo", "StakingOperationResult", "StakingBalanceItem"]
+          key_models:
+            [
+              "StakingTransactionType",
+              "StakingAssetInfo",
+              "StakingOperationResult",
+              "StakingBalanceItem",
+            ]
       - websocket_models.py:
           description: "WebSocket-specific models"
           key_models: ["WebSocketMessage", "StreamSubscription", "StreamEvent"]
-  
+
   # REST API structure
   restAPI:
     description: "Implementation of Binance REST API endpoints"
-    reference_files: 
+    reference_files:
       - "_restAPI.yaml"
       - "_restAPI_design_doc.md"
     files:
@@ -61,40 +104,68 @@ binance_service:
           key_classes: ["BinanceAPIRequest", "RateLimiter"]
       - systemApi.py:
           description: "System information operations"
-          key_endpoints: ["/api/v3/time", "/sapi/v1/system/status", "/api/v3/exchangeInfo"]
+          key_endpoints:
+            ["/api/v3/time", "/sapi/v1/system/status", "/api/v3/exchangeInfo"]
       - market_api.py:
           description: "Market data operations"
-          key_endpoints: ["/api/v3/depth", "/api/v3/trades", "/api/v3/klines", "/api/v3/ticker/price"]
+          key_endpoints:
+            [
+              "/api/v3/depth",
+              "/api/v3/trades",
+              "/api/v3/klines",
+              "/api/v3/ticker/price",
+            ]
       - order_api.py:
           description: "Order operations"
-          key_endpoints: ["/api/v3/order", "/api/v3/openOrders", "/api/v3/allOrders"]
+          key_endpoints:
+            ["/api/v3/order", "/api/v3/openOrders", "/api/v3/allOrders"]
       - user_api.py:
           description: "User account operations"
-          key_endpoints: ["/api/v3/account", "/sapi/v3/accountStatus", "/sapi/v3/apiTradingStatus"]
+          key_endpoints:
+            [
+              "/api/v3/account",
+              "/sapi/v3/accountStatus",
+              "/sapi/v3/apiTradingStatus",
+            ]
       - wallet_api.py:
           description: "Wallet operations"
-          key_endpoints: ["/sapi/v1/capital/config/getall", "/sapi/v1/capital/withdraw/apply"]
+          key_endpoints:
+            [
+              "/sapi/v1/capital/config/getall",
+              "/sapi/v1/capital/withdraw/apply",
+            ]
       - subaccount_api.py:
           description: "Sub-account management"
-          key_endpoints: ["/sapi/v3/sub-account/list", "/sapi/v3/sub-account/transfer"]
+          key_endpoints:
+            ["/sapi/v3/sub-account/list", "/sapi/v3/sub-account/transfer"]
       - otc_api.py:
           description: "OTC trading operations"
-          key_endpoints: ["/sapi/v1/otc/coinPairs", "/sapi/v1/otc/quotes", "/sapi/v1/otc/orders"]
+          key_endpoints:
+            [
+              "/sapi/v1/otc/coinPairs",
+              "/sapi/v1/otc/quotes",
+              "/sapi/v1/otc/orders",
+            ]
       - staking_api.py:
           description: "Staking operations"
-          key_endpoints: ["/sapi/v1/staking/asset", "/sapi/v1/staking/stake", "/sapi/v1/staking/unstake"]
-  
+          key_endpoints:
+            [
+              "/sapi/v1/staking/asset",
+              "/sapi/v1/staking/stake",
+              "/sapi/v1/staking/unstake",
+            ]
+
   # WebSocket API structure
   websocketAPI:
     description: "Implementation of Binance WebSocket API"
-    reference_files: 
+    reference_files:
       - "wsDesignDoc.md"
       - "wsStructureDoc.yaml"
     files:
       - base_operations.py:
           description: "Core WebSocket functionality"
           key_classes: ["BinanceWebSocketConnection", "SecurityType"]
-    
+
     # WebSocket modules
     modules:
       account_requests:
@@ -107,7 +178,7 @@ binance_service:
           - acct_trade_history.py: "Trade history requests"
           - get_order_rate_limits.py: "Order rate limit requests"
           - get_user_acct_info.py: "Account information requests"
-      
+
       market_data_requests:
         description: "Market data operations"
         reference_file: "market_data_requests/market_data_structure.yaml"
@@ -122,23 +193,23 @@ binance_service:
           - symbol_order_book_ticker.py: "Order book ticker requests"
           - symbol_price_ticker.py: "Symbol price ticker requests"
           - ticker_price_24h.py: "24h price statistics requests"
-      
+
       trading_requests:
         description: "Trading operations"
         reference_file: "trading_requests/trading_requests_structure.yaml"
         key_files:
           - cancel_oco_order.py: "Cancel OCO order requests"
           - cancel_open_orders.py: "Cancel open orders requests"
-          - cancel_order.py: "Cancel order requests"
+          - cancelOrderRest.py: "Cancel order requests"
           - create_new_oco_order.py: "Create OCO order requests"
           - current_open_orders.py: "Get open orders requests"
-          - get_oco_order.py: "Get OCO order details requests"
-          - get_open_oco_orders.py: "Get open OCO orders requests"
+          - getOcoOrderRest.py: "Get OCO order details requests"
+          - getOpenOcoOrdersRest.py: "Get open OCO orders requests"
           - place_new_order.py: "Place order requests"
           - query_order.py: "Query order details requests"
           - replace_order.py: "Replace order requests"
-          - test_new_order.py: "Test order placement requests"
-      
+          - testNewOrderRest.py: "Test order placement requests"
+
       user_data_stream_requests:
         description: "User data stream operations"
         reference_file: "user_data_stream_requests/user_data_stream_structure.yaml"
@@ -146,7 +217,7 @@ binance_service:
           - ping_user_data_stream.py: "Ping user data stream requests"
           - start_user_data_stream.py: "Start user data stream requests"
           - stop_user_data_stream.py: "Stop user data stream requests"
-      
+
       streams:
         description: "Real-time data streams"
         reference_file: "streams/streams_structure.yaml"
@@ -156,7 +227,7 @@ binance_service:
           - market_stream.py: "Market data stream handler"
           - stream_parser.py: "Stream data parsing utilities"
           - stream_buffer.py: "Buffer for stream data"
-  
+
   # Diagnostic scripts structure
   diagnostic_scripts:
     description: "Testing and diagnostic scripts"
@@ -172,7 +243,7 @@ binance_service:
           - subaccount_diagnostic.py: "Tests sub-account functionality"
           - otc_diagnostic.py: "Tests OTC API functionality"
           - staking_diagnostic.py: "Tests staking functionality"
-      
+
       websocket_diagnostics:
         description: "WebSocket API diagnostics"
         submodules:
@@ -182,7 +253,7 @@ binance_service:
               - acct_order_history_diagnostic.py: "Tests order history requests"
               - acct_oco_history_diagnostic.py: "Tests OCO history requests"
               - acct_trade_history_diagnostic.py: "Tests trade history requests"
-          
+
           market_diagnostics:
             description: "Market data request tests"
             key_files:
@@ -191,25 +262,25 @@ binance_service:
               - ticker_diagnostic.py: "Tests ticker requests"
               - trades_diagnostic.py: "Tests trade requests"
               - price_ticker_diagnostic.py: "Tests price ticker requests"
-          
+
           trading_diagnostics:
             description: "Trading request tests"
             key_files:
               - order_placement_diagnostic.py: "Tests order placement"
               - order_cancel_diagnostic.py: "Tests order cancellation"
               - oco_order_diagnostic.py: "Tests OCO order functionality"
-          
+
           user_stream_diagnostics:
             description: "User stream tests"
             key_files:
               - user_data_stream_diagnostic.py: "Tests user data stream"
-          
+
           stream_diagnostics:
             description: "Stream handling tests"
             key_files:
               - market_stream_diagnostic.py: "Tests market data streams"
               - stream_manager_diagnostic.py: "Tests stream manager"
-  
+
   # Implementation guidelines
   implementation_guidelines:
     code_style:
@@ -218,24 +289,24 @@ binance_service:
       - "Include comprehensive docstrings for all functions and classes"
       - "Use snake_case for variables and function names"
       - "Use PascalCase for class names"
-    
+
     naming_conventions:
       - "One request per file, named after the Binance API method"
       - "Use descriptive names for variables and functions"
       - "Use consistent naming patterns across similar operations"
-    
+
     error_handling:
       - "Use appropriate exception types for different error scenarios"
       - "Include detailed error messages with context information"
       - "Log all errors with appropriate severity levels"
       - "Handle rate limits and API errors gracefully"
-    
+
     testing:
       - "Each implementation should have a corresponding diagnostic script"
       - "Focus on testing the implementation directly, not reimplementing functionality"
       - "Use colorama for clear, readable test output"
       - "Create focused tests with specific assertions"
-    
+
     documentation:
       - "Include references to Binance API documentation for each endpoint"
       - "Document rate limit information for each endpoint"

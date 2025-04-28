@@ -8,7 +8,7 @@ It follows the Binance WebSocket API specifications for the 'ticker.price' endpo
 from typing import Dict, List, Optional, Any, Callable, Awaitable, Union
 
 from config import get_logger
-from services.binance.websockets.base_operations import BinanceWebSocketConnection, SecurityType
+from services.binance.websockets.baseOperations import BinanceWebSocketConnection, SecurityType
 from services.binance.models import TickerPrice
 
 logger = get_logger(__name__)

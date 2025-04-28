@@ -27,7 +27,7 @@ sys.path.insert(0, str(project_root))
 # Import our modules
 from config import get_logger
 from services.binance.websockets.market_data_requests.rolling_window_price import (
-    get_rolling_window_stats,
+    getRollingWindowStatsWS,
     process_rolling_window_response,
 )
 
@@ -78,7 +78,7 @@ async def main():
 
     try:
         # Create a simple WebSocket connection
-        from services.binance.websockets.base_operations import (
+        from services.binance.websockets.baseOperations import (
             BinanceWebSocketConnection,
         )
 
@@ -97,7 +97,7 @@ async def main():
             response_received = False
 
             # Send request
-            msg_id = await get_rolling_window_stats(
+            msg_id = await getRollingWindowStatsWS(
                 connection=connection, symbol=TEST_SYMBOL, window_size=window_size
             )
 
@@ -142,7 +142,7 @@ async def main():
         response_received = False
 
         # Send request
-        msg_id = await get_rolling_window_stats(
+        msg_id = await getRollingWindowStatsWS(
             connection=connection, symbols=TEST_SYMBOLS, window_size=window_size
         )
 

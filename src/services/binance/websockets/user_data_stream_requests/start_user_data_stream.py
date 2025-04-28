@@ -8,7 +8,7 @@ It follows the Binance WebSocket API specifications for the 'userDataStream.star
 from typing import Dict, Optional, Any, Callable, Awaitable
 
 from config import get_logger, Secrets
-from services.binance.websockets.base_operations import BinanceWebSocketConnection, SecurityType
+from services.binance.websockets.baseOperations import BinanceWebSocketConnection, SecurityType
 
 logger = get_logger(__name__)
 

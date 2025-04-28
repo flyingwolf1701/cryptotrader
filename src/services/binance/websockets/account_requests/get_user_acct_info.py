@@ -8,7 +8,7 @@ It follows the Binance WebSocket API specifications for the 'account.status' end
 from typing import Dict, List, Optional, Any, Callable, Awaitable
 
 from config import get_logger
-from services.binance.websockets.base_operations import BinanceWebSocketConnection, SecurityType
+from services.binance.websockets.baseOperations import BinanceWebSocketConnection, SecurityType
 from services.binance.models import AccountBalance
 
 logger = get_logger(__name__)

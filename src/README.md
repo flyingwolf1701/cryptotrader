@@ -205,7 +205,7 @@ description: "Guidelines for error handling in the application"
 strategies: - "Use try-except blocks for operations that might fail (API requests, file operations)" - "Log exceptions with appropriate detail for debugging" - "Display user-friendly error messages in the UI" - "Implement graceful degradation for non-critical failures" - "Use specific exception types when possible"
 example: |
 try: # Potentially failing operation
-data = self.market_client.get_historical_candles(symbol, interval, limit) # Process data...
+data = self.market_client.getHistoricalCandles(symbol, interval, limit) # Process data...
 except ConnectionError as e:
 logger.error(f"Connection error fetching candle data: {str(e)}")
 self.logging_panel.add_log("Failed to connect to server. Check your internet connection.", "ERROR")

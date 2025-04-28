@@ -16,11 +16,12 @@ import time
 from typing import Dict, List, Optional, Any, Union
 
 from config import get_logger
-from services.binance.restAPI.base_operations import BinanceAPIRequest
-from services.binance.models import SystemStatus, RateLimitType,ExchangeInfo
+from services.binance.restAPI.baseOperations import BinanceAPIRequest
+from services.binance.models import SystemStatus, RateLimitType, ExchangeInfo
 from config.mapper import mapper
 
 logger = get_logger(__name__)
+
 
 class SystemOperations:
     """
@@ -52,11 +53,11 @@ class SystemOperations:
         """
         response = (
             self.request("GET", "/api/v3/time", RateLimitType.REQUEST_WEIGHT, 1)
-                .requires_auth(False)
-                .execute()
+            .requiresAuth(False)
+            .execute()
         )
-        if isinstance(response, dict) and 'serverTime' in response:
-            return int(response['serverTime'])
+        if isinstance(response, dict) and "serverTime" in response:
+            return int(response["serverTime"])
         return int(time.time() * 1000)
 
     def getSystemStatus(self) -> SystemStatus:
@@ -65,11 +66,13 @@ class SystemOperations:
         Returns SystemStatus dataclass (0: normal, 1: maintenance)
         """
         response = (
-            self.request("GET", "/sapi/v1/system/status", RateLimitType.REQUEST_WEIGHT, 1)
-                .requires_auth(False)
-                .execute()
+            self.request(
+                "GET", "/sapi/v1/system/status", RateLimitType.REQUEST_WEIGHT, 1
+            )
+            .requiresAuth(False)
+            .execute()
         ) or {}
-        status_code = response.get('status', -1)
+        status_code = response.get("status", -1)
         return SystemStatus(status_code=status_code)
 
     def _exchangeInfo(
@@ -86,15 +89,15 @@ class SystemOperations:
         """
         params: Dict[str, Any] = {}
         if symbol:
-            params['symbol'] = symbol
+            params["symbol"] = symbol
         if symbols:
-            params['symbols'] = json.dumps(symbols)
+            params["symbols"] = json.dumps(symbols)
         if permissions:
-            params['permissions'] = json.dumps(permissions)
+            params["permissions"] = json.dumps(permissions)
         if show_permission_sets:
-            params['showPermissionSets'] = 'true'
+            params["showPermissionSets"] = "true"
         if symbol_status:
-            params['symbolStatus'] = symbol_status
+            params["symbolStatus"] = symbol_status
 
         raw = (
             self.request(
@@ -103,8 +106,8 @@ class SystemOperations:
                 RateLimitType.REQUEST_WEIGHT,
                 20,
             )
-            .requires_auth(False)
-            .with_query_params(**params)
+            .requiresAuth(False)
+            .withQueryParams(**params)
             .execute()
         ) or {}
 

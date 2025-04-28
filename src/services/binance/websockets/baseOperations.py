@@ -26,7 +26,7 @@ import websockets
 from websockets.exceptions import ConnectionClosed
 
 from config import get_logger, Secrets
-from services.binance.restAPI.base_operations import RateLimiter
+from services.binance.restAPI.baseOperations import RateLimiter
 from services.binance.models import (
     RateLimit,
     RateLimitType,
@@ -187,10 +187,10 @@ class BinanceWebSocketConnection:
             self.connection_start_time = time.time()  # Track connection start time
 
             # Start tasks
-            self.ping_task = asyncio.create_task(self._ping_loop())
+            self.ping_task = asyncio.create_task(self._pingLoop())
             self.receive_task = asyncio.create_task(self._receive_loop())
             self.connection_monitoring_task = asyncio.create_task(
-                self._monitor_connection_age()
+                self._monitorConnectionAge()
             )
 
             logger.info(f"WebSocket connection established to {url}")
@@ -202,7 +202,7 @@ class BinanceWebSocketConnection:
                 await self.on_error(e)
             return False
 
-    async def _ping_loop(self):
+    async def _pingLoop(self):
         """Send periodic pings to keep connection alive."""
         while self.is_connected and not self.is_closing:
             try:
@@ -240,7 +240,7 @@ class BinanceWebSocketConnection:
                 if not self.is_closing:
                     await self._reconnect()
 
-    async def _monitor_connection_age(self):
+    async def _monitorConnectionAge(self):
         """Monitor connection age and reconnect before 24-hour limit."""
         while self.is_connected and not self.is_closing:
             try:

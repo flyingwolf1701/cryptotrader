@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, Any, Callable, Awaitable, Union
 from dataclasses import dataclass
 
 from config import get_logger
-from services.binance.websockets.base_operations import BinanceWebSocketConnection, SecurityType
+from services.binance.websockets.baseOperations import BinanceWebSocketConnection, SecurityType
 
 logger = get_logger(__name__)
 

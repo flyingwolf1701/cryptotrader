@@ -31,7 +31,7 @@ from services.binance.models import (
     RateLimitInfo,
     OcoOrderResponse,
 )
-from services.binance.restAPI.base_operations import BinanceAPIRequest
+from services.binance.restAPI.baseOperations import BinanceAPIRequest
 
 logger = get_logger(__name__)
 
@@ -70,7 +70,7 @@ class OrderOperations:
             method=method, endpoint=endpoint, limit_type=limit_type, weight=weight
         )
 
-    def place_spot_order(
+    def placeSpotOrder(
         self, order_request: Union[OrderRequest, Dict[str, Any]]
     ) -> Optional[OrderStatusResponse]:
         """
@@ -120,8 +120,8 @@ class OrderOperations:
 
         response = (
             self.request("POST", "/api/v3/order", RateLimitType.ORDERS, 1)
-            .requires_auth(True)
-            .with_query_params(**params)
+            .requiresAuth(True)
+            .withQueryParams(**params)
             .execute()
         )
 
@@ -129,7 +129,7 @@ class OrderOperations:
             return OrderStatusResponse.from_api_response(response)
         return None
 
-    def test_new_order(
+    def testNewOrderRest(
         self, order_request: Union[OrderRequest, Dict[str, Any]]
     ) -> bool:
         """
@@ -179,15 +179,15 @@ class OrderOperations:
 
         response = (
             self.request("POST", "/api/v3/order/test", RateLimitType.REQUEST_WEIGHT, 1)
-            .requires_auth(True)
-            .with_query_params(**params)
+            .requiresAuth(True)
+            .withQueryParams(**params)
             .execute()
         )
 
         # Test order endpoint returns empty dict on success
         return response is not None
 
-    def cancel_order(
+    def cancelOrderRest(
         self,
         symbol: str,
         order_id: Optional[int] = None,
@@ -213,14 +213,14 @@ class OrderOperations:
         """
         request = (
             self.request("DELETE", "/api/v3/order", RateLimitType.REQUEST_WEIGHT, 1)
-            .requires_auth(True)
-            .with_query_params(symbol=symbol)
+            .requiresAuth(True)
+            .withQueryParams(symbol=symbol)
         )
 
         if order_id:
-            request.with_query_params(orderId=order_id)
+            request.withQueryParams(orderId=order_id)
         elif client_order_id:
-            request.with_query_params(origClientOrderId=client_order_id)
+            request.withQueryParams(origClientOrderId=client_order_id)
         else:
             logger.error(
                 "Either order_id or client_order_id must be provided to cancel an order"
@@ -228,10 +228,10 @@ class OrderOperations:
             return None
 
         if newClientOrderId:
-            request.with_query_params(newClientOrderId=newClientOrderId)
+            request.withQueryParams(newClientOrderId=newClientOrderId)
 
         if cancel_restrictions:
-            request.with_query_params(cancelRestrictions=cancel_restrictions)
+            request.withQueryParams(cancelRestrictions=cancel_restrictions)
 
         response = request.execute()
 
@@ -256,8 +256,8 @@ class OrderOperations:
             self.request(
                 "DELETE", "/api/v3/openOrders", RateLimitType.REQUEST_WEIGHT, 1
             )
-            .requires_auth(True)
-            .with_query_params(symbol=symbol)
+            .requiresAuth(True)
+            .withQueryParams(symbol=symbol)
             .execute()
         )
 
@@ -287,14 +287,14 @@ class OrderOperations:
         """
         request = (
             self.request("GET", "/api/v3/order", RateLimitType.REQUEST_WEIGHT, 2)
-            .requires_auth(True)
-            .with_query_params(symbol=symbol)
+            .requiresAuth(True)
+            .withQueryParams(symbol=symbol)
         )
 
         if order_id:
-            request.with_query_params(orderId=order_id)
+            request.withQueryParams(orderId=order_id)
         elif client_order_id:
-            request.with_query_params(origClientOrderId=client_order_id)
+            request.withQueryParams(origClientOrderId=client_order_id)
         else:
             logger.error(
                 "Either order_id or client_order_id must be provided to get order status"
@@ -332,10 +332,10 @@ class OrderOperations:
 
         request = self.request(
             "GET", "/api/v3/openOrders", RateLimitType.REQUEST_WEIGHT, weight
-        ).requires_auth(True)
+        ).requiresAuth(True)
 
         if symbol:
-            request.with_query_params(symbol=symbol)
+            request.withQueryParams(symbol=symbol)
 
         response = request.execute()
 
@@ -369,21 +369,21 @@ class OrderOperations:
         """
         request = (
             self.request("GET", "/api/v3/allOrders", RateLimitType.REQUEST_WEIGHT, 10)
-            .requires_auth(True)
-            .with_query_params(
+            .requiresAuth(True)
+            .withQueryParams(
                 symbol=symbol,
                 limit=min(limit, 1000),  # Ensure limit doesn't exceed API max
             )
         )
 
         if order_id:
-            request.with_query_params(orderId=order_id)
+            request.withQueryParams(orderId=order_id)
 
         if start_time:
-            request.with_query_params(startTime=start_time)
+            request.withQueryParams(startTime=start_time)
 
         if end_time:
-            request.with_query_params(endTime=end_time)
+            request.withQueryParams(endTime=end_time)
 
         response = request.execute()
 
@@ -405,7 +405,7 @@ class OrderOperations:
             self.request(
                 "GET", "/api/v3/rateLimit/order", RateLimitType.REQUEST_WEIGHT, 20
             )
-            .requires_auth(True)
+            .requiresAuth(True)
             .execute()
         )
 
@@ -441,24 +441,24 @@ class OrderOperations:
         """
         request = (
             self.request("GET", "/api/v3/myTrades", RateLimitType.REQUEST_WEIGHT, 10)
-            .requires_auth(True)
-            .with_query_params(
+            .requiresAuth(True)
+            .withQueryParams(
                 symbol=symbol,
                 limit=min(limit, 1000),  # Ensure limit doesn't exceed API max
             )
         )
 
         if order_id:
-            request.with_query_params(orderId=order_id)
+            request.withQueryParams(orderId=order_id)
 
         if start_time:
-            request.with_query_params(startTime=start_time)
+            request.withQueryParams(startTime=start_time)
 
         if end_time:
-            request.with_query_params(endTime=end_time)
+            request.withQueryParams(endTime=end_time)
 
         if from_id:
-            request.with_query_params(fromId=from_id)
+            request.withQueryParams(fromId=from_id)
 
         response = request.execute()
 
@@ -521,8 +521,8 @@ class OrderOperations:
             self.request(
                 "POST", "/api/v3/order/cancelReplace", RateLimitType.REQUEST_WEIGHT, 1
             )
-            .requires_auth(True)
-            .with_query_params(**params)
+            .requiresAuth(True)
+            .withQueryParams(**params)
             .execute()
         )
 
@@ -530,7 +530,7 @@ class OrderOperations:
             return CancelReplaceResponse.from_api_response(response)
         return None
 
-    def get_prevented_matches(
+    def getPreventedMatchesRest(
         self,
         symbol: str,
         prevented_match_id: Optional[int] = None,
@@ -569,21 +569,21 @@ class OrderOperations:
                 RateLimitType.REQUEST_WEIGHT,
                 weight,
             )
-            .requires_auth(True)
-            .with_query_params(
+            .requiresAuth(True)
+            .withQueryParams(
                 symbol=symbol,
                 limit=min(limit, 1000),  # Ensure limit doesn't exceed API max
             )
         )
 
         if prevented_match_id:
-            request.with_query_params(preventedMatchId=prevented_match_id)
+            request.withQueryParams(preventedMatchId=prevented_match_id)
 
         if order_id:
-            request.with_query_params(orderId=order_id)
+            request.withQueryParams(orderId=order_id)
 
         if from_prevented_match_id:
-            request.with_query_params(fromPreventedMatchId=from_prevented_match_id)
+            request.withQueryParams(fromPreventedMatchId=from_prevented_match_id)
 
         response = request.execute()
 
@@ -591,7 +591,7 @@ class OrderOperations:
             return [PreventedMatch.from_api_response(match) for match in response]
         return []
 
-    def place_oco_order(
+    def placeOcoOrder(
         self,
         symbol: str,
         side: str,
@@ -688,8 +688,8 @@ class OrderOperations:
 
         response = (
             self.request("POST", "/api/v3/order/oco", RateLimitType.ORDERS, 1)
-            .requires_auth(True)
-            .with_query_params(**params)
+            .requiresAuth(True)
+            .withQueryParams(**params)
             .execute()
         )
 
@@ -697,7 +697,7 @@ class OrderOperations:
             return OcoOrderResponse.from_api_response(response)
         return None
 
-    def get_oco_order(
+    def getOcoOrderRest(
         self,
         order_list_id: Optional[int] = None,
         orig_client_order_id: Optional[str] = None,
@@ -726,12 +726,12 @@ class OrderOperations:
 
         request = self.request(
             "GET", "/api/v3/orderList", RateLimitType.REQUEST_WEIGHT, 2
-        ).requires_auth(True)
+        ).requiresAuth(True)
 
         if order_list_id:
-            request.with_query_params(orderListId=order_list_id)
+            request.withQueryParams(orderListId=order_list_id)
         elif orig_client_order_id:
-            request.with_query_params(origClientOrderId=orig_client_order_id)
+            request.withQueryParams(origClientOrderId=orig_client_order_id)
 
         response = request.execute()
 
@@ -739,7 +739,7 @@ class OrderOperations:
             return OcoOrderResponse.from_api_response(response)
         return None
 
-    def get_all_oco_orders(
+    def getAllOcoOrders(
         self,
         from_id: Optional[int] = None,
         start_time: Optional[int] = None,
@@ -768,19 +768,19 @@ class OrderOperations:
             self.request(
                 "GET", "/api/v3/allOrderList", RateLimitType.REQUEST_WEIGHT, 10
             )
-            .requires_auth(True)
-            .with_query_params(
+            .requiresAuth(True)
+            .withQueryParams(
                 limit=min(limit, 1000)  # Ensure limit doesn't exceed API max
             )
         )
 
         if from_id is not None:
-            request.with_query_params(fromId=from_id)
+            request.withQueryParams(fromId=from_id)
         else:
             if start_time is not None:
-                request.with_query_params(startTime=start_time)
+                request.withQueryParams(startTime=start_time)
             if end_time is not None:
-                request.with_query_params(endTime=end_time)
+                request.withQueryParams(endTime=end_time)
 
         response = request.execute()
 
@@ -788,7 +788,7 @@ class OrderOperations:
             return [OcoOrderResponse.from_api_response(order) for order in response]
         return []
 
-    def get_open_oco_orders(self) -> List[OcoOrderResponse]:
+    def getOpenOcoOrdersRest(self) -> List[OcoOrderResponse]:
         """
         Get all open OCO orders.
 
@@ -802,7 +802,7 @@ class OrderOperations:
             self.request(
                 "GET", "/api/v3/openOrderList", RateLimitType.REQUEST_WEIGHT, 3
             )
-            .requires_auth(True)
+            .requiresAuth(True)
             .execute()
         )
 
@@ -844,17 +844,17 @@ class OrderOperations:
 
         request = (
             self.request("DELETE", "/api/v3/orderList", RateLimitType.REQUEST_WEIGHT, 1)
-            .requires_auth(True)
-            .with_query_params(symbol=symbol)
+            .requiresAuth(True)
+            .withQueryParams(symbol=symbol)
         )
 
         if order_list_id:
-            request.with_query_params(orderListId=order_list_id)
+            request.withQueryParams(orderListId=order_list_id)
         elif list_client_order_id:
-            request.with_query_params(listClientOrderId=list_client_order_id)
+            request.withQueryParams(listClientOrderId=list_client_order_id)
 
         if newClientOrderId:
-            request.with_query_params(newClientOrderId=newClientOrderId)
+            request.withQueryParams(newClientOrderId=newClientOrderId)
 
         response = request.execute()
 

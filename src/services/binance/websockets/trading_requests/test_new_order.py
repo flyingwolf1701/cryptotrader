@@ -17,7 +17,7 @@ from services.binance.models import OrderSide, OrderType, TimeInForce
 logger = get_logger(__name__)
 
 
-async def test_new_order(
+async def testNewOrderWS(
     connection: BinanceWebSocketConnection,
     symbol: str,
     side: OrderSide,

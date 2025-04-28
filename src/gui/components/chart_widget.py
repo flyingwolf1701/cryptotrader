@@ -268,7 +268,7 @@ class ChartWidget(ttk.Frame):
             interval = self.current_timeframe
 
             # Fetch candle data
-            candle_data = self.market_client.get_historical_candles(
+            candle_data = self.market_client.getHistoricalCandles(
                 symbol=self.current_symbol,
                 interval=interval,
                 limit=100,  # Last 100 candles

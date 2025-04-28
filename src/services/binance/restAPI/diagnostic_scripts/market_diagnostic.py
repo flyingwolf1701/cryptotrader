@@ -45,7 +45,7 @@ def main():
     # Test 1: Get bid/ask for BTC/USDT
     print_test_header("Getting current BTC/USDT price")
     try:
-        btc_price = client.get_bid_ask(TEST_SYMBOL)
+        btc_price = client.getBidAsk(TEST_SYMBOL)
         if btc_price:
             logger.info(f"BTC/USDT Bid: ${btc_price.bid:.2f}")
             logger.info(f"BTC/USDT Ask: ${btc_price.ask:.2f}")
@@ -58,7 +58,7 @@ def main():
     # Test 2: Get historical candles
     print_test_header("Getting historical candles for BTC/USDT (1-hour interval)")
     try:
-        candles = client.get_historical_candles(TEST_SYMBOL, "1h", limit=10)
+        candles = client.getHistoricalCandles(TEST_SYMBOL, "1h", limit=10)
         logger.info(f"Retrieved {len(candles)} candles")
         if candles:
             logger.info("Most recent candle:")
@@ -77,7 +77,7 @@ def main():
     # Test 3: Get ticker price for BTC/USDT
     print_test_header("Getting ticker price for BTC/USDT")
     try:
-        ticker = client.get_ticker_price(TEST_SYMBOL)
+        ticker = client.getTickerPrice(TEST_SYMBOL)
         if ticker:
             logger.info(f"BTC/USDT Price: ${float(ticker.price):.2f}")
         else:
@@ -89,7 +89,7 @@ def main():
     # Test 4: Get average price for BTC/USDT
     print_test_header("Getting average price for BTC/USDT")
     try:
-        avg_price = client.get_avg_price(TEST_SYMBOL)
+        avg_price = client.getAvgPriceRest(TEST_SYMBOL)
         if avg_price:
             logger.info(
                 f"BTC/USDT Average Price (mins={avg_price.mins}): ${avg_price.price:.2f}"
@@ -103,7 +103,7 @@ def main():
     # Test 5: Get order book
     print_test_header("Getting order book for BTC/USDT")
     try:
-        order_book = client.get_order_book_rest(TEST_SYMBOL, limit=5)
+        order_book = client.getOrderBookRest(TEST_SYMBOL, limit=5)
         if order_book:
             logger.info(f"Order Book Last Update ID: {order_book.lastUpdateId}")
             logger.info(f"Top 5 Bids:")
@@ -125,7 +125,7 @@ def main():
     # Test 6: Get 24-hour price statistics
     print_test_header("Getting 24-hour price statistics for BTC/USDT")
     try:
-        stats = client.get_24h_stats(TEST_SYMBOL)
+        stats = client.get24hStats(TEST_SYMBOL)
         if stats:
             logger.info(
                 f"24h Price Change: ${stats.priceChange:.2f} ({stats.priceChangePercent:.2f}%)"
@@ -143,7 +143,7 @@ def main():
     # Test 7: Get Rolling Window Statistics
     print_test_header("Getting rolling window statistics for BTC/USDT")
     try:
-        rolling_stats = client.get_rolling_window_stats(TEST_SYMBOL, window_size="1d")
+        rolling_stats = client.getRollingWindowStatsRest(TEST_SYMBOL, window_size="1d")
         if rolling_stats:
             logger.info(
                 f"1d Rolling Window Price Change: ${rolling_stats.priceChange:.2f} ({rolling_stats.priceChangePercent:.2f}%)"

@@ -74,7 +74,7 @@ def main():
     print_test_header("Get Ticker Price")
     tests_run += 1
     try:
-        ticker = client.get_ticker_price(TEST_SYMBOL)
+        ticker = client.getTickerPrice(TEST_SYMBOL)
         if ticker and hasattr(ticker, "price"):
             print_success(f"Got ticker price for {TEST_SYMBOL}: {ticker.price}")
             tests_passed += 1
@@ -88,7 +88,7 @@ def main():
     print_test_header("Get Historical Candles")
     tests_run += 1
     try:
-        candles = client.get_historical_candles(TEST_SYMBOL, "1h", limit=10)
+        candles = client.getHistoricalCandles(TEST_SYMBOL, "1h", limit=10)
         if candles and len(candles) > 0:
             print_success(f"Got {len(candles)} candles for {TEST_SYMBOL}")
             # Print the first candle
@@ -145,7 +145,7 @@ def main():
     print_test_header("Get 24h Stats")
     tests_run += 1
     try:
-        stats = client.get_24h_stats(TEST_SYMBOL)
+        stats = client.get24hStats(TEST_SYMBOL)
         if stats:
             print_success(f"Got 24h stats for {TEST_SYMBOL}")
             print_info(
