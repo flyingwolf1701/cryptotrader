@@ -1,6 +1,6 @@
-# Archetectum Scripts
+# Architectum Scripts
 
-This folder contains utility scripts for managing and documenting the Archetectum project.
+This folder contains utility scripts for managing and documenting the Architectum project.
 
 ---
 

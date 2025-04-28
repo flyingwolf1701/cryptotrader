@@ -1,9 +1,7 @@
 # file: architectum/scripts/file_structure_to_md.py
 
 import os
-import sys
 import argparse
-import subprocess
 from typing import Optional
 
 # Ignore hidden folders and common build/system folders
@@ -16,10 +14,6 @@ def generate_directory_tree(
     current_depth: int = 0,
     max_depth: Optional[int] = None,
 ) -> str:
-    """
-    Recursively generate a markdown-style directory tree,
-    ignoring hidden files/folders and excluded names.
-    """
     tree_lines = []
 
     if max_depth is not None and current_depth > max_depth:
@@ -54,7 +48,7 @@ def generate_directory_tree(
     return "\n".join(tree_lines)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="Generate Markdown directory structure."
     )
@@ -71,12 +65,11 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # Script and project roots
     SCRIPT_DIR = os.path.dirname(__file__)
     PROJECT_ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "../.."))
     ARCH_ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 
-    # 1) architectum_structure.md (from architectum/src/)
+    # 1) Architectum structure
     ARCHITECTUM_OUTPUT = os.path.join(ARCH_ROOT_DIR, "architectum_structure.md")
     ARCH_SRC_DIR = os.path.join(ARCH_ROOT_DIR, "src")
     arch_tree = generate_directory_tree(
@@ -90,7 +83,7 @@ if __name__ == "__main__":
         f.write("\n```")
     print(f"✅ Architectum structure written to {ARCHITECTUM_OUTPUT}!")
 
-    # 2) project_structure.md (from <repo root>/src/)
+    # 2) Project structure
     PROJ_SRC_DIR = os.path.join(PROJECT_ROOT_DIR, "src")
     proj_tree = generate_directory_tree(
         PROJ_SRC_DIR, current_depth=0, max_depth=args.depth
@@ -103,12 +96,6 @@ if __name__ == "__main__":
         f.write("\n```")
     print(f"✅ Directory structure written to {args.output}!")
 
-    # 3) Invoke the sync script
-    sync_script = os.path.join(SCRIPT_DIR, "sync_doc_structure.py")
-    print("🔄 Running sync_doc_structure.py…")
-    result = subprocess.run([sys.executable, sync_script], cwd=PROJECT_ROOT_DIR)
-    if result.returncode == 0:
-        print("✅ sync_doc_structure.py completed successfully!")
-    else:
-        print(f"⚠️ sync_doc_structure.py exited with code {result.returncode}.")
-        sys.exit(result.returncode)
+
+if __name__ == "__main__":
+    main()

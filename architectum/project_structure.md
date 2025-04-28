@@ -11,18 +11,25 @@ src/
 │   │   ├── chart_widget.py
 │   │   ├── demos/
 │   │   │   ├── __init__.py
-│   │   │   └── symbol_search_demo.py
+│   │   │   ├── symbol_search_demo.py
+│   │   │   ├── trade_history_demo.py
+│   │   │   └── watchlist_demo.py
 │   │   ├── logging_componenet.py
 │   │   ├── logic/
 │   │   │   ├── __init__.py
-│   │   │   └── symbol_search_logic.py
+│   │   │   ├── strategy_logic.py
+│   │   │   ├── symbol_search_logic.py
+│   │   │   ├── trade_history_logic.py
+│   │   │   └── watchlist_logic.py
 │   │   ├── search_symbol.py
 │   │   ├── strategy_component.py
 │   │   ├── styles.py
 │   │   ├── trades_component.py
 │   │   ├── ui/
 │   │   │   ├── __init__.py
-│   │   │   └── symbol_search_widget.py
+│   │   │   ├── symbol_search_widget.py
+│   │   │   ├── trade_history_widget.py
+│   │   │   └── watchlist_widget.py
 │   │   └── watchlist_component.py
 │   ├── layouts/
 │   │   ├── __init__.py
