@@ -1,0 +1,136 @@
+{
+    "ServerTimeResponse": {
+      "type": "object",
+      "properties": {
+        "serverTime": { "type": "integer", "description": "Server time in milliseconds" }
+      },
+      "required": ["serverTime"]
+    },
+    "SystemStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status_code": { "type": "integer", "description": "System status code (0 = normal, 1 = maintenance)" }
+      },
+      "required": ["status_code"]
+    },
+    "ExchangeInfoRequest": {
+      "type": "object",
+      "properties": {
+        "symbol": { "type": "string" },
+        "symbols": { "type": "array", "items": { "type": "string" } },
+        "permissions": { "type": "array", "items": { "type": "string" } },
+        "showPermissionSets": { "type": "boolean" },
+        "symbolStatus": { "type": "string" }
+      },
+      "required": []
+    },
+    "ExchangeInfoResponse": {
+      "type": "object",
+      "description": "Structured response for exchange info"
+    },
+    "BidAskRequest": {
+      "type": "object",
+      "properties": {
+        "symbol": { "type": "string", "description": "Symbol to fetch bid/ask prices for" }
+      },
+      "required": ["symbol"]
+    },
+    "BidAskResponse": {
+      "type": "object",
+      "properties": {
+        "bidPrice": { "type": "string" },
+        "bidQty": { "type": "string" },
+        "askPrice": { "type": "string" },
+        "askQty": { "type": "string" }
+      },
+      "required": ["bidPrice", "askPrice"]
+    },
+    "HistoricalCandlesRequest": {
+      "type": "object",
+      "properties": {
+        "symbol": { "type": "string" },
+        "interval": { "type": "string" },
+        "startTime": { "type": "integer" },
+        "endTime": { "type": "integer" },
+        "limit": { "type": "integer" }
+      },
+      "required": ["symbol", "interval"]
+    },
+    "HistoricalCandlesResponse": {
+      "type": "array",
+      "items": { "type": "array", "items": { "type": "number" } }
+    },
+    "PlaceOrderRequest": {
+      "type": "object",
+      "properties": {
+        "symbol": { "type": "string" },
+        "side": { "type": "string" },
+        "type": { "type": "string" },
+        "quantity": { "type": "number" },
+        "price": { "type": "number" },
+        "timeInForce": { "type": "string" }
+      },
+      "required": ["symbol", "side", "type"]
+    },
+    "OrderResult": {
+      "type": "object",
+      "description": "Details of the placed order result"
+    },
+    "CancelOrderRequest": {
+      "type": "object",
+      "properties": {
+        "symbol": { "type": "string" },
+        "orderId": { "type": "integer" }
+      },
+      "required": ["symbol", "orderId"]
+    },
+    "CancelResult": {
+      "type": "object",
+      "description": "Details of the cancelled order result"
+    },
+    "GetOrderStatusRequest": {
+      "type": "object",
+      "properties": {
+        "symbol": { "type": "string" },
+        "orderId": { "type": "integer" }
+      },
+      "required": ["symbol", "orderId"]
+    },
+    "OrderStatus": {
+      "type": "object",
+      "description": "Details of the current order status"
+    },
+    "AccountInfoResponse": {
+      "type": "object",
+      "description": "User balances, permissions, and account status"
+    },
+    "SubaccountListResponse": {
+      "type": "object",
+      "description": "List of all subaccounts under the main account"
+    },
+    "StakingProductListRequest": {
+      "type": "object",
+      "properties": {
+        "product": { "type": "string" }
+      },
+      "required": []
+    },
+    "StakingProductListResponse": {
+      "type": "object",
+      "description": "List of staking products available"
+    },
+    "OtcQuoteRequest": {
+      "type": "object",
+      "properties": {
+        "symbol": { "type": "string" },
+        "side": { "type": "string" },
+        "quantity": { "type": "number" }
+      },
+      "required": ["symbol", "side", "quantity"]
+    },
+    "OtcQuoteResponse": {
+      "type": "object",
+      "description": "Response details for an OTC quote"
+    }
+  }
+  
