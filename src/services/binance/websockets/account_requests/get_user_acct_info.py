@@ -13,7 +13,7 @@ from services.binance.models import AccountBalance
 
 logger = get_logger(__name__)
 
-async def get_account_info(
+async def getAccountWS(
     connection: BinanceWebSocketConnection,
     recv_window: Optional[int] = None,
     callback: Optional[Callable[[Dict[str, Any]], Awaitable[None]]] = None

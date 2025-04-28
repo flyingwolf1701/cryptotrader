@@ -14,7 +14,7 @@ tickets:
     status: not yet started
     description: Write a simple class that wraps wallet and price endpoints using the existing REST API functions.
     acceptance_criteria:
-      - Class exposes get_account_balances() and get_price_for_asset(asset)
+      - Class exposes getAccountRestBalances() and get_price_for_asset(asset)
       - Uses existing wallet_api.py and market_api.py
       - Callable from GUI
 

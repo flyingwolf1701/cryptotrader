@@ -19,7 +19,7 @@ binance_websocket_account_api:
       get_user_acct_info:
         description: "Retrieve user account information"
         requests:
-          get_account_info:
+          getAccountWS:
             description: "Get current account information including balances"
             endpoint: "account.status"
             weight: 10

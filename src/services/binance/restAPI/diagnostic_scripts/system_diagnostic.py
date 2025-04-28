@@ -43,7 +43,7 @@ def main():
     # Test 1: Get server time
     print_test_header("Getting server time")
     try:
-        server_time = client.get_server_time()
+        server_time = client.getServerTime()
         local_time = int(time.time() * 1000)
         time_diff = abs(server_time - local_time)
 
@@ -73,7 +73,7 @@ def main():
     # Test 2: Get system status
     print_test_header("Checking system status")
     try:
-        system_status = client.get_system_status()
+        system_status = client.getSystemStatus()
         logger.info(
             f"System status: {system_status.status_description} (code: {system_status.status_code})"
         )
@@ -147,7 +147,7 @@ def main():
     # Test 6: Get full exchange information
     print_test_header("Getting complete exchange information")
     try:
-        exchange_info = client.get_exchange_info()
+        exchange_info = client.getExchangeInfo()
         if exchange_info:
             logger.info(
                 f"Exchange has {len(exchange_info.get('symbols', []))} trading pairs"
@@ -175,22 +175,6 @@ def main():
     except Exception as e:
         logger.error(f"Error retrieving exchange information: {str(e)}")
         logger.debug(traceback.format_exc())
-
-    # Summary
-    logger.info("\nSystem API Diagnostic Summary:")
-    logger.info("----------------------------")
-    logger.info("The following tests were performed:")
-    logger.info("1. Getting server time")
-    logger.info("2. Checking system status")
-    logger.info("3. Getting available trading symbols")
-    logger.info("4. Getting exchange info for BTC/USDT")
-    logger.info("5. Getting self-trade prevention modes")
-    logger.info("6. Getting complete exchange information")
-
-    logger.info(
-        "\nSystem API diagnostic completed. Check the logs above for any errors."
-    )
-
 
 if __name__ == "__main__":
     main()

@@ -14,7 +14,7 @@ from services.binance.websockets.base_operations import (
 
 # Import account operation functions
 from services.binance.websockets.account_requests.get_user_acct_info import (
-    get_account_info,
+    getAccountWS,
     process_account_info_response
 )
 
@@ -49,7 +49,7 @@ __all__ = [
     'SecurityType',
     
     # Account Info
-    'get_account_info',
+    'getAccountWS',
     'process_account_info_response',
     
     # Order Rate Limits

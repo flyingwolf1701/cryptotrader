@@ -59,7 +59,7 @@ binance_service:
       - base_operations.py:
           description: "Core request functionality including authentication and rate limiting"
           key_classes: ["BinanceAPIRequest", "RateLimiter"]
-      - system_api.py:
+      - systemApi.py:
           description: "System information operations"
           key_endpoints: ["/api/v3/time", "/sapi/v1/system/status", "/api/v3/exchangeInfo"]
       - market_api.py:

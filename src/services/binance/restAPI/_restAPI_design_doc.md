@@ -17,7 +17,7 @@ src/cryptotrader/services/binance/
 ├── restAPI/                   # REST API implementation
 │   ├── __init__.py            # Exports clients
 │   ├── base_operations.py     # Core request functionality
-│   ├── system_api.py          # System information operations
+│   ├── systemApi.py          # System information operations
 │   ├── market_api.py          # Market data operations
 │   ├── order_api.py           # Order operations
 │   ├── user_api.py            # User account operations
@@ -476,7 +476,7 @@ __all__ = [
     'cancel_order',          # DELETE /api/v3/order
     'get_open_orders',       # GET /api/v3/openOrders
     'get_all_orders',        # GET /api/v3/allOrders
-    'get_server_time',       # GET /api/v3/time
+    'getServerTime',       # GET /api/v3/time
     'get_ticker_price',      # GET /api/v3/ticker/price
     'get_24h_stats',         # GET /api/v3/ticker/24hr
 ]

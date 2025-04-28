@@ -1,0 +1,460 @@
+{
+    "restAPI": {
+      "systemAPI": {
+        "getServerTime": {
+          "request": null,
+          "response": {
+            "type": "ServerTimeResult",
+            "reference": "models_shape.base_models.ServerTimeResult"
+          },
+          "callsOn": [],
+          "calledBy": []
+        },
+        "getSystemStatus": {
+          "request": null,
+          "response": {
+            "type": "SystemStatusResult",
+            "reference": "models_shape.base_models.SystemStatusResult"
+          },
+          "callsOn": [],
+          "calledBy": []
+        },
+        "getExchangeInfo": {
+          "request": {
+            "type": "object",
+            "properties": {
+              "symbol": { "type": "string" },
+              "permissions": { "type": "array", "items": { "type": "string" } },
+              "symbolStatus": { "type": "string" }
+            },
+            "required": []
+          },
+          "response": {
+            "type": "ExchangeInfoResult",
+            "reference": "models_shape.base_models.ExchangeInfoResult"
+          },
+          "callsOn": [],
+          "calledBy": []
+        }
+      }
+    },
+    "marketAPI": {
+      "getBidAsk": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "symbol": { "type": "string" }
+          },
+          "required": ["symbol"]
+        },
+        "response": {
+          "type": "PriceData",
+          "reference": "models_shape.market_models.PriceData"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "getHistoricalCandles": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "symbol": { "type": "string" },
+            "interval": { "type": "string" },
+            "startTime": { "type": "integer" },
+            "endTime": { "type": "integer" },
+            "limit": { "type": "integer" }
+          },
+          "required": ["symbol", "interval"]
+        },
+        "response": {
+          "type": "Candle",
+          "reference": "models_shape.market_models.Candle"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "getTradeHistory": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "symbol": { "type": "string" },
+            "limit": { "type": "integer" }
+          },
+          "required": ["symbol"]
+        },
+        "response": {
+          "type": "Trade",
+          "reference": "models_shape.market_models.Trade"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "getAggTradeHistory": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "symbol": { "type": "string" },
+            "limit": { "type": "integer" },
+            "fromId": { "type": "integer" }
+          },
+          "required": ["symbol"]
+        },
+        "response": {
+          "type": "AggTrade",
+          "reference": "models_shape.market_models.AggTrade"
+        },
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+    "orderAPI": {
+      "placeOrder": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "symbol": { "type": "string" },
+            "side": { "type": "string" },
+            "type": { "type": "string" },
+            "quantity": { "type": "number" },
+            "price": { "type": "number" },
+            "timeInForce": { "type": "string" }
+          },
+          "required": ["symbol", "side", "type"]
+        },
+        "response": {
+          "type": "OrderResult",
+          "reference": "models_shape.order_models.OrderResult"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "cancelOrder": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "symbol": { "type": "string" },
+            "orderId": { "type": "integer" }
+          },
+          "required": ["symbol", "orderId"]
+        },
+        "response": {
+          "type": "CancelOrderResult",
+          "reference": "models_shape.order_models.CancelOrderResult"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "getOrderStatus": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "symbol": { "type": "string" },
+            "orderId": { "type": "integer" }
+          },
+          "required": ["symbol", "orderId"]
+        },
+        "response": {
+          "type": "OrderStatusResult",
+          "reference": "models_shape.order_models.OrderStatusResult"
+        },
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+    "otcAPI": {
+      "getCoinPair": {
+        "request": null,
+        "response": {
+          "type": "OtcCoinPair",
+          "reference": "models_shape.otc_models.OtcCoinPair"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "getQuote": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "symbol": { "type": "string" },
+            "side": { "type": "string" },
+            "quantity": { "type": "number" }
+          },
+          "required": ["symbol", "side", "quantity"]
+        },
+        "response": {
+          "type": "OtcQuote",
+          "reference": "models_shape.otc_models.OtcQuote"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "createOrder": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "quoteId": { "type": "string" }
+          },
+          "required": ["quoteId"]
+        },
+        "response": {
+          "type": "OtcOrderResponse",
+          "reference": "models_shape.otc_models.OtcOrderResponse"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "getOrderDetail": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "orderId": { "type": "string" }
+          },
+          "required": ["orderId"]
+        },
+        "response": {
+          "type": "OtcOrderDetail",
+          "reference": "models_shape.otc_models.OtcOrderDetail"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "listOrders": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string" }
+          },
+          "required": []
+        },
+        "response": {
+          "type": "OtcOrdersResponse",
+          "reference": "models_shape.otc_models.OtcOrdersResponse"
+        },
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+    "stakingAPI": {
+      "getStakingAssetInfo": {
+        "request": null,
+        "response": {
+          "type": "StakingAssetInfo",
+          "reference": "models_shape.staking_models.StakingAssetInfo"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "stakeResult": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "product": { "type": "string" },
+            "amount": { "type": "string" }
+          },
+          "required": ["product", "amount"]
+        },
+        "response": {
+          "type": "StakingOperationResult",
+          "reference": "models_shape.staking_models.StakingOperationResult"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "unstakeResult": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "product": { "type": "string" },
+            "amount": { "type": "string" }
+          },
+          "required": ["product", "amount"]
+        },
+        "response": {
+          "type": "StakingOperationResult",
+          "reference": "models_shape.staking_models.StakingOperationResult"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "stakingBalanceItem": {
+        "request": null,
+        "response": {
+          "type": "StakingBalanceItem",
+          "reference": "models_shape.staking_models.StakingBalanceItem"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "stakingBalanceResponse": {
+        "request": null,
+        "response": {
+          "type": "StakingBalanceResponse",
+          "reference": "models_shape.staking_models.StakingBalanceResponse"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "stakingHistoryItem": {
+        "request": null,
+        "response": {
+          "type": "StakingHistoryItem",
+          "reference": "models_shape.staking_models.StakingHistoryItem"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "stakingRewardItem": {
+        "request": null,
+        "response": {
+          "type": "StakingRewardItem",
+          "reference": "models_shape.staking_models.StakingRewardItem"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "stakingRewardsResponse": {
+        "request": null,
+        "response": {
+          "type": "StakingRewardsResponse",
+          "reference": "models_shape.staking_models.StakingRewardsResponse"
+        },
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+    "walletAPI": {
+      "getAssetDetail": {
+        "request": null,
+        "response": {
+          "type": "AssetDetail",
+          "reference": "models_shape.wallet_models.AssetDetail"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "withdrawCrypto": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "coin": { "type": "string" },
+            "amount": { "type": "number" },
+            "address": { "type": "string" },
+            "network": { "type": "string" }
+          },
+          "required": ["coin", "amount", "address"]
+        },
+        "response": {
+          "type": "WithdrawResult",
+          "reference": "models_shape.wallet_models.WithdrawResult"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "getDepositAddress": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "coin": { "type": "string" }
+          },
+          "required": ["coin"]
+        },
+        "response": {
+          "type": "DepositAddress",
+          "reference": "models_shape.wallet_models.DepositAddress"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "getWithdrawHistory": {
+        "request": null,
+        "response": {
+          "type": "WithdrawHistoryItem",
+          "reference": "models_shape.wallet_models.WithdrawHistoryItem"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "getDepositHistory": {
+        "request": null,
+        "response": {
+          "type": "DepositHistoryItem",
+          "reference": "models_shape.wallet_models.DepositHistoryItem"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "getFiatWithdrawHistory": {
+        "request": null,
+        "response": {
+          "type": "FiatTransactionHistoryItem",
+          "reference": "models_shape.wallet_models.FiatTransactionHistoryItem"
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "getFiatDepositHistory": {
+        "request": null,
+        "response": {
+          "type": "FiatTransactionHistoryItem",
+          "reference": "models_shape.wallet_models.FiatTransactionHistoryItem"
+        },
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+    "userAPI": {
+      "getAccountInfo": {
+        "request": null,
+        "response": {
+          "type": "AccountInfoResponse",
+          "reference": "models_shape.user_models.AccountInfoResponse"
+        },
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+    "baseOperationsAPI": {
+      "authenticatedRequest": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "endpoint": { "type": "string" },
+            "params": { "type": "object" },
+            "requiresSignature": { "type": "boolean" }
+          },
+          "required": ["endpoint", "params"]
+        },
+        "response": {
+          "type": "object",
+          "properties": {
+            "statusCode": { "type": "integer" },
+            "body": { "type": "object" }
+          },
+          "required": ["statusCode", "body"]
+        },
+        "callsOn": [],
+        "calledBy": []
+      },
+      "retryWithBackoff": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "maxRetries": { "type": "integer" },
+            "retryDelay": { "type": "integer" }
+          },
+          "required": ["maxRetries"]
+        },
+        "response": {
+          "type": "object",
+          "properties": {
+            "success": { "type": "boolean" },
+            "finalStatus": { "type": "integer" }
+          },
+          "required": ["success", "finalStatus"]
+        },
+        "callsOn": [],
+        "calledBy": []
+      }
+    }
+  }
+  

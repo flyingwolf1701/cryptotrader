@@ -15,7 +15,7 @@ components: - init.py - watchlist.py # Symbol watchlist component - chart_widget
 services: - init.py
 binance: - init.py
 models: - init.py - base_models.py # Core data models - order_models.py # Order-related models - wallet_models.py # Wallet-related models - staking_models.py # Staking-related models - otc_models.py # OTC trading models
-restAPI: - init.py # Exports all REST API functionality - base_operations.py # Core API operations - market_api.py # Market data operations - order_api.py # Order operations - system_api.py # System operations - user_api.py # User account operations
+restAPI: - init.py # Exports all REST API functionality - base_operations.py # Core API operations - market_api.py # Market data operations - order_api.py # Order operations - systemApi.py # System operations - user_api.py # User account operations
 websocketAPI: - init.py - base_operations.py # WebSocket base operations - streams/ # WebSocket streams management - account_requests/ # Account-related WS requests - market_data_requests/ # Market data WS requests - trading_requests/ # Trading WS requests
 
 components:

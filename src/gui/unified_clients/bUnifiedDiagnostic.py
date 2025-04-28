@@ -165,7 +165,7 @@ def main():
     print_test_header("Get Account")
     tests_run += 1
     try:
-        account = client.get_account()
+        account = client.getAccountRest()
         if account and hasattr(account, "balances"):
             print_success("Got account information")
             # Print a few balances with non-zero values
@@ -221,7 +221,7 @@ def main():
     print_test_header("Get Asset Details")
     tests_run += 1
     try:
-        assets = client.get_asset_details()
+        assets = client.getAssetDetails()
         if assets and len(assets) > 0:
             print_success(f"Got details for {len(assets)} assets")
             # Print a few well-known assets

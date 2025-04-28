@@ -2,22 +2,22 @@ binance_rest_api:
   description: "API functions available in the Binance REST API module."
 
   apis:
-    - group: system_api
+    - group: systemApi
       description: "Functions related to Binance system-wide information."
       functions:
-        - name: get_server_time
+        - name: getServerTime
           endpoint: "GET /api/v3/time"
           description: "Retrieves the current server time in milliseconds."
           request_shape: None
           response_shape: ServerTimeResponse
 
-        - name: get_system_status
+        - name: getSystemStatus
           endpoint: "GET /sapi/v1/system/status"
           description: "Retrieves the current system status (normal or maintenance)."
           request_shape: None
           response_shape: SystemStatusResponse
 
-        - name: get_exchange_info
+        - name: getExchangeInfo
           endpoint: "GET /api/v3/exchangeInfo"
           description: "Retrieves exchange info, optionally filtered by symbol, permissions, or status."
           request_shape: ExchangeInfoRequest
@@ -62,7 +62,7 @@ binance_rest_api:
     - group: user_api
       description: "User account related endpoints."
       functions:
-        - name: get_account_info
+        - name: getAccountRestInfo
           endpoint: "GET /api/v3/account"
           description: "Retrieves current account balances and permissions."
           request_shape: None
@@ -80,7 +80,7 @@ binance_rest_api:
     - group: wallet_api
       description: "Wallet operations endpoints."
       functions:
-        - name: get_system_status_wallet
+        - name: getSystemStatusWallet
           endpoint: "GET /sapi/v1/system/status"
           description: "Fetch system status for wallet operations."
           request_shape: None

@@ -1,0 +1,424 @@
+{
+    "models": {
+      "order_models": {
+      "PriceData": {
+        "type": "object",
+        "properties": {
+          "bidPrice": { "type": "string" },
+          "bidQty": { "type": "string" },
+          "askPrice": { "type": "string" },
+          "askQty": { "type": "string" }
+        },
+        "required": ["bidPrice", "askPrice"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "Candle": {
+        "type": "object",
+        "properties": {
+          "openTime": { "type": "integer" },
+          "open": { "type": "number" },
+          "high": { "type": "number" },
+          "low": { "type": "number" },
+          "close": { "type": "number" },
+          "volume": { "type": "number" },
+          "closeTime": { "type": "integer" },
+          "quoteAssetVolume": { "type": "number" },
+          "numberOfTrades": { "type": "integer" },
+          "takerBuyBaseVolume": { "type": "number" },
+          "takerBuyQuoteVolume": { "type": "number" }
+        },
+        "required": ["openTime", "open", "high", "low", "close", "volume"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "OrderResult": {
+        "type": "object",
+        "properties": {
+          "orderId": { "type": "integer" },
+          "symbol": { "type": "string" },
+          "clientOrderId": { "type": "string" },
+          "transactTime": { "type": "integer" }
+        },
+        "required": ["orderId", "symbol", "clientOrderId", "transactTime"],
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+    "user_models": {
+      "AccountInfoResponse": {
+        "type": "object",
+        "properties": {
+          "makerCommission": { "type": "integer" },
+          "takerCommission": { "type": "integer" },
+          "buyerCommission": { "type": "integer" },
+          "sellerCommission": { "type": "integer" },
+          "canTrade": { "type": "boolean" },
+          "canWithdraw": { "type": "boolean" },
+          "canDeposit": { "type": "boolean" },
+          "updateTime": { "type": "integer" },
+          "accountType": { "type": "string" },
+          "balances": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "asset": { "type": "string" },
+                "free": { "type": "string" },
+                "locked": { "type": "string" }
+              },
+              "required": ["asset", "free", "locked"]
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["makerCommission", "takerCommission", "buyerCommission", "sellerCommission", "canTrade", "canWithdraw", "canDeposit", "updateTime", "accountType", "balances", "permissions"],
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+      "market_models": {
+      "OrderBookEntry": {
+        "type": "object",
+        "properties": {
+          "price": { "type": "string" },
+          "qty": { "type": "string" }
+        },
+        "required": ["price", "qty"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "OrderBook": {
+        "type": "object",
+        "properties": {
+          "lastUpdateId": { "type": "integer" },
+          "bids": {
+            "type": "array",
+            "items": { "type": "OrderBookEntry" }
+          },
+          "asks": {
+            "type": "array",
+            "items": { "type": "OrderBookEntry" }
+          }
+        },
+        "required": ["lastUpdateId", "bids", "asks"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "Trade": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "price": { "type": "string" },
+          "qty": { "type": "string" },
+          "time": { "type": "integer" },
+          "isBuyerMaker": { "type": "boolean" }
+        },
+        "required": ["id", "price", "qty", "time", "isBuyerMaker"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "AggTrade": {
+        "type": "object",
+        "properties": {
+          "aggId": { "type": "integer" },
+          "price": { "type": "string" },
+          "qty": { "type": "string" },
+          "firstTradeId": { "type": "integer" },
+          "lastTradeId": { "type": "integer" },
+          "time": { "type": "integer" },
+          "isBuyerMaker": { "type": "boolean" }
+        },
+        "required": ["aggId", "price", "qty", "firstTradeId", "lastTradeId", "time", "isBuyerMaker"],
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+      "wallet_models": {
+      "DepositAddress": {
+        "type": "object",
+        "properties": {
+          "coin": { "type": "string" },
+          "address": { "type": "string" },
+          "tag": { "type": "string" },
+          "url": { "type": "string" }
+        },
+        "required": ["coin", "address"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "WithdrawHistoryItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "amount": { "type": "number" },
+          "transactionFee": { "type": "number" },
+          "address": { "type": "string" },
+          "asset": { "type": "string" },
+          "status": { "type": "integer" }
+        },
+        "required": ["id", "amount", "asset", "status"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "DepositHistoryItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "amount": { "type": "number" },
+          "address": { "type": "string" },
+          "asset": { "type": "string" },
+          "status": { "type": "integer" }
+        },
+        "required": ["id", "amount", "asset", "status"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "FiatTransactionHistoryItem": {
+        "type": "object",
+        "properties": {
+          "orderId": { "type": "string" },
+          "fiatCurrency": { "type": "string" },
+          "indicatedAmount": { "type": "number" },
+          "amount": { "type": "number" },
+          "totalFee": { "type": "number" },
+          "status": { "type": "string" }
+        },
+        "required": ["orderId", "fiatCurrency", "amount", "status"],
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+      "staking_models": {
+      "StakingAssetInfo": {
+        "type": "object",
+        "properties": {
+          "stakingAsset": { "type": "string" },
+          "rewardAsset": { "type": "string" },
+          "apr": { "type": "string" },
+          "apy": { "type": "string" },
+          "unstakingPeriod": { "type": "integer" },
+          "minStakingLimit": { "type": "string" },
+          "maxStakingLimit": { "type": "string" },
+          "autoRestake": { "type": "boolean" }
+        },
+        "required": ["stakingAsset", "rewardAsset", "apr", "apy", "unstakingPeriod", "minStakingLimit", "maxStakingLimit", "autoRestake"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "StakingOperationResult": {
+        "type": "object",
+        "properties": {
+          "result": { "type": "string" },
+          "purchaseRecordId": { "type": "string" }
+        },
+        "required": ["result", "purchaseRecordId"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "StakingBalanceItem": {
+        "type": "object",
+        "properties": {
+          "asset": { "type": "string" },
+          "stakingAmount": { "type": "string" },
+          "rewardAsset": { "type": "string" },
+          "apr": { "type": "string" },
+          "apy": { "type": "string" },
+          "autoRestake": { "type": "boolean" }
+        },
+        "required": ["asset", "stakingAmount", "rewardAsset", "apr", "apy", "autoRestake"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "StakingBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" },
+          "data": {
+            "type": "array",
+            "items": { "type": "StakingBalanceItem" }
+          },
+          "status": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "success": { "type": "boolean" }
+        },
+        "required": ["code", "message", "data", "status", "success"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "StakingHistoryItem": {
+        "type": "object",
+        "properties": {
+          "asset": { "type": "string" },
+          "amount": { "type": "string" },
+          "type": { "type": "string" },
+          "initiatedTime": { "type": "integer" },
+          "status": { "type": "string" }
+        },
+        "required": ["asset", "amount", "type", "initiatedTime", "status"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "StakingRewardItem": {
+        "type": "object",
+        "properties": {
+          "asset": { "type": "string" },
+          "amount": { "type": "string" },
+          "usdValue": { "type": "string" },
+          "time": { "type": "integer" },
+          "tranId": { "type": "integer" },
+          "autoRestaked": { "type": "boolean" }
+        },
+        "required": ["asset", "amount", "usdValue", "time", "tranId", "autoRestaked"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "StakingRewardsResponse": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" },
+          "data": {
+            "type": "array",
+            "items": { "type": "StakingRewardItem" }
+          },
+          "total": { "type": "integer" },
+          "success": { "type": "boolean" }
+        },
+        "required": ["code", "message", "data", "total", "success"],
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+      "otc_models": {
+      "OtcCoinPair": {
+        "type": "object",
+        "properties": {
+          "fromCoin": { "type": "string" },
+          "toCoin": { "type": "string" },
+          "fromCoinMinAmount": { "type": "number" },
+          "fromCoinMaxAmount": { "type": "number" },
+          "toCoinMinAmount": { "type": "number" },
+          "toCoinMaxAmount": { "type": "number" }
+        },
+        "required": ["fromCoin", "toCoin", "fromCoinMinAmount", "fromCoinMaxAmount", "toCoinMinAmount", "toCoinMaxAmount"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "OtcQuote": {
+        "type": "object",
+        "properties": {
+          "symbol": { "type": "string" },
+          "ratio": { "type": "number" },
+          "inverseRatio": { "type": "number" },
+          "validTimestamp": { "type": "integer" },
+          "toAmount": { "type": "number" },
+          "fromAmount": { "type": "number" },
+          "quoteId": { "type": "string" }
+        },
+        "required": ["symbol", "ratio", "inverseRatio", "validTimestamp", "toAmount", "fromAmount"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "OtcOrderResponse": {
+        "type": "object",
+        "properties": {
+          "orderId": { "type": "string" },
+          "createTime": { "type": "integer" },
+          "orderStatus": { "type": "string" }
+        },
+        "required": ["orderId", "createTime", "orderStatus"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "OtcOrderDetail": {
+        "type": "object",
+        "properties": {
+          "quoteId": { "type": "string" },
+          "orderId": { "type": "string" },
+          "orderStatus": { "type": "string" },
+          "fromCoin": { "type": "string" },
+          "fromAmount": { "type": "number" },
+          "toCoin": { "type": "string" },
+          "toAmount": { "type": "number" },
+          "ratio": { "type": "number" },
+          "inverseRatio": { "type": "number" },
+          "createTime": { "type": "integer" }
+        },
+        "required": ["quoteId", "orderId", "orderStatus", "fromCoin", "fromAmount", "toCoin", "toAmount", "ratio", "createTime"],
+        "callsOn": [],
+        "calledBy": []
+      },
+      "OtcOrdersResponse": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "integer" },
+          "rows": {
+            "type": "array",
+            "items": { "type": "OtcOrderDetail" }
+          }
+        },
+        "required": ["total", "rows"],
+        "callsOn": [],
+        "calledBy": []
+      }
+    },
+      "base_models": {
+        "RateLimitInfo": {
+          "type": "object",
+          "properties": {
+            "rateLimitType": { "type": "string" },
+            "interval": { "type": "string" },
+            "intervalNum": { "type": "integer" },
+            "limit": { "type": "integer" }
+          },
+          "required": ["rateLimitType", "interval", "intervalNum", "limit"],
+          "callsOn": [],
+          "calledBy": []
+        },
+        "Fill": {
+          "type": "object",
+          "properties": {
+            "price": { "type": "string" },
+            "qty": { "type": "string" },
+            "commission": { "type": "string" },
+            "commissionAsset": { "type": "string" }
+          },
+          "required": ["price", "qty", "commission", "commissionAsset"],
+          "callsOn": [],
+          "calledBy": []
+        },
+        "PreventedMatch": {
+          "type": "object",
+          "properties": {
+            "preventedMatchId": { "type": "integer" },
+            "price": { "type": "string" },
+            "qty": { "type": "string" }
+          },
+          "required": ["preventedMatchId", "price", "qty"],
+          "callsOn": [],
+          "calledBy": []
+        },
+        "OcoOrderResponse": {
+          "type": "object",
+          "properties": {
+            "orderListId": { "type": "integer" },
+            "contingencyType": { "type": "string" },
+            "listStatusType": { "type": "string" },
+            "listOrderStatus": { "type": "string" },
+            "listClientOrderId": { "type": "string" },
+            "transactionTime": { "type": "integer" }
+          },
+          "required": ["orderListId", "contingencyType", "listStatusType", "listOrderStatus", "listClientOrderId", "transactionTime"],
+          "callsOn": [],
+          "calledBy": []
+        }
+      }
+    }
+  }

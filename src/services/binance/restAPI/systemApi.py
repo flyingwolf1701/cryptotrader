@@ -45,7 +45,7 @@ class SystemOperations:
             weight=weight,
         )
 
-    def get_server_time(self) -> int:
+    def getServerTime(self) -> int:
         """
         GET /api/v3/time
         Returns server time in milliseconds.
@@ -59,7 +59,7 @@ class SystemOperations:
             return int(response['serverTime'])
         return int(time.time() * 1000)
 
-    def get_system_status(self) -> SystemStatus:
+    def getSystemStatus(self) -> SystemStatus:
         """
         GET /sapi/v1/system/status
         Returns SystemStatus dataclass (0: normal, 1: maintenance)
@@ -72,7 +72,7 @@ class SystemOperations:
         status_code = response.get('status', -1)
         return SystemStatus(status_code=status_code)
 
-    def _exchange_info(
+    def _exchangeInfo(
         self,
         symbol: Optional[str] = None,
         symbols: Optional[List[str]] = None,
@@ -110,7 +110,7 @@ class SystemOperations:
 
         return mapper.map(raw, ExchangeInfo)
 
-    def get_exchange_info(
+    def getExchangeInfo(
         self,
         symbol: Optional[str] = None,
         symbols: Optional[List[str]] = None,
@@ -121,7 +121,7 @@ class SystemOperations:
         """
         Public entry: Returns mapped ExchangeInfo for given filters.
         """
-        return self._exchange_info(
+        return self._exchangeInfo(
             symbol=symbol,
             symbols=symbols,
             permissions=permissions,

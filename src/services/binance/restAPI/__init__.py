@@ -11,11 +11,11 @@ including market data, trading operations, and system information.
 # Import API operation classes
 from services.binance.restAPI.market_api import MarketOperations
 from services.binance.restAPI.order_api import OrderOperations
-from services.binance.restAPI.system_api import SystemOperations
-from services.binance.restAPI.user_api import UserOperations
+from services.binance.restAPI.systemApi import SystemOperations
+from services.binance.restAPI.userApi import UserOperations
 from services.binance.restAPI.subaccount_api import SubAccountOperations
 from services.binance.restAPI.otc_api import OtcOperations
-from services.binance.restAPI.wallet_api import WalletOperations
+from services.binance.restAPI.walletApi import WalletOperations
 from services.binance.restAPI.staking_api import StakingOperations
 
 __all__ = [
@@ -30,9 +30,9 @@ __all__ = [
     "WalletOperations",
     "StakingOperations",
     # API Functions with endpoint paths in comments
-    "get_server_time",  # GET /api/v3/time
-    "get_system_status",  # GET /sapi/v1/system/status
-    "get_exchange_info",  # GET /api/v3/exchangeInfo
+    "getServerTime",  # GET /api/v3/time
+    "getSystemStatus",  # GET /sapi/v1/system/status
+    "getExchangeInfo",  # GET /api/v3/exchangeInfo
     "get_symbol_info",  # Uses GET /api/v3/exchangeInfo
     "get_symbols",  # Uses GET /api/v3/exchangeInfo
     "get_self_trade_prevention_modes",  # Uses GET /api/v3/exchangeInfo
@@ -57,12 +57,12 @@ __all__ = [
     "get_my_trades",  # GET /api/v3/myTrades
     "cancel_replace_order",  # POST /api/v3/order/cancelReplace
     "get_prevented_matches",  # GET /api/v3/myPreventedMatches
-    "get_account",  # GET /api/v3/account
-    "get_account_status",  # GET /sapi/v3/accountStatus
-    "get_api_trading_status",  # GET /sapi/v3/apiTradingStatus
-    "get_asset_distribution_history",  # GET /sapi/v1/asset/assetDistributionHistory
-    "get_trade_fee",  # GET /sapi/v1/asset/query/trading-fee
-    "get_trading_volume",  # GET /sapi/v1/asset/query/trading-volume
+    "getAccountRest",  # GET /api/v3/account
+    "getAccountRestStatus",  # GET /sapi/v3/accountStatus
+    "getApiTradingStatus",  # GET /sapi/v3/apiTradingStatus
+    "getAssetDistributionHistory",  # GET /sapi/v1/asset/assetDistributionHistory
+    "getTradeFee",  # GET /sapi/v1/asset/query/trading-fee
+    "getTradingVolume",  # GET /sapi/v1/asset/query/trading-volume
     "get_subaccount_list",  # GET /sapi/v3/sub-account/list
     "get_subaccount_transfer_history",  # GET /sapi/v3/sub-account/transfer/history
     "execute_subaccount_transfer",  # POST /sapi/v3/sub-account/transfer
@@ -83,16 +83,16 @@ __all__ = [
     "get_orders",  # GET /sapi/v1/otc/orders
     "get_ocbs_orders",  # GET /sapi/v1/ocbs/orders
     # Wallet Functions with endpoint paths in comments
-    "get_asset_details",  # GET /sapi/v1/capital/config/getall
-    "withdraw_fiat",  # POST /sapi/v1/fiatpayment/withdraw/apply
-    "withdraw_crypto",  # POST /sapi/v1/capital/withdraw/apply
-    "get_crypto_withdraw_history",  # GET /sapi/v1/capital/withdraw/history
-    "get_fiat_withdraw_history",  # GET /sapi/v1/fiatpayment/query/withdraw/history
-    "get_deposit_address",  # GET /sapi/v1/capital/deposit/address
-    "get_crypto_deposit_history",  # GET /sapi/v1/capital/deposit/hisrec
-    "get_fiat_deposit_history",  # GET /sapi/v1/fiatpayment/query/deposit/history
-    "get_subaccount_deposit_address",  # GET /sapi/v1/capital/sub-account/deposit/address
-    "get_subaccount_deposit_history",  # GET /sapi/v1/capital/sub-account/deposit/history
+    "getAssetDetails",  # GET /sapi/v1/capital/config/getall
+    "withdrawFiat",  # POST /sapi/v1/fiatpayment/withdraw/apply
+    "withdrawCrypto",  # POST /sapi/v1/capital/withdraw/apply
+    "getCryptoWithdrawHistory",  # GET /sapi/v1/capital/withdraw/history
+    "getFiatWithdrawHistory",  # GET /sapi/v1/fiatpayment/query/withdraw/history
+    "getDepositAddress",  # GET /sapi/v1/capital/deposit/address
+    "getCryptoDepositHistory",  # GET /sapi/v1/capital/deposit/hisrec
+    "getFiatDepositHistory",  # GET /sapi/v1/fiatpayment/query/deposit/history
+    "getAubaccountDepositAddress",  # GET /sapi/v1/capital/sub-account/deposit/address
+    "getSubaccountDepositHistory",  # GET /sapi/v1/capital/sub-account/deposit/history
     # Staking Functions with endpoint paths in comments
     "get_staking_asset_info",  # GET /sapi/v1/staking/asset
     "stake",  # POST /sapi/v1/staking/stake

@@ -36,10 +36,10 @@ class SymbolSearchLogic:
         try:
             # Fetch exchange info via MarketOperations REST method
             # Try standard and REST-specific methods for exchange info
-            if hasattr(self.client.market, "get_exchange_info"):
-                exchange_info = self.client.market.get_exchange_info()
-            elif hasattr(self.client.market, "get_exchange_info_rest"):
-                exchange_info = self.client.market.get_exchange_info_rest()
+            if hasattr(self.client.market, "getExchangeInfo"):
+                exchange_info = self.client.market.getExchangeInfo()
+            elif hasattr(self.client.market, "getExchangeInfo_rest"):
+                exchange_info = self.client.market.getExchangeInfo_rest()
             else:
                 raise AttributeError(
                     "MarketOperations client missing exchange info method"
@@ -65,7 +65,7 @@ class SymbolSearchLogic:
             logger.warning("No trading symbols found in exchange_info")
         except AttributeError:
             logger.error(
-                "MarketOperations client missing 'get_exchange_info' or 'get_exchange_info_rest' method"
+                "MarketOperations client missing 'getExchangeInfo' or 'getExchangeInfo_rest' method"
             )
         except Exception as e:
             logger.error(f"Error fetching symbols: {e}")

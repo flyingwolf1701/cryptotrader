@@ -98,7 +98,7 @@ from services.binance.websockets.trading_requests.cancel_oco_order import (
 
 # Import account request operations
 from services.binance.websockets.account_requests.get_user_acct_info import (
-    get_account_info,
+    getAccountWS,
     process_account_info_response
 )
 from services.binance.websockets.account_requests.get_order_rate_limits import (
@@ -197,7 +197,7 @@ __all__ = [
     'process_cancel_oco_order_response',
     
     # Account requests
-    'get_account_info',
+    'getAccountWS',
     'process_account_info_response',
     'get_order_rate_limits',
     'process_order_rate_limits_response',

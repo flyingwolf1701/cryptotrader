@@ -17,7 +17,7 @@ the underlying implementation in base_operations.
 from typing import Optional, List, Union
 
 from config import get_logger
-from services.binance.restAPI.system_api import SystemOperations
+from services.binance.restAPI.systemApi import SystemOperations
 from services.binance.restAPI.order_api import OrderOperations
 from services.binance.models import (
     PlaceOrderRequest, # does not exist halucination
@@ -43,11 +43,11 @@ class BinanceRestUnifiedClient:
         self.system = SystemOperations()
         self.orders = OrderOperations()
 
-    def get_exchange_info_public(self) -> ExchangeInfo:
+    def getExchangeInfo_public(self) -> ExchangeInfo:
         """
         Fetch public exchange information (symbols, trading rules, etc.).
         """
-        return self.system.get_exchange_info()
+        return self.system.getExchangeInfo()
 
     def get_24h_ticker_price(self, symbol: Optional[str] = None) -> Union[List[dict], dict]:
         """

@@ -58,7 +58,7 @@ class UserOperations:
             weight=weight
         )
     
-    def get_account(self, recv_window: Optional[int] = None) -> Optional[AccountBalance]:
+    def getAccountRest(self, recv_window: Optional[int] = None) -> Optional[AccountBalance]:
         """
         Get account information including balances.
         
@@ -81,7 +81,7 @@ class UserOperations:
             return AccountBalance.from_api_response(response)
         return None
     
-    def get_account_status(self, recv_window: Optional[int] = None) -> Optional[Dict[str, Any]]:
+    def getAccountRestStatus(self, recv_window: Optional[int] = None) -> Optional[Dict[str, Any]]:
         """
         Get account status.
         
@@ -102,7 +102,7 @@ class UserOperations:
         response = request.execute()
         return response
     
-    def get_api_trading_status(self, recv_window: Optional[int] = None) -> Optional[Dict[str, Any]]:
+    def getApiTradingStatus(self, recv_window: Optional[int] = None) -> Optional[Dict[str, Any]]:
         """
         Get API trading status.
         
@@ -123,7 +123,7 @@ class UserOperations:
         response = request.execute()
         return response
     
-    def get_asset_distribution_history(self, asset: Optional[str] = None, 
+    def getAssetDistributionHistory(self, asset: Optional[str] = None, 
                                        category: Optional[str] = None,
                                        start_time: Optional[int] = None,
                                        end_time: Optional[int] = None,
@@ -160,7 +160,7 @@ class UserOperations:
         response = request.execute()
         return response
     
-    def get_trade_fee(self, symbol: Optional[str] = None) -> Optional[List[Dict[str, Any]]]:
+    def getTradeFee(self, symbol: Optional[str] = None) -> Optional[List[Dict[str, Any]]]:
         """
         Get trading fee information.
         
@@ -181,7 +181,7 @@ class UserOperations:
         response = request.execute()
         return response
     
-    def get_trading_volume(self) -> Optional[Dict[str, Any]]:
+    def getTradingVolume(self) -> Optional[Dict[str, Any]]:
         """
         Get past 30 days trading volume.
         

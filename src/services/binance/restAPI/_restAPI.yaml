@@ -1,18 +1,18 @@
 binance_rest_api:
   description: "API functions available in the CryptoTrader Binance REST API implementation"
   
-  system_api:
+  systemApi:
     description: "Functions related to system-wide information and exchange details"
     functions:
-      get_server_time:
+      getServerTime:
         endpoint: "GET /api/v3/time"
         description: "Retrieves the current server time from Binance API in milliseconds"
       
-      get_system_status:
+      getSystemStatus:
         endpoint: "GET /sapi/v1/system/status"
         description: "Retrieves the current system status (normal or maintenance)"
       
-      get_exchange_info:
+      getExchangeInfo:
         endpoint: "GET /api/v3/exchangeInfo"
         description: "Retrieves current exchange trading rules and symbol information"
       
@@ -141,27 +141,27 @@ binance_rest_api:
   user_api:
     description: "Functions related to user account information"
     functions:
-      get_account:
+      getAccountRest:
         endpoint: "GET /api/v3/account"
         description: "Retrieves account information including balances"
       
-      get_account_status:
+      getAccountRestStatus:
         endpoint: "GET /sapi/v3/accountStatus"
         description: "Retrieves account status information"
       
-      get_api_trading_status:
+      getApiTradingStatus:
         endpoint: "GET /sapi/v3/apiTradingStatus"
         description: "Retrieves API trading status information"
       
-      get_asset_distribution_history:
+      getAssetDistributionHistory:
         endpoint: "GET /sapi/v1/asset/assetDistributionHistory"
         description: "Retrieves asset distribution history"
       
-      get_trade_fee:
+      getTradeFee:
         endpoint: "GET /sapi/v1/asset/query/trading-fee"
         description: "Retrieves trading fee information for a symbol or all symbols"
       
-      get_trading_volume:
+      getTradingVolume:
         endpoint: "GET /sapi/v1/asset/query/trading-volume"
         description: "Retrieves past 30 days trading volume"
   
@@ -195,43 +195,43 @@ binance_rest_api:
   wallet_api:
     description: "Functions related to wallet management including deposits and withdrawals"
     functions:
-      get_asset_details:
+      getAssetDetails:
         endpoint: "GET /sapi/v1/capital/config/getall"
         description: "Retrieves details of all assets including fees, withdrawal limits, and network status"
       
-      withdraw_fiat:
+      withdrawFiat:
         endpoint: "POST /sapi/v1/fiatpayment/withdraw/apply"
         description: "Submits a fiat withdrawal request"
       
-      withdraw_crypto:
+      withdrawCrypto:
         endpoint: "POST /sapi/v1/capital/withdraw/apply"
         description: "Submits a crypto withdrawal request"
       
-      get_crypto_withdraw_history:
+      getCryptoWithdrawHistory:
         endpoint: "GET /sapi/v1/capital/withdraw/history"
         description: "Retrieves crypto withdrawal history"
       
-      get_fiat_withdraw_history:
+      getFiatWithdrawHistory:
         endpoint: "GET /sapi/v1/fiatpayment/query/withdraw/history"
         description: "Retrieves fiat withdrawal history"
       
-      get_deposit_address:
+      getDepositAddress:
         endpoint: "GET /sapi/v1/capital/deposit/address"
         description: "Retrieves deposit address for a particular crypto asset"
       
-      get_crypto_deposit_history:
+      getCryptoDepositHistory:
         endpoint: "GET /sapi/v1/capital/deposit/hisrec"
         description: "Retrieves crypto deposit history"
       
-      get_fiat_deposit_history:
+      getFiatDepositHistory:
         endpoint: "GET /sapi/v1/fiatpayment/query/deposit/history"
         description: "Retrieves fiat deposit history"
       
-      get_subaccount_deposit_address:
+      getAubaccountDepositAddress:
         endpoint: "GET /sapi/v1/capital/sub-account/deposit/address"
         description: "Retrieves deposit address for a sub-account"
       
-      get_subaccount_deposit_history:
+      getSubaccountDepositHistory:
         endpoint: "GET /sapi/v1/capital/sub-account/deposit/history"
         description: "Retrieves deposit history for a sub-account"
   

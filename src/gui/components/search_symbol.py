@@ -53,10 +53,10 @@ class SymbolSearchLogic:
                 self.client.system if hasattr(self.client, "system") else None
             )
             if system_client:
-                exchange_info = system_client.get_exchange_info()
+                exchange_info = system_client.getExchangeInfo()
             else:
                 # Fallback to market client for exchange info
-                exchange_info = self.client.market.get_exchange_info()
+                exchange_info = self.client.market.getExchangeInfo()
 
             if exchange_info and "symbols" in exchange_info:
                 symbols = [

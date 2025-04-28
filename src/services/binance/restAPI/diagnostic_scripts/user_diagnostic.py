@@ -39,7 +39,7 @@ def main():
     # Test 1: Get account information
     print_test_header("Getting account information")
     try:
-        account = client.get_account()
+        account = client.getAccountRest()
         if account and account.assets:
             logger.info(f"{Fore.GREEN}Account information retrieved successfully")
             # Print assets with non-zero balances
@@ -61,7 +61,7 @@ def main():
     # Test 2: Get account status
     print_test_header("Getting account status")
     try:
-        status = client.get_account_status()
+        status = client.getAccountRestStatus()
         if status:
             logger.info(f"Account status: {status.get('msg', 'Unknown')}")
             logger.info(f"Success: {status.get('success', False)}")
@@ -74,7 +74,7 @@ def main():
     # Test 3: Get API trading status
     print_test_header("Getting API trading status")
     try:
-        trading_status = client.get_api_trading_status()
+        trading_status = client.getApiTradingStatus()
         if trading_status and trading_status.get('success'):
             status_details = trading_status.get('status', {})
             logger.info(f"API trading locked: {status_details.get('isLocked', False)}")
@@ -95,7 +95,7 @@ def main():
     # Test 4: Get trading fee
     print_test_header("Getting trading fee for BTC/USDT")
     try:
-        fees = client.get_trade_fee(symbol="BTCUSDT")
+        fees = client.getTradeFee(symbol="BTCUSDT")
         if fees and len(fees) > 0:
             for fee in fees:
                 logger.info(f"Symbol: {fee.get('symbol')}")
@@ -110,7 +110,7 @@ def main():
     # Test 5: Get trading volume
     print_test_header("Getting past 30 days trading volume")
     try:
-        volume = client.get_trading_volume()
+        volume = client.getTradingVolume()
         if volume:
             logger.info(f"Past 30 days trading volume: {volume.get('past30DaysTradingVolume', 'Unknown')}")
         else:
@@ -122,7 +122,7 @@ def main():
     # Test 6: Get asset distribution history
     print_test_header("Getting asset distribution history")
     try:
-        distribution = client.get_asset_distribution_history(limit=5)
+        distribution = client.getAssetDistributionHistory(limit=5)
         if distribution and distribution.get('success'):
             distributions = distribution.get('results', [])
             logger.info(f"Retrieved {len(distributions)} asset distributions")

@@ -91,7 +91,7 @@ src/
     │   │   ├── otc_api.py
     │   │   ├── staking_api.py
     │   │   ├── subaccount_api.py
-    │   │   ├── system_api.py
+    │   │   ├── systemApi.py
     │   │   ├── user_api.py
     │   │   └── wallet_api.py
     │   └── websockets/

@@ -66,7 +66,7 @@ class WalletOperations:
             method=method, endpoint=endpoint, limit_type=limit_type, weight=weight
         )
 
-    def get_asset_details(self, recv_window: Optional[int] = None) -> List[AssetDetail]:
+    def getAssetDetails(self, recv_window: Optional[int] = None) -> List[AssetDetail]:
         """
         Get details of all assets including fees, withdrawal limits, and network status.
 
@@ -95,7 +95,7 @@ class WalletOperations:
 
         return asset_details
 
-    def withdraw_fiat(
+    def withdrawFiat(
         self,
         payment_method: str,
         payment_account: str,
@@ -146,7 +146,7 @@ class WalletOperations:
             return FiatWithdrawResponse.from_api_response(response)
         return None
 
-    def withdraw_crypto(
+    def withdrawCrypto(
         self,
         coin: str,
         network: str,
@@ -205,7 +205,7 @@ class WalletOperations:
             return CryptoWithdrawResponse.from_api_response(response)
         return None
 
-    def get_crypto_withdraw_history(
+    def getCryptoWithdrawHistory(
         self,
         coin: Optional[str] = None,
         withdraw_order_id: Optional[str] = None,
@@ -275,7 +275,7 @@ class WalletOperations:
 
         return history_items
 
-    def get_fiat_withdraw_history(
+    def getFiatWithdrawHistory(
         self,
         fiat_currency: Optional[str] = None,
         order_id: Optional[str] = None,
@@ -342,7 +342,7 @@ class WalletOperations:
             return FiatWithdrawHistory.from_api_response(response)
         return None
 
-    def get_deposit_address(
+    def getDepositAddress(
         self,
         coin: str,
         network: Optional[str] = None,
@@ -385,7 +385,7 @@ class WalletOperations:
             return DepositAddress.from_api_response(response)
         return None
 
-    def get_crypto_deposit_history(
+    def getCryptoDepositHistory(
         self,
         coin: Optional[str] = None,
         status: Optional[int] = None,
@@ -449,7 +449,7 @@ class WalletOperations:
 
         return history_items
 
-    def get_fiat_deposit_history(
+    def getFiatDepositHistory(
         self,
         fiat_currency: Optional[str] = None,
         order_id: Optional[str] = None,
@@ -516,7 +516,7 @@ class WalletOperations:
             return FiatDepositHistory.from_api_response(response)
         return None
 
-    def get_subaccount_deposit_address(
+    def getAubaccountDepositAddress(
         self, email: str, coin: str, network: Optional[str] = None
     ) -> Optional[DepositAddress]:
         """
@@ -553,7 +553,7 @@ class WalletOperations:
             return DepositAddress.from_api_response(response)
         return None
 
-    def get_subaccount_deposit_history(
+    def getSubaccountDepositHistory(
         self,
         email: str,
         coin: Optional[str] = None,

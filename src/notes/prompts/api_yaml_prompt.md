@@ -5,7 +5,7 @@ You are creating structured YAML documentation for a REST API client.
 Follow this exact format:
 
 ## Structure:
-- **Top-level**: Group APIs by service name (e.g., `system_api`, `market_data_api`).
+- **Top-level**: Group APIs by service name (e.g., `systemApi`, `market_data_api`).
 - **Each function must include**:
   - `endpoint`: HTTP method and path (e.g., `"GET /api/v3/time"`).
   - `description`: What the endpoint does. Clear, one or two sentences.

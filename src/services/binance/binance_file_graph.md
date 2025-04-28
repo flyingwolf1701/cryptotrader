@@ -18,7 +18,7 @@ src/cryptotrader/services/binance/
 │   ├── _restAPI.yaml          # API documentation in YAML format
 │   ├── _restAPI_design_doc.md # Design documentation for REST API
 │   ├── base_operations.py     # Core request functionality
-│   ├── system_api.py          # System information operations
+│   ├── systemApi.py          # System information operations
 │   ├── market_api.py          # Market data operations
 │   ├── order_api.py           # Order operations
 │   ├── user_api.py            # User account operations
