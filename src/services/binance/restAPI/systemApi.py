@@ -111,7 +111,7 @@ class SystemOperations:
             .execute()
         ) or {}
 
-        return mapper.map(raw, ExchangeInfo)
+        return mapper.to(ExchangeInfo).map(raw)
 
     def getExchangeInfo(
         self,
