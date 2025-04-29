@@ -83,7 +83,7 @@ def main():
     print_test_header("Getting Order Rate Limits")
     try:
         # This endpoint requires API key, but we're not actually placing orders
-        rate_limits = client.get_order_rate_limits()
+        rate_limits = client.getOrderRateLimitsRest()
         if rate_limits:
             logger.info(
                 f"{Fore.GREEN}Order rate limits retrieved: {len(rate_limits)} limits"

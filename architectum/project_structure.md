@@ -102,7 +102,7 @@ src/
     │       │   ├── acct_order_history.py
     │       │   ├── acct_prevented_matches.py
     │       │   ├── acct_trade_history.py
-    │       │   ├── get_order_rate_limits.py
+    │       │   ├── getOrderRateLimitsRest.py
     │       │   └── get_user_acct_info.py
     │       ├── base_operations.py
     │       ├── diagnostic_scripts/
@@ -155,9 +155,9 @@ src/
     │       │   └── trading_requests_structure.yaml
     │       ├── user_data_stream_requests/
     │       │   ├── __init__.py
-    │       │   ├── ping_user_data_stream.py
-    │       │   ├── start_user_data_stream.py
-    │       │   ├── stop_user_data_stream.py
+    │       │   ├── pingUserDataStream.py
+    │       │   ├── startUserDataStream.py
+    │       │   ├── stopUserDataStream.py
     │       │   └── user_data_stream_structure.yaml
     │       ├── wsDesignDoc.md
     │       └── wsStructureDoc.yaml

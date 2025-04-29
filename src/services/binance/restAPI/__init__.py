@@ -53,7 +53,7 @@ __all__ = [
     "get_order_status",  # GET /api/v3/order
     "get_open_orders",  # GET /api/v3/openOrders
     "get_all_orders",  # GET /api/v3/allOrders
-    "get_order_rate_limits",  # GET /api/v3/rateLimit/order
+    "getOrderRateLimitsRest",  # GET /api/v3/rateLimit/order
     "get_my_trades",  # GET /api/v3/myTrades
     "cancel_replace_order",  # POST /api/v3/order/cancelReplace
     "getPreventedMatchesRest",  # GET /api/v3/myPreventedMatches

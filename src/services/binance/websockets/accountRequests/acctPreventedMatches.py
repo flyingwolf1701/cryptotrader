@@ -131,7 +131,7 @@ async def getPreventedMatchesWS(
     return msg_id
 
 
-async def process_prevented_matches_response(
+async def processPreventedMatchesResponse(
     response: Dict[str, Any],
 ) -> Optional[List[PreventedMatch]]:
     """

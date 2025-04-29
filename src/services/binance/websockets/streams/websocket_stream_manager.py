@@ -132,7 +132,7 @@ class BinanceStreamManager:
 
             # Start tasks
             self.ping_task = asyncio.create_task(self._pingLoop())
-            self.receive_task = asyncio.create_task(self._receive_loop())
+            self.receive_task = asyncio.create_task(self._receiveLoop())
             self.connection_monitoring_task = asyncio.create_task(
                 self._monitorConnectionAge()
             )
@@ -501,7 +501,7 @@ class BinanceStreamManager:
                 if not self.is_closing:
                     await self._reconnect()
 
-    async def _receive_loop(self):
+    async def _receiveLoop(self):
         """Receive and process incoming WebSocket messages."""
         while self.is_connected and not self.is_closing:
             try:

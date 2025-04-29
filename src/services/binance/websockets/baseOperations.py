@@ -188,7 +188,7 @@ class BinanceWebSocketConnection:
 
             # Start tasks
             self.ping_task = asyncio.create_task(self._pingLoop())
-            self.receive_task = asyncio.create_task(self._receive_loop())
+            self.receive_task = asyncio.create_task(self._receiveLoop())
             self.connection_monitoring_task = asyncio.create_task(
                 self._monitorConnectionAge()
             )
@@ -216,7 +216,7 @@ class BinanceWebSocketConnection:
                     await self.websocket.send(json.dumps(ping_message))
                     logger.debug(f"Sent ping message with ID: {ping_id}")
 
-                    # Wait for pong response (handled in _receive_loop)
+                    # Wait for pong response (handled in _receiveLoop)
                     # If no activity for pong_timeout, we'll reconnect
                     wait_until = time.time() + self.pong_timeout
                     while (
@@ -260,7 +260,7 @@ class BinanceWebSocketConnection:
             except Exception as e:
                 logger.error(f"Error in connection monitoring: {str(e)}")
 
-    async def _receive_loop(self):
+    async def _receiveLoop(self):
         """Receive and process incoming WebSocket messages."""
         while self.is_connected and not self.is_closing:
             try:

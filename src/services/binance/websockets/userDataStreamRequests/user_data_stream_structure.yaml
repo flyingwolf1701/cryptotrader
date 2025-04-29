@@ -10,10 +10,10 @@ dependencies:
 user_data_stream_requests:
 description: "WebSocket requests for managing User Data Stream from the Binance API"
 modules:
-start_user_data_stream:
+startUserDataStream:
 description: "Start a new user data stream"
 requests:
-start_user_data_stream:
+startUserDataStream:
 description: "Start a new user data stream to receive account updates"
 endpoint: "userDataStream.start"
 weight: 1
@@ -26,10 +26,10 @@ notes:
 - "The listenKey should be used with a separate WebSocket connection for receiving account updates"
 - "User data streams provide real-time account update events"
 
-ping_user_data_stream:
+pingUserDataStream:
   description: "Ping a user data stream to keep it alive"
   requests:
-    ping_user_data_stream:
+    pingUserDataStream:
       description: "Ping a user data stream to prevent it from closing"
       endpoint: "userDataStream.ping"
       weight: 1
@@ -43,10 +43,10 @@ ping_user_data_stream:
         - "It is recommended to send a ping once every 30 minutes"
         - "The ping request extends the validity of the listenKey for 60 minutes"
 
-stop_user_data_stream:
+stopUserDataStream:
   description: "Explicitly stop and close a user data stream"
   requests:
-    stop_user_data_stream:
+    stopUserDataStream:
       description: "Stop and close a user data stream when no longer needed"
       endpoint: "userDataStream.stop"
       weight: 1
@@ -59,7 +59,7 @@ stop_user_data_stream:
         - "This will invalidate the listenKey and close any open WebSocket connections using it"
         - "It's a good practice to stop streams when they're no longer needed to free up server resources"
 response_formats:
-start_user_data_stream:
+startUserDataStream:
 description: "Start user data stream response format"
 example: |
 {
@@ -79,7 +79,7 @@ example: |
 ]
 }
 
-ping_user_data_stream:
+pingUserDataStream:
   description: "Ping user data stream response format"
   example: |
     {
@@ -97,7 +97,7 @@ ping_user_data_stream:
       ]
     }
 
-stop_user_data_stream:
+stopUserDataStream:
   description: "Stop user data stream response format"
   example: |
     {
@@ -117,9 +117,9 @@ stop_user_data_stream:
 usage_workflow:
 description: "Typical workflow for using user data streams"
 steps:
-- "Call start_user_data_stream to obtain a listenKey"
+- "Call startUserDataStream to obtain a listenKey"
 - "Connect to the User Data Stream WebSocket endpoint (wss://stream.binance.us:443) with the listenKey in the URL"
 - "Set up a regular ping every 30 minutes to keep the stream alive"
 - "Process account updates received on the WebSocket connection"
-- "When finished, call stop_user_data_stream to explicitly close the stream"
+- "When finished, call stopUserDataStream to explicitly close the stream"
 

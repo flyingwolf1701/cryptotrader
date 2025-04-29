@@ -391,7 +391,7 @@ class OrderOperations:
             return [OrderStatusResponse.from_api_response(order) for order in response]
         return []
 
-    def get_order_rate_limits(self) -> List[RateLimitInfo]:
+    def getOrderRateLimitsRest(self) -> List[RateLimitInfo]:
         """
         Get the current order rate limits for all time intervals.
 
