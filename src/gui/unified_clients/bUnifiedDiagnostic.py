@@ -8,6 +8,8 @@ Usage:
     python src/cryptotrader/services/binance/diagnostic_scripts/rest_unified_client_diagnostic.py
 """
 
+# File: src/cryptotrader/services/binance/diagnostic_scripts/rest_unified_client_diagnostic.py
+
 import sys
 from pathlib import Path
 import traceback
@@ -45,7 +47,7 @@ def print_section_header(section_name):
 
 def main():
     logger.info(f"Added {project_root} to Python path")
-    logger.info("Initializing Binance REST Unified Client...")
+    logger.info("Initializing Binance REST Unified Client.")
     client = BinanceRestUnifiedClient()
 
     tests_run = 0
@@ -54,18 +56,19 @@ def main():
     # System API Tests
     print_section_header("System API Tests")
 
-    # Test 1: Exchange Info
-    print_test_header("Get Exchange Info")
+    # Test 1: Search Binance Symbols
+    print_test_header("Search Binance Symbols")
     tests_run += 1
     try:
-        info = client.getExchangeInfo_public()
-        if info:
-            print_success("Fetched exchange info")
+        symbol_provider = client.search_binance_symbols()
+        symbols = symbol_provider() if callable(symbol_provider) else symbol_provider
+        if symbols and TEST_SYMBOL in symbols:
+            print_success(f"Found symbol {TEST_SYMBOL}")
             tests_passed += 1
         else:
-            print_error("No exchange info returned")
+            print_error(f"Symbol '{TEST_SYMBOL}' not found in symbols")
     except Exception as e:
-        print_error(f"Error fetching exchange info: {e}")
+        print_error(f"Error searching symbols: {e}")
         logger.debug(traceback.format_exc())
 
     # Test 2: 24h Ticker Price
