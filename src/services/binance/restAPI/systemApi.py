@@ -18,14 +18,13 @@ from typing import Dict, List, Optional, Any, Union
 from config import get_logger
 from services.binance.restAPI.baseOperations import BinanceAPIRequest
 from services.binance.models import SystemStatus, RateLimitType, ExchangeInfo
-from config.mapper import mapper
 
 logger = get_logger(__name__)
 
 
 class SystemOperations:
     """
-    Binance system API client using a single /exchangeInfo call and AutoMapper.
+    Binance system API client using a single /exchangeInfo r.
     Provides server time, system status, and unified exchange info access.
     """
 
@@ -111,7 +110,7 @@ class SystemOperations:
             .execute()
         ) or {}
 
-        return mapper.to(ExchangeInfo).map(raw)
+        return ExchangeInfo.from_api_response(raw)
 
     def getExchangeInfo(
         self,
