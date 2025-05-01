@@ -311,6 +311,32 @@ class ExchangeInfo:
     exchangeFilters: List[Dict[str, Any]]
     symbols: List[SymbolInfo]
 
+    @classmethod
+    def from_api_response(cls, data: Dict[str, Any]) -> "ExchangeInfo":
+        # Parse rate limits
+        rate_limits = [
+            RateLimit(
+                rateLimitType=RateLimitType(item["rateLimitType"]),
+                interval=RateLimitInterval(item["interval"]),
+                intervalNum=int(item["intervalNum"]),
+                limit=int(item["limit"]),
+            )
+            for item in data.get("rateLimits", [])
+        ]
+        # Parse symbols
+        symbols = [
+            SymbolInfo.from_api_response(s)
+            for s in data.get("symbols", [])
+        ]
+
+        return cls(
+            timezone=data.get("timezone", ""),
+            serverTime=int(data.get("serverTime", 0)),
+            rateLimits=rate_limits,
+            exchangeFilters=data.get("exchangeFilters", []),
+            symbols=symbols,
+        )
+
 @dataclass
 class Trade:
     """Data structure for a single trade"""
