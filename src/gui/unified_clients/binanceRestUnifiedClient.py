@@ -30,11 +30,17 @@ class BinanceRestUnifiedClient:
         self.system = SystemOperations()
         self.orders = OrderOperations()
 
-    def getExchangeInfo_public(self) -> ExchangeInfo:
+    # def getExchangeInfo_public(self) -> ExchangeInfo:
+    #     """
+    #     Fetch public exchange information (symbols, trading rules, etc.).
+    #     """
+    #     return self.system.getExchangeInfo()
+    
+    def search_binance_symbols(self):
         """
-        Fetch public exchange information (symbols, trading rules, etc.).
+        A searchable set of symbols available in binance
         """
-        return self.system.getExchangeInfo()
+        return self.system.get_binance_symbols
 
     def get_24h_ticker_price(
         self, symbol: Optional[str] = None

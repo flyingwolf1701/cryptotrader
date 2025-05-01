@@ -5,7 +5,8 @@ This module provides a client for interacting with Binance system-wide API endpo
 It includes functionality for:
 - Server time retrieval
 - System status checks
-- Exchange information retrieval
+- Exchange information retrieval (with in-memory caching)
+- Helpers for symbol lookup
 
 These endpoints provide information about the Binance platform itself rather
 than specific market data or trading operations.
@@ -13,23 +14,34 @@ than specific market data or trading operations.
 
 import json
 import time
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any, Set
 
 from config import get_logger
+from services.binance.models.base_models import (
+    ExchangeInfo,
+    SymbolInfo,
+    SymbolStatus,
+)
+from services.binance.models import SystemStatus, RateLimitType
 from services.binance.restAPI.baseOperations import BinanceAPIRequest
-from services.binance.models import SystemStatus, RateLimitType, ExchangeInfo
 
 logger = get_logger(__name__)
 
 
 class SystemOperations:
     """
-    Binance system API client using a single /exchangeInfo r.
-    Provides server time, system status, and unified exchange info access.
+    Binance system API client.  
+    Provides:
+      - getServerTime()
+      - getSystemStatus()
+      - getExchangeInfo() with full dataclass parsing
+      - get_symbols(): map symbol→SymbolInfo
+      - get_binance_symbols(): cached Set[str] of symbols
     """
 
     def __init__(self):
-        pass
+        # In-memory cache for the last-fetched ExchangeInfo
+        self._exchange_info_cache: Optional[ExchangeInfo] = None
 
     def request(
         self,
@@ -50,29 +62,27 @@ class SystemOperations:
         GET /api/v3/time
         Returns server time in milliseconds.
         """
-        response = (
+        resp = (
             self.request("GET", "/api/v3/time", RateLimitType.REQUEST_WEIGHT, 1)
             .requiresAuth(False)
             .execute()
         )
-        if isinstance(response, dict) and "serverTime" in response:
-            return int(response["serverTime"])
+        if isinstance(resp, dict) and "serverTime" in resp:
+            return int(resp["serverTime"])
         return int(time.time() * 1000)
 
     def getSystemStatus(self) -> SystemStatus:
         """
         GET /sapi/v1/system/status
-        Returns SystemStatus dataclass (0: normal, 1: maintenance)
+        Returns SystemStatus dataclass with:
+          status_code: 0 = normal, 1 = maintenance
         """
-        response = (
-            self.request(
-                "GET", "/sapi/v1/system/status", RateLimitType.REQUEST_WEIGHT, 1
-            )
+        resp = (
+            self.request("GET", "/sapi/v1/system/status", RateLimitType.REQUEST_WEIGHT, 1)
             .requiresAuth(False)
             .execute()
         ) or {}
-        status_code = response.get("status", -1)
-        return SystemStatus(status_code=status_code)
+        return SystemStatus(status_code=resp.get("status", -1))
 
     def _exchangeInfo(
         self,
@@ -83,8 +93,8 @@ class SystemOperations:
         symbol_status: Optional[str] = None,
     ) -> ExchangeInfo:
         """
-        Internal helper: single GET /api/v3/exchangeInfo call with weight=20,
-        returning mapped ExchangeInfo dataclass.
+        Internal helper: GET /api/v3/exchangeInfo (weight=20)
+        Returns parsed ExchangeInfo dataclass.
         """
         params: Dict[str, Any] = {}
         if symbol:
@@ -99,12 +109,7 @@ class SystemOperations:
             params["symbolStatus"] = symbol_status
 
         raw = (
-            self.request(
-                "GET",
-                "/api/v3/exchangeInfo",
-                RateLimitType.REQUEST_WEIGHT,
-                20,
-            )
+            self.request("GET", "/api/v3/exchangeInfo", RateLimitType.REQUEST_WEIGHT, 20)
             .requiresAuth(False)
             .withQueryParams(**params)
             .execute()
@@ -121,7 +126,8 @@ class SystemOperations:
         symbol_status: Optional[str] = None,
     ) -> ExchangeInfo:
         """
-        Public entry: Returns mapped ExchangeInfo for given filters.
+        Public entry point for exchangeInfo.
+        Applies the same filters as _exchangeInfo.
         """
         return self._exchangeInfo(
             symbol=symbol,
@@ -130,3 +136,36 @@ class SystemOperations:
             show_permission_sets=show_permission_sets,
             symbol_status=symbol_status,
         )
+
+    def refresh_exchange_info(self) -> None:
+        """
+        Clears the cached ExchangeInfo.
+        Next call to get_binance_symbols or get_symbols will fetch fresh data.
+        """
+        self._exchange_info_cache = None
+
+    def get_symbols(self) -> Dict[str, SymbolInfo]:
+        """
+        Returns a dict mapping symbol string → SymbolInfo object for all symbols.
+        Uses cached ExchangeInfo if available.
+        """
+        if self._exchange_info_cache is None:
+            self._exchange_info_cache = self.getExchangeInfo()
+        return {s.symbol: s for s in self._exchange_info_cache.symbols}
+
+    def get_binance_symbols(self, only_trading: bool = True) -> Set[str]:
+        """
+        Returns a set of symbol strings.
+        
+        Args:
+          only_trading: if True, only include symbols whose status == TRADING.
+        
+        Uses in-memory cache; call refresh_exchange_info() to refetch.
+        """
+        if self._exchange_info_cache is None:
+            self._exchange_info_cache = self.getExchangeInfo()
+
+        symbols = self._exchange_info_cache.symbols
+        if only_trading:
+            return {s.symbol for s in symbols if s.status == SymbolStatus.TRADING}
+        return {s.symbol for s in symbols}

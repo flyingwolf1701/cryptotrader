@@ -13,7 +13,7 @@ from .base_models import (
     AccountAsset, AccountBalance, OrderStatusResponse,
     SymbolInfo, Trade, AggTrade, OrderBookEntry, OrderBook,
     TickerPrice, AvgPrice, PriceStatsMini, PriceStats, 
-    RollingWindowStatsMini, RollingWindowStats, BinanceEndpoints, ExchangeInfo
+    RollingWindowStatsMini, RollingWindowStats, BinanceEndpoints, ExchangeInfo, SymbolInfo
 )
 
 # Import from order_models
@@ -56,6 +56,7 @@ __all__ = [
     'SymbolInfo', 'Trade', 'AggTrade', 'OrderBookEntry', 'OrderBook',
     'TickerPrice', 'AvgPrice', 'PriceStatsMini', 'PriceStats', 
     'RollingWindowStatsMini', 'RollingWindowStats', 'BinanceEndpoints',
+    'ExchangeInfo', 'SymbolInfo',
     
     # Order Models
     'CancelReplaceMode', 'NewOrderResponseType', 'CancelRestriction',
