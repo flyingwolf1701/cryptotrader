@@ -4,55 +4,43 @@ Binance REST Unified Client Diagnostic Script
 Tests the Binance REST Unified Client to verify functionality.
 
 Usage:
-    From the project root:
-    python src/cryptotrader/services/binance/diagnostic_scripts/rest_unified_client_diagnostic.py
+    # As a module (after installation/editable install):
+    python -m cryptotrader.services.binance.diagnostic_scripts.rest_unified_client_diagnostic
+
+    # Or via console script (if configured):
+    rest-unified-client-diagnostic
 """
 
-# File: src/cryptotrader/services/binance/diagnostic_scripts/rest_unified_client_diagnostic.py
-
-import sys
-from pathlib import Path
 import traceback
 from colorama import Fore, Style, init
-
-# Initialize colorama
-init(autoreset=True)
-
-project_root = Path(__file__).parents[3]  # …/python_crypto_trader
-src_folder = project_root / "src"  # …/python_crypto_trader/src
-
-# 1) so `import config` finds config.py in the project root
-sys.path.insert(0, str(project_root))
-# 2) so `import gui` and `import services` work from inside src/
-sys.path.insert(0, str(src_folder))
-
 from cryptotrader.config import get_logger
-from gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
+from cryptotrader.services.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
 
+# Initialize colorama for colored console output
+init(autoreset=True)
 logger = get_logger(__name__)
 
-TEST_SYMBOL = "BTCUSDT"  # Use a common trading pair for testing
+TEST_SYMBOL = "BTCUSDT"  # Common trading pair for testing
 
 
-def print_test_header(test_name):
+def print_test_header(test_name: str) -> None:
     print(f"\n{Fore.CYAN}Test: {test_name}{Style.RESET_ALL}")
 
 
-def print_success(message):
+def print_success(message: str) -> None:
     print(f"{Fore.GREEN}✓ {message}{Style.RESET_ALL}")
 
 
-def print_error(message):
+def print_error(message: str) -> None:
     print(f"{Fore.RED}✗ {message}{Style.RESET_ALL}")
 
 
-def print_section_header(section_name):
+def print_section_header(section_name: str) -> None:
     print(f"\n{Fore.MAGENTA}=== {section_name} ==={Style.RESET_ALL}")
 
 
-def main():
-    logger.info(f"Added {project_root} to Python path")
-    logger.info("Initializing Binance REST Unified Client.")
+def main() -> None:
+    logger.info("Initializing Binance REST Unified Client for diagnostics.")
     client = BinanceRestUnifiedClient()
 
     tests_run = 0
@@ -61,19 +49,18 @@ def main():
     # System API Tests
     print_section_header("System API Tests")
 
-    # Test 1: Search Binance Symbols
-    print_test_header("Search Binance Symbols")
+    # Test 1: Fetch Binance Symbols
+    print_test_header("Fetch Binance Symbols")
     tests_run += 1
     try:
-        symbol_provider = client.search_binance_symbols()
-        symbols = symbol_provider() if callable(symbol_provider) else symbol_provider
-        if symbols and TEST_SYMBOL in symbols:
+        symbols = client.get_binance_symbols()
+        if TEST_SYMBOL in symbols:
             print_success(f"Found symbol {TEST_SYMBOL}")
             tests_passed += 1
         else:
-            print_error(f"Symbol '{TEST_SYMBOL}' not found in symbols")
+            print_error(f"Symbol '{TEST_SYMBOL}' not found in symbol list.")
     except Exception as e:
-        print_error(f"Error searching symbols: {e}")
+        print_error(f"Error fetching symbol list: {e}")
         logger.debug(traceback.format_exc())
 
     # Test 2: 24h Ticker Price
@@ -85,7 +72,7 @@ def main():
             print_success(f"Fetched 24h ticker price for {TEST_SYMBOL}")
             tests_passed += 1
         else:
-            print_error("No 24h ticker price returned")
+            print_error("No 24h ticker data returned.")
     except Exception as e:
         print_error(f"Error fetching 24h ticker price: {e}")
         logger.debug(traceback.format_exc())
@@ -102,7 +89,7 @@ def main():
             print_success(f"Fetched open orders ({len(open_orders)})")
             tests_passed += 1
         else:
-            print_error("Failed to fetch open orders")
+            print_error("No open orders returned.")
     except Exception as e:
         print_error(f"Error fetching open orders: {e}")
         logger.debug(traceback.format_exc())
@@ -116,7 +103,7 @@ def main():
             print_success(f"Fetched recent trades ({len(trades)})")
             tests_passed += 1
         else:
-            print_error("Failed to fetch recent trades")
+            print_error("No trade data returned.")
     except Exception as e:
         print_error(f"Error fetching recent trades: {e}")
         logger.debug(traceback.format_exc())
@@ -127,7 +114,7 @@ def main():
     print(f"Tests passed: {tests_passed}")
 
     if tests_passed < tests_run:
-        print_error("Some tests failed. Check logs/API keys and endpoint availability.")
+        print_error("Some tests failed. Check API keys and endpoint availability.")
 
     logger.info("Diagnostic completed.")
 

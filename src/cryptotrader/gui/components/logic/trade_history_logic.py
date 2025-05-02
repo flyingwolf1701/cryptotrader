@@ -7,7 +7,7 @@ Handles fetching trade data and calculating PNL.
 
 from typing import List, Optional
 from cryptotrader.config import get_logger
-from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import (
+from cryptotrader.services.unified_clients.binanceRestUnifiedClient import (
     BinanceRestUnifiedClient,
 )
 

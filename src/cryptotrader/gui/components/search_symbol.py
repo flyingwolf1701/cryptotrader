@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 from cryptotrader.config import get_logger
-from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import (
+from cryptotrader.services.unified_clients.binanceRestUnifiedClient import (
     BinanceRestUnifiedClient,
 )
 from cryptotrader.gui.components.styles import Colors

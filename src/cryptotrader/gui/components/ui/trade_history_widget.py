@@ -12,7 +12,7 @@ from typing import Optional, List
 from cryptotrader.config import get_logger
 from cryptotrader.gui.components.ui.symbol_search_widget import SymbolSearchWidget
 from cryptotrader.gui.components.logic.trade_history_logic import TradeHistoryLogic
-from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import (
+from cryptotrader.services.unified_clients.binanceRestUnifiedClient import (
     BinanceRestUnifiedClient,
 )
 
