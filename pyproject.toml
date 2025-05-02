@@ -10,7 +10,6 @@ dependencies = [
     "httpx>=0.28.1",
     "matplotlib>=3.10.1",
     "numpy>=2.2.5",
-    "py-automapper>=2.2.0",
     "python-dotenv>=1.1.0",
     "questionary>=2.1.0",
     "ruff>=0.9.7",
@@ -28,3 +27,10 @@ pythonpath = "src"
 
 [tool.uv.workspace]
 members = ["cryptotrader"]
+
+[build-system]
+requires = ["setuptools>=60.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+watchlist-demo        = "cryptotrader.gui.components.demos.watchlist_demo:main"
