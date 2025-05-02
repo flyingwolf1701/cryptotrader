@@ -18,8 +18,8 @@ from typing import Dict, List, Optional, Any, Union, Tuple
 
 import httpx
 
-from config import get_logger, Secrets
-from services.binance.models import (
+from cryptotrader.config import get_logger, Secrets
+from cryptotrader.services.binance.models import (
     RateLimit,
     RateLimitType,
     RateLimitInterval,

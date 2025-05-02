@@ -13,10 +13,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 
-from src.services.binance.restAPI import MarketOperations
+from cryptotrader.services.binance.restAPI import MarketOperations
 from cryptotrader.gui.components.chart_widget import ChartWidget
 from gui.components.watchlist_component import WatchlistWidget
-from config import get_logger
+from cryptotrader.config import get_logger
 
 logger = get_logger(__name__)
 

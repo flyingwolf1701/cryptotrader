@@ -9,7 +9,7 @@ import tkinter as tk
 from tkinter import ttk
 
 # Import centralized configuration and styling
-from config import get_logger
+from cryptotrader.config import get_logger
 from cryptotrader.gui.components.styles import Colors, apply_theme
 from cryptotrader.gui.layouts.overview_layout import OverviewLayout
 from cryptotrader.gui.components.watchlist_component import WatchlistWidget
@@ -106,7 +106,7 @@ class MainLayout(tk.Tk):
         self.watchlist_widget.set_available_symbols(available_symbols)
 
         logger.info("Watchlist tab initialized")
-    
+
     def _setup_trading_tab(self):
         """Set up the Trading tab (placeholder)."""
         # TODO: Hook TradingWidget here when ready
@@ -115,7 +115,9 @@ class MainLayout(tk.Tk):
 
     def _setup_trade_history_tab(self):
         """Set up the Trade History tab."""
-        from cryptotrader.gui.components.ui.trade_history_widget import TradeHistoryWidget
+        from cryptotrader.gui.components.ui.trade_history_widget import (
+            TradeHistoryWidget,
+        )
 
         self.trade_history_widget = TradeHistoryWidget(self.trade_history_tab)
         self.trade_history_widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)

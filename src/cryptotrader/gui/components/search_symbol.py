@@ -13,8 +13,10 @@ import os
 import sys
 from pathlib import Path
 
-from config import get_logger
-from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
+from cryptotrader.config import get_logger
+from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import (
+    BinanceRestUnifiedClient,
+)
 from cryptotrader.gui.components.styles import Colors
 
 project_root = Path(__file__).resolve().parent.parent.parent.parent

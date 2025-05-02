@@ -23,8 +23,8 @@ project_root = Path(__file__).parent.parent.parent.parent.parent  # src director
 sys.path.insert(0, str(project_root))
 
 # Import our modules
-from config import get_logger
-from services.binance.restAPI import SystemOperations
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.restAPI import SystemOperations
 
 logger = get_logger(__name__)
 
@@ -175,6 +175,7 @@ def main():
     except Exception as e:
         logger.error(f"Error retrieving exchange information: {str(e)}")
         logger.debug(traceback.format_exc())
+
 
 if __name__ == "__main__":
     main()

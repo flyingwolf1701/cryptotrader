@@ -16,9 +16,9 @@ trades outside of the regular exchange order book.
 import json
 from typing import Dict, List, Optional, Any, Union
 
-from config import get_logger
-from services.binance.restAPI.baseOperations import BinanceAPIRequest
-from services.binance.models import (
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.restAPI.baseOperations import BinanceAPIRequest
+from cryptotrader.services.binance.models import (
     OtcCoinPair,
     OtcQuote,
     OtcOrderResponse,

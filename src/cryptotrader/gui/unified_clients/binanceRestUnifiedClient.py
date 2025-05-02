@@ -2,13 +2,16 @@
 
 from typing import Optional, List, Set, Union
 
-from config import get_logger
-from services.binance.restAPI.systemApi import SystemOperations
-from services.binance.restAPI.orderApi import OrderOperations
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.restAPI.systemApi import SystemOperations
+from cryptotrader.services.binance.restAPI.orderApi import OrderOperations
 
 # Import only the real classes that actually exist:
-from services.binance.models.base_models import OrderRequest, OrderStatus, ExchangeInfo  # :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
-from services.binance.models.order_models import (
+from cryptotrader.services.binance.models.base_models import (
+    OrderRequest,
+    OrderStatus,
+)  # :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
+from cryptotrader.services.binance.models.order_models import (
     OrderResponseFull,
     OrderResponseResult,
     OrderResponseAck,
@@ -29,7 +32,7 @@ class BinanceRestUnifiedClient:
         self.logger = get_logger(__name__)
         self.system = SystemOperations()
         self.orders = OrderOperations()
-    
+
     def get_binance_symbols(self, only_trading: bool = True) -> Set[str]:
         """
         Return the current set of Binance symbols (defaults to only those in TRADING status).
@@ -69,7 +72,9 @@ class BinanceRestUnifiedClient:
         """
         return self.orders.get_order_status(order_id, symbol)
 
-    def get_open_orders(self, symbol: Optional[str] = None) -> List[OrderResponseResult]:
+    def get_open_orders(
+        self, symbol: Optional[str] = None
+    ) -> List[OrderResponseResult]:
         """
         Retrieve all open spot orders, optionally filtered by symbol.
         """

@@ -7,12 +7,12 @@ It follows the Binance WebSocket API specifications for the 'account.rateLimits.
 
 from typing import Dict, List, Optional, Any, Callable, Awaitable
 
-from config import get_logger
-from services.binance.websockets.baseOperations import (
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.websockets.baseOperations import (
     BinanceWebSocketConnection,
     SecurityType,
 )
-from services.binance.models.order_models import RateLimitInfo
+from cryptotrader.services.binance.models.order_models import RateLimitInfo
 
 logger = get_logger(__name__)
 

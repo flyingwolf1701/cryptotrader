@@ -15,7 +15,7 @@ project_root = Path(
 sys.path.insert(0, str(project_root))
 
 # Import from local modules
-from config import get_logger
+from cryptotrader.config import get_logger
 from gui.main_layout import MainLayout
 
 # Configure logging

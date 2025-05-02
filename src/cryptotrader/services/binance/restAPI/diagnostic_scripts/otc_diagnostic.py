@@ -23,9 +23,9 @@ project_root = Path(__file__).parent.parent.parent.parent.parent  # src director
 sys.path.insert(0, str(project_root))
 
 # Import our modules
-from config import get_logger
-from services.binance.restAPI import OtcOperations
-from services.binance.models import OtcOrderStatus
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.restAPI import OtcOperations
+from cryptotrader.services.binance.models import OtcOrderStatus
 
 logger = get_logger(__name__)
 

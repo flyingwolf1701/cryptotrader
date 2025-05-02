@@ -9,10 +9,12 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Optional, List
 
-from config import get_logger
+from cryptotrader.config import get_logger
 from cryptotrader.gui.components.ui.symbol_search_widget import SymbolSearchWidget
 from cryptotrader.gui.components.logic.trade_history_logic import TradeHistoryLogic
-from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
+from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import (
+    BinanceRestUnifiedClient,
+)
 
 logger = get_logger(__name__)
 
@@ -43,12 +45,14 @@ class TradeHistoryWidget(ttk.Frame):
             top_frame,
             on_select=self._on_symbol_selected,
             width=30,
-            client=self.unified_client
+            client=self.unified_client,
         )
         self.symbol_search.pack(fill=tk.X, padx=5, pady=5)
 
         # Table
-        self._table = ttk.Treeview(self, columns=("side", "qty", "price", "time"), show="headings")
+        self._table = ttk.Treeview(
+            self, columns=("side", "qty", "price", "time"), show="headings"
+        )
         for col in ("side", "qty", "price", "time"):
             self._table.heading(col, text=col.capitalize())
             self._table.column(col, anchor="center")
@@ -57,11 +61,15 @@ class TradeHistoryWidget(ttk.Frame):
 
         # PNL label
         self.pnl_var = tk.StringVar(value="PNL: -")
-        self.pnl_label = ttk.Label(self, textvariable=self.pnl_var, font=("Segoe UI", 10, "bold"))
+        self.pnl_label = ttk.Label(
+            self, textvariable=self.pnl_var, font=("Segoe UI", 10, "bold")
+        )
         self.pnl_label.pack(side=tk.TOP, pady=5)
 
         # Refresh button
-        self.refresh_button = ttk.Button(self, text="Refresh", command=self._refresh_trades)
+        self.refresh_button = ttk.Button(
+            self, text="Refresh", command=self._refresh_trades
+        )
         self.refresh_button.pack(side=tk.TOP, pady=5)
 
     def _on_symbol_selected(self, symbol: str):
@@ -81,13 +89,14 @@ class TradeHistoryWidget(ttk.Frame):
 
         for trade in self.trades:
             self._table.insert(
-                "", "end",
+                "",
+                "end",
                 values=(
                     trade["side"],
-                    f'{float(trade["qty"]):.6f}',
-                    f'{float(trade["price"]):.2f}',
-                    trade["time"]
-                )
+                    f"{float(trade['qty']):.6f}",
+                    f"{float(trade['price']):.2f}",
+                    trade["time"],
+                ),
             )
 
     def _update_pnl(self):

@@ -7,12 +7,12 @@ It follows the Binance WebSocket API specifications for the 'avgPrice' endpoint.
 
 from typing import Dict, Optional, Any, Callable, Awaitable
 
-from config import get_logger
-from services.binance.websockets.baseOperations import (
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.websockets.baseOperations import (
     BinanceWebSocketConnection,
     SecurityType,
 )
-from services.binance.models import AvgPrice
+from cryptotrader.services.binance.models import AvgPrice
 
 logger = get_logger(__name__)
 

@@ -18,32 +18,37 @@ from colorama import Fore, Style, init
 # Initialize colorama
 init(autoreset=True)
 
-project_root = Path(__file__).parents[3]      # …/python_crypto_trader
-src_folder   = project_root / "src"           # …/python_crypto_trader/src
+project_root = Path(__file__).parents[3]  # …/python_crypto_trader
+src_folder = project_root / "src"  # …/python_crypto_trader/src
 
 # 1) so `import config` finds config.py in the project root
 sys.path.insert(0, str(project_root))
 # 2) so `import gui` and `import services` work from inside src/
 sys.path.insert(0, str(src_folder))
 
-from config import get_logger
+from cryptotrader.config import get_logger
 from gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
 
 logger = get_logger(__name__)
 
 TEST_SYMBOL = "BTCUSDT"  # Use a common trading pair for testing
 
+
 def print_test_header(test_name):
     print(f"\n{Fore.CYAN}Test: {test_name}{Style.RESET_ALL}")
+
 
 def print_success(message):
     print(f"{Fore.GREEN}✓ {message}{Style.RESET_ALL}")
 
+
 def print_error(message):
     print(f"{Fore.RED}✗ {message}{Style.RESET_ALL}")
 
+
 def print_section_header(section_name):
     print(f"\n{Fore.MAGENTA}=== {section_name} ==={Style.RESET_ALL}")
+
 
 def main():
     logger.info(f"Added {project_root} to Python path")
@@ -125,6 +130,7 @@ def main():
         print_error("Some tests failed. Check logs/API keys and endpoint availability.")
 
     logger.info("Diagnostic completed.")
+
 
 if __name__ == "__main__":
     main()

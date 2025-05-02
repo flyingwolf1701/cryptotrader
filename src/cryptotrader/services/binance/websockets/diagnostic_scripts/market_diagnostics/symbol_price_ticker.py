@@ -18,25 +18,35 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 # Add the src directory to the Python path
-project_root = Path(__file__).parent.parent.parent.parent.parent.parent.parent  # src directory
+project_root = Path(
+    __file__
+).parent.parent.parent.parent.parent.parent.parent  # src directory
 sys.path.insert(0, str(project_root))
 
 # Import our modules
-from config import get_logger
-from services.binance.websockets.market_data_requests.symbol_price_ticker import (
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.websockets.market_data_requests.symbol_price_ticker import (
     get_price_ticker,
-    process_price_ticker_response
+    process_price_ticker_response,
 )
 
 logger = get_logger(__name__)
 
 # Test constants
 TEST_SYMBOL = "BTCUSDT"  # Use a common trading pair for testing
-TEST_SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "ADAUSDT"]  # Multiple symbols for testing
+TEST_SYMBOLS = [
+    "BTCUSDT",
+    "ETHUSDT",
+    "BNBUSDT",
+    "SOLUSDT",
+    "ADAUSDT",
+]  # Multiple symbols for testing
+
 
 def print_test_header(test_name):
     """Print a test header in cyan color"""
     logger.info(f"\n{Fore.CYAN}Test: {test_name}{Style.RESET_ALL}")
+
 
 def print_test_result(success, message=None):
     """Print a test result in green (success) or red (failure)"""
@@ -49,91 +59,93 @@ def print_test_result(success, message=None):
         if message:
             logger.error(f"  {message}")
 
+
 async def main():
     """Run the symbol price ticker diagnostic test"""
     logger.info(f"Added {project_root} to Python path")
-    
+
     print_test_header("Setting up WebSocket connection")
-    
+
     # Setup message handler
     response_received = False
     response_data = None
     connection = None
-    
+
     async def on_message(message):
         nonlocal response_received, response_data
         response_received = True
         response_data = message
         logger.debug(f"Received message: {message}")
-    
+
     async def on_error(error):
         logger.error(f"WebSocket error: {str(error)}")
-    
+
     try:
         # Create a simple WebSocket connection
-        from services.binance.websockets.baseOperations import BinanceWebSocketConnection
-        connection = BinanceWebSocketConnection(
-            on_message=on_message,
-            on_error=on_error
+        from cryptotrader.services.binance.websockets.baseOperations import (
+            BinanceWebSocketConnection,
         )
-        
+
+        connection = BinanceWebSocketConnection(
+            on_message=on_message, on_error=on_error
+        )
+
         await connection.connect()
         logger.info("WebSocket connection established")
-        
+
         # Test 1: Single symbol price ticker
         print_test_header(f"Getting price ticker for {TEST_SYMBOL}")
         response_received = False
-        
+
         # Send request
-        msg_id = await get_price_ticker(
-            connection=connection,
-            symbol=TEST_SYMBOL
-        )
-        
+        msg_id = await get_price_ticker(connection=connection, symbol=TEST_SYMBOL)
+
         logger.info(f"Request sent with ID: {msg_id}")
-        
+
         # Wait for response
         for _ in range(10):  # Wait up to 5 seconds
             if response_received:
                 break
             await asyncio.sleep(0.5)
-        
+
         # Process response
         if response_received:
             ticker = await process_price_ticker_response(response_data)
             if ticker:
-                print_test_result(True, f"Successfully retrieved price ticker for {TEST_SYMBOL}")
+                print_test_result(
+                    True, f"Successfully retrieved price ticker for {TEST_SYMBOL}"
+                )
                 logger.info(f"  Symbol: {ticker.symbol}")
                 logger.info(f"  Price: {ticker.price}")
             else:
                 print_test_result(False, "Failed to process price ticker response")
         else:
             print_test_result(False, "No response received")
-        
+
         # Test 2: Multiple symbols price tickers
         print_test_header(f"Getting price tickers for multiple symbols: {TEST_SYMBOLS}")
         response_received = False
-        
+
         # Send request
-        msg_id = await get_price_ticker(
-            connection=connection,
-            symbols=TEST_SYMBOLS
-        )
-        
+        msg_id = await get_price_ticker(connection=connection, symbols=TEST_SYMBOLS)
+
         logger.info(f"Request sent with ID: {msg_id}")
-        
+
         # Wait for response
         for _ in range(10):  # Wait up to 5 seconds
             if response_received:
                 break
             await asyncio.sleep(0.5)
-        
+
         # Process response
         if response_received:
             tickers = await process_price_ticker_response(response_data)
             if tickers and isinstance(tickers, list):
-                print_test_result(True, f"Successfully retrieved price tickers for {len(tickers)} symbols")
-                
+                print_test_result(
+                    True,
+                    f"Successfully retrieved price tickers for {len(tickers)} symbols",
+                )
+
                 # Display all tickers in a table format
                 logger.info(f"Current prices:")
                 max_symbol_len = max(len(ticker.symbol) for ticker in tickers)
@@ -146,16 +158,17 @@ async def main():
                 print_test_result(False, "Failed to process multiple symbols response")
         else:
             print_test_result(False, "No response received")
-    
+
     except Exception as e:
         logger.error(f"Error during test: {str(e)}")
         logger.error(traceback.format_exc())
-    
+
     finally:
         # Close connection
         if connection:
             await connection.close()
             logger.info("WebSocket connection closed")
+
 
 if __name__ == "__main__":
     try:
@@ -165,4 +178,3 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Fatal error in diagnostic: {str(e)}")
         logger.error(traceback.format_exc())
-        

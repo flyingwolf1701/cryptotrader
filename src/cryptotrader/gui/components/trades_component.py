@@ -15,7 +15,7 @@ from tkinter import ttk
 from datetime import datetime
 import typing
 
-from config import get_logger
+from cryptotrader.config import get_logger
 from cryptotrader.gui.components.styles import Colors
 
 logger = get_logger(__name__)

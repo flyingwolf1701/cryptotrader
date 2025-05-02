@@ -25,8 +25,8 @@ project_root = Path(
 sys.path.insert(0, str(project_root))
 
 # Import our modules
-from config import get_logger
-from services.binance.websockets.market_data_requests.klines import (
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.websockets.market_data_requests.klines import (
     get_klines_ws,
     process_klines_response,
 )
@@ -67,7 +67,7 @@ async def main():
     try:
         # Create a simple WebSocket connection
         # The get_klines_ws function will use this connection
-        from services.binance.websockets.baseOperations import (
+        from cryptotrader.services.binance.websockets.baseOperations import (
             BinanceWebSocketConnection,
         )
 

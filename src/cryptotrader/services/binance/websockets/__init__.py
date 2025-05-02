@@ -6,145 +6,147 @@ including market data, trading operations, and system information.
 """
 
 # Import base operations
-from services.binance.websockets.baseOperations import (
+from cryptotrader.services.binance.websockets.baseOperations import (
     BinanceWebSocketConnection,
     SecurityType,
 )
 
 # Import market data request operations
-from services.binance.websockets.market_data_requests.order_book import (
+from cryptotrader.services.binance.websockets.market_data_requests.order_book import (
     get_order_book_ws,
     process_order_book_response,
 )
-from services.binance.websockets.market_data_requests.recent_trades import (
+from cryptotrader.services.binance.websockets.market_data_requests.recent_trades import (
     get_recent_trades_ws,
     process_recent_trades_response,
 )
-from services.binance.websockets.market_data_requests.historical_trades import (
+from cryptotrader.services.binance.websockets.market_data_requests.historical_trades import (
     get_historical_trades_ws,
     process_historical_trades_response,
 )
-from services.binance.websockets.market_data_requests.klines import (
+from cryptotrader.services.binance.websockets.market_data_requests.klines import (
     get_klines_ws,
     process_klines_response,
 )
-from services.binance.websockets.market_data_requests.aggregate_trades import (
+from cryptotrader.services.binance.websockets.market_data_requests.aggregate_trades import (
     get_aggregate_trades_ws,
     process_aggregate_trades_response,
 )
-from services.binance.websockets.market_data_requests.symbol_price_ticker import (
+from cryptotrader.services.binance.websockets.market_data_requests.symbol_price_ticker import (
     get_price_ticker,
     process_price_ticker_response,
 )
-from services.binance.websockets.market_data_requests.symbol_order_book_ticker import (
+from cryptotrader.services.binance.websockets.market_data_requests.symbol_order_book_ticker import (
     get_book_ticker,
     process_book_ticker_response,
 )
-from services.binance.websockets.market_data_requests.ticker_price_24h import (
+from cryptotrader.services.binance.websockets.market_data_requests.ticker_price_24h import (
     get_24h_ticker,
     process_24h_ticker_response,
 )
-from services.binance.websockets.market_data_requests.rolling_window_price import (
+from cryptotrader.services.binance.websockets.market_data_requests.rolling_window_price import (
     getRollingWindowStatsWS,
     process_rolling_window_response,
 )
-from services.binance.websockets.market_data_requests.current_average_price import (
+from cryptotrader.services.binance.websockets.market_data_requests.current_average_price import (
     getAvgPriceWS,
     process_avg_price_response,
 )
 
 # Import trading request operations
-from services.binance.websockets.trading_requests.place_new_order import (
+from cryptotrader.services.binance.websockets.trading_requests.place_new_order import (
     place_new_order,
     process_place_order_response,
 )
-from services.binance.websockets.trading_requests.testNewOrderWS import (
+from cryptotrader.services.binance.websockets.trading_requests.testNewOrderWS import (
     testNewOrderWS,
     process_test_order_response,
 )
-from services.binance.websockets.trading_requests.replace_order import (
+from cryptotrader.services.binance.websockets.trading_requests.replace_order import (
     replace_order,
     process_replace_order_response,
 )
-from services.binance.websockets.trading_requests.query_order import (
+from cryptotrader.services.binance.websockets.trading_requests.query_order import (
     query_order,
     process_query_order_response,
 )
-from services.binance.websockets.trading_requests.current_open_orders import (
+from cryptotrader.services.binance.websockets.trading_requests.current_open_orders import (
     get_current_open_orders,
     process_open_orders_response,
 )
-from services.binance.websockets.trading_requests.cancelOrderWS import (
+from cryptotrader.services.binance.websockets.trading_requests.cancelOrderWS import (
     cancelOrderWS,
     process_cancel_order_response,
 )
-from services.binance.websockets.trading_requests.cancel_open_orders import (
+from cryptotrader.services.binance.websockets.trading_requests.cancel_open_orders import (
     cancel_open_orders,
     process_cancel_open_orders_response,
 )
-from services.binance.websockets.trading_requests.create_new_oco_order import (
+from cryptotrader.services.binance.websockets.trading_requests.create_new_oco_order import (
     create_new_oco_order,
     process_create_oco_order_response,
 )
-from services.binance.websockets.trading_requests.getOcoOrderWS import (
+from cryptotrader.services.binance.websockets.trading_requests.getOcoOrderWS import (
     getOcoOrderWS,
     process_get_oco_order_response,
 )
-from services.binance.websockets.trading_requests.getOpenOcoOrdersWS import (
+from cryptotrader.services.binance.websockets.trading_requests.getOpenOcoOrdersWS import (
     getOpenOcoOrdersWS,
     process_open_oco_orders_response,
 )
-from services.binance.websockets.trading_requests.cancel_oco_order import (
+from cryptotrader.services.binance.websockets.trading_requests.cancel_oco_order import (
     cancel_oco_order,
     process_cancel_oco_order_response,
 )
 
 # Import account request operations
-from services.binance.websockets.accountRequests.getUserAcctInfo import (
+from cryptotrader.services.binance.websockets.accountRequests.getUserAcctInfo import (
     getAccountWS,
     processAccountInfoResponse,
 )
-from services.binance.websockets.accountRequests.getOrderRateLimits import (
+from cryptotrader.services.binance.websockets.accountRequests.getOrderRateLimits import (
     getOrderRateLimitsWS,
     processOrderRateLimitsResponse,
 )
-from services.binance.websockets.accountRequests.acctOrderHistory import (
+from cryptotrader.services.binance.websockets.accountRequests.acctOrderHistory import (
     getOrderHistoryWS,
     process_order_history_response,
 )
-from services.binance.websockets.trading_requests.acct_oco_history import (
+from cryptotrader.services.binance.websockets.trading_requests.acct_oco_history import (
     get_oco_history,
     process_oco_history_response,
 )
-from services.binance.websockets.accountRequests.acctTradeHistory import (
+from cryptotrader.services.binance.websockets.accountRequests.acctTradeHistory import (
     getTradeHistoryWS,
     processTradeHistoryResponse,
 )
-from services.binance.websockets.accountRequests.acctPreventedMatches import (
+from cryptotrader.services.binance.websockets.accountRequests.acctPreventedMatches import (
     getPreventedMatchesWS,
     processPreventedMatchesResponse,
 )
 
 # Import user data stream request operations
-from services.binance.websockets.userDataStreamRequests.startUserDataStream import (
+from cryptotrader.services.binance.websockets.userDataStreamRequests.startUserDataStream import (
     startUserDataStream,
     processStartUserDataStreamResponse,
 )
-from services.binance.websockets.userDataStreamRequests.pingUserDataStream import (
+from cryptotrader.services.binance.websockets.userDataStreamRequests.pingUserDataStream import (
     pingUserDataStream,
     processPingUserDataStream,
 )
-from services.binance.websockets.userDataStreamRequests.stopUserDataStream import (
+from cryptotrader.services.binance.websockets.userDataStreamRequests.stopUserDataStream import (
     stopUserDataStream,
     processStopUserDataStreamResponse,
 )
 
 # Import stream management classes
-from services.binance.websockets.streams.websocket_stream_manager import (
+from cryptotrader.services.binance.websockets.streams.websocket_stream_manager import (
     BinanceStreamManager,
     createMarketStream,
 )
-from services.binance.websockets.streams.user_data_stream import UserDataStream
+from cryptotrader.services.binance.websockets.streams.user_data_stream import (
+    UserDataStream,
+)
 
 __all__ = [
     # Base operations

@@ -9,14 +9,14 @@ including market data, trading operations, and system information.
 # from .services.binance.restAPI.base_operations import BinanceAPIRequest
 
 # Import API operation classes
-from services.binance.restAPI.marketApi import MarketOperations
-from services.binance.restAPI.orderApi import OrderOperations
-from services.binance.restAPI.systemApi import SystemOperations
-from services.binance.restAPI.userApi import UserOperations
-from services.binance.restAPI.subaccountApi import SubAccountOperations
-from services.binance.restAPI.otcApi import OtcOperations
-from services.binance.restAPI.walletApi import WalletOperations
-from services.binance.restAPI.stakingApi import StakingOperations
+from cryptotrader.services.binance.restAPI.marketApi import MarketOperations
+from cryptotrader.services.binance.restAPI.orderApi import OrderOperations
+from cryptotrader.services.binance.restAPI.systemApi import SystemOperations
+from cryptotrader.services.binance.restAPI.userApi import UserOperations
+from cryptotrader.services.binance.restAPI.subaccountApi import SubAccountOperations
+from cryptotrader.services.binance.restAPI.otcApi import OtcOperations
+from cryptotrader.services.binance.restAPI.walletApi import WalletOperations
+from cryptotrader.services.binance.restAPI.stakingApi import StakingOperations
 
 __all__ = [
     # Client classes

@@ -25,8 +25,8 @@ project_root = Path(
 sys.path.insert(0, str(project_root))
 
 # Import our modules
-from config import get_logger
-from services.binance.websockets.market_data_requests.current_average_price import (
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.websockets.market_data_requests.current_average_price import (
     getAvgPriceWS,
     process_avg_price_response,
 )
@@ -64,7 +64,7 @@ async def main():
 
     try:
         # Create a simple WebSocket connection
-        from services.binance.websockets.baseOperations import (
+        from cryptotrader.services.binance.websockets.baseOperations import (
             BinanceWebSocketConnection,
         )
 

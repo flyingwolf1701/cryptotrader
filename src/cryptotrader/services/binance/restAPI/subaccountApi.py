@@ -16,9 +16,9 @@ institutional or professional users who manage multiple accounts.
 
 from typing import Dict, List, Optional, Any, Union
 
-from config import get_logger
-from services.binance.restAPI.baseOperations import BinanceAPIRequest
-from services.binance.models import RateLimitType
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.restAPI.baseOperations import BinanceAPIRequest
+from cryptotrader.services.binance.models import RateLimitType
 
 logger = get_logger(__name__)
 

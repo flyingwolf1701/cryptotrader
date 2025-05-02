@@ -17,8 +17,8 @@ These functions handle trading operations via the Binance API.
 
 from typing import Dict, List, Optional, Any, Union
 
-from config import get_logger
-from services.binance.models import (
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.models import (
     OrderRequest,
     OrderStatusResponse,
     RateLimitType,
@@ -31,7 +31,7 @@ from services.binance.models import (
     RateLimitInfo,
     OcoOrderResponse,
 )
-from services.binance.restAPI.baseOperations import BinanceAPIRequest
+from cryptotrader.services.binance.restAPI.baseOperations import BinanceAPIRequest
 
 logger = get_logger(__name__)
 

@@ -31,7 +31,7 @@ class: MainWindow
 base_class: tkinter.Tk
 responsibilities: - Set up application layout - Initialize API clients - Create and manage UI components - Handle data updates and refreshes - Load initial market data
 components: - left_frame: "Frame for chart and watchlist" - right_frame: "Frame for tabbed panels" - tabs: "Notebook widget for tabbed interface"
-imports: - tkinter - tkinter.ttk - matplotlib - config.get_logger - src.services.binance.restAPI
+imports: - tkinter - tkinter.ttk - matplotlib - config.get_logger - cryptotrader.services.binance.restAPI
 exports: - MainWindow
 
 watchlist:
@@ -183,7 +183,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 
 import_guidelines:
 description: "Guidelines for organizing imports in the application"
-rules: - "Use absolute imports from the src directory (e.g., from config import get_logger)" - "Group imports by standard library, third-party, and local modules" - "Import specific classes/functions rather than entire modules when possible" - "Keep import statements at the top of the file" - "Avoid circular imports by careful module organization"
+rules: - "Use absolute imports from the src directory (e.g., fromcryptotrader.config import get_logger)" - "Group imports by standard library, third-party, and local modules" - "Import specific classes/functions rather than entire modules when possible" - "Keep import statements at the top of the file" - "Avoid circular imports by careful module organization"
 example: | # Standard library imports
 import os
 import time
@@ -197,8 +197,8 @@ from datetime import datetime
       import matplotlib.pyplot as plt
 
       # Local imports
-      from config import get_logger
-      from src.services.binance.restAPI import MarketOperations
+      from cryptotrader.config import get_logger
+      from cryptotrader.services.binance.restAPI import MarketOperations
 
 error_handling:
 description: "Guidelines for error handling in the application"

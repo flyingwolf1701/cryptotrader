@@ -9,7 +9,7 @@ import tkinter as tk
 from tkinter import ttk
 import logging
 
-from config import get_logger  # Use when integrating with the main app
+from cryptotrader.config import get_logger  # Use when integrating with the main app
 from gui.components.watchlist_component import WatchlistWidget
 
 # Configure basic logging (use this for standalone testing)

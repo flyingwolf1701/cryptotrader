@@ -24,8 +24,8 @@ from matplotlib.patches import Rectangle
 import matplotlib.axes
 import numpy as np
 
-from config import get_logger
-from src.services.binance.models import Candle
+from cryptotrader.config import get_logger
+from cryptotrader.services.binance.models import Candle
 from cryptotrader.gui.components.styles import Colors
 
 logger = get_logger(__name__)

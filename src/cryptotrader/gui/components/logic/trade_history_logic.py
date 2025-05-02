@@ -6,8 +6,10 @@ Handles fetching trade data and calculating PNL.
 """
 
 from typing import List, Optional
-from config import get_logger
-from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
+from cryptotrader.config import get_logger
+from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import (
+    BinanceRestUnifiedClient,
+)
 
 logger = get_logger(__name__)
 

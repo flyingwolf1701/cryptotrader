@@ -9,8 +9,7 @@ Symbol entry, exchange selector, and Add button are all here.
 import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import List, Dict
-
-from config import get_logger
+from cryptotrader.config import get_logger
 from cryptotrader.gui.components.logic.watchlist_logic import WatchlistLogic
 from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
 

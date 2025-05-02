@@ -6,7 +6,7 @@ Handles symbol validation, searching, and fetching price updates using the Unifi
 """
 
 from typing import Callable, Optional, List
-from config import get_logger
+from cryptotrader.config import get_logger
 from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
 
 logger = get_logger(__name__)

@@ -1,8 +1,9 @@
 import time
 from typing import List, Dict
-from config import get_logger
+from cryptotrader.config import get_logger
 
 logger = get_logger(__name__)
+
 
 class LoggingLogic:
     """Handles logging operations separate from the UI."""
@@ -12,11 +13,7 @@ class LoggingLogic:
 
     def add_log(self, message: str, level: str = "INFO") -> Dict:
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        log_entry = {
-            "timestamp": timestamp,
-            "level": level.upper(),
-            "message": message
-        }
+        log_entry = {"timestamp": timestamp, "level": level.upper(), "message": message}
         self.logs.append(log_entry)
 
         if level.upper() == "ERROR":

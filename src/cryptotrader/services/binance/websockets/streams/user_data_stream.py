@@ -18,7 +18,7 @@ import httpx
 import websockets
 from websockets.exceptions import ConnectionClosed
 
-from config import get_logger, Secrets
+from cryptotrader.config import get_logger, Secrets
 from .services.binance.websocketAPI.websocket_stream_manager import BinanceStreamManager
 
 logger = get_logger(__name__)

@@ -7,38 +7,38 @@ and rate limits.
 """
 
 # Import base operations
-from services.binance.websockets.baseOperations import (
+from cryptotrader.services.binance.websockets.baseOperations import (
     BinanceWebSocketConnection,
     SecurityType,
 )
 
 # Import account operation functions
-from services.binance.websockets.accountRequests.getUserAcctInfo import (
+from cryptotrader.services.binance.websockets.accountRequests.getUserAcctInfo import (
     getAccountWS,
     processAccountInfoResponse,
 )
 
-from services.binance.websockets.accountRequests.getOrderRateLimits import (
+from cryptotrader.services.binance.websockets.accountRequests.getOrderRateLimits import (
     getOrderRateLimitsWS,
     processOrderRateLimitsResponse,
 )
 
-from services.binance.websockets.accountRequests.acctOrderHistory import (
+from cryptotrader.services.binance.websockets.accountRequests.acctOrderHistory import (
     getOrderHistoryWS,
     process_order_history_response,
 )
 
-from services.binance.websockets.trading_requests.acct_oco_history import (
+from cryptotrader.services.binance.websockets.trading_requests.acct_oco_history import (
     get_oco_history,
     process_oco_history_response,
 )
 
-from services.binance.websockets.accountRequests.acctTradeHistory import (
+from cryptotrader.services.binance.websockets.accountRequests.acctTradeHistory import (
     getTradeHistoryWS,
     processTradeHistoryResponse,
 )
 
-from services.binance.websockets.accountRequests.acctPreventedMatches import (
+from cryptotrader.services.binance.websockets.accountRequests.acctPreventedMatches import (
     getPreventedMatchesWS,
     processPreventedMatchesResponse,
 )

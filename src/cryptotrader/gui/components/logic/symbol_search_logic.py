@@ -5,9 +5,11 @@ Business logic for fetching, caching, and filtering trading symbols.
 
 import threading
 from typing import List, Set, Callable, Optional
-from config import get_logger
+from cryptotrader.config import get_logger
 
-from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
+from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import (
+    BinanceRestUnifiedClient,
+)
 
 logger = get_logger(__name__)
 

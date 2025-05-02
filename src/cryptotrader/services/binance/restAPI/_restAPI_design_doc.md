@@ -397,7 +397,7 @@ Example Implementation
 from typing import Dict, List, Optional, Any
 
 from .config import get_logger
-from src.services.binance.restAPI.base_operations import BinanceAPIRequest
+from cryptotrader.services.binance.restAPI.base_operations import BinanceAPIRequest
 from .services.binance.models import RateLimitType, SomeResponseModel
 
 logger = get_logger(__name__)

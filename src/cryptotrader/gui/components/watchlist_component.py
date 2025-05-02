@@ -9,10 +9,12 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Dict, List, Callable, Any, Optional, Set
 
-from config import get_logger
+from cryptotrader.config import get_logger
 from cryptotrader.gui.components.styles import Colors
 from cryptotrader.gui.components.search_symbol import SymbolSearchWidget
-from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import BinanceRestUnifiedClient
+from cryptotrader.gui.unified_clients.binanceRestUnifiedClient import (
+    BinanceRestUnifiedClient,
+)
 
 logger = get_logger(__name__)
 
