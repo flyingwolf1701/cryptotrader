@@ -1,95 +1,93 @@
-# file: architectum/scripts/file_structure_to_md.py
+# architectum/scripts/file_structure_to_md.py
 
-import os
 import argparse
+from pathlib import Path
 from typing import Optional
 
-# Ignore hidden folders and common build/system folders
 IGNORED_FOLDERS = {"__pycache__", ".git", ".venv", "node_modules", "dist"}
 
 
-def generate_directory_tree(
-    base_path: str,
+def generate_tree(
+    base: Path,
     indent: str = "",
-    current_depth: int = 0,
+    last: bool = False,
     max_depth: Optional[int] = None,
+    depth: int = 0,
 ) -> str:
-    """
-    Walk base_path and return a markdown-style tree (lines prefixed with ├── or └──).
-    """
+    if max_depth is not None and depth > max_depth:
+        return ""
     entries = sorted(
-        [
-            e
-            for e in os.listdir(base_path)
-            if not e.startswith(".") and e not in IGNORED_FOLDERS
-        ]
+        [p for p in base.iterdir() if not p.name.startswith(".") and p.name not in IGNORED_FOLDERS]
     )
-    tree_lines = []
+    lines = []
     for idx, entry in enumerate(entries):
-        full_path = os.path.join(base_path, entry)
         is_last = idx == len(entries) - 1
-        connector = "└── " if is_last else "├── "
-        if os.path.isdir(full_path):
-            tree_lines.append(f"{indent}{connector}{entry}/")
-            subtree = generate_directory_tree(
-                full_path,
+        conn = "└── " if is_last else "├── "
+        lines.append(f"{indent}{conn}{entry.name}{'/' if entry.is_dir() else ''}")
+        if entry.is_dir():
+            sub = generate_tree(
+                entry,
                 indent + ("    " if is_last else "│   "),
-                current_depth + 1,
+                is_last,
                 max_depth,
+                depth + 1,
             )
-            if subtree:
-                tree_lines.append(subtree)
-        else:
-            tree_lines.append(f"{indent}{connector}{entry}")
-    return "\n".join(tree_lines)
+            if sub:
+                lines.append(sub)
+    return "\n".join(lines)
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generate Markdown directory trees for both your app and your specs."
-    )
-    parser.add_argument(
-        "--depth", type=int, default=None, help="Optional max depth to recurse."
-    )
-    args = parser.parse_args()
+    cwd = Path.cwd()
+    default_spec = cwd / "src" / "architectum" / "cryptotrader_specs"
+    default_app = cwd / "src" / "cryptotrader"
+    default_out = cwd / "src" / "architectum" / "project_overview"
 
-    # locate project root and set up output folder
-    SCRIPT_DIR = os.path.dirname(__file__)
-    PROJECT_ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "../.."))
-    OUTPUT_DIR = os.path.join(
-        PROJECT_ROOT_DIR, "src", "architectum", "project_overview"
+    p = argparse.ArgumentParser(description="Dump markdown trees for your app and specs.")
+    p.add_argument(
+        "--depth", "-d", type=int, default=None, help="Max recursion depth"
     )
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    p.add_argument(
+        "--spec-dir",
+        type=Path,
+        default=default_spec,
+        help="Where your specs live (e.g. src/architectum/cryptotrader_specs)",
+    )
+    p.add_argument(
+        "--app-dir",
+        type=Path,
+        default=default_app,
+        help="Where your code lives (e.g. src/cryptotrader)",
+    )
+    p.add_argument(
+        "--out-dir",
+        type=Path,
+        default=default_out,
+        help="Where to write the .md files",
+    )
+    args = p.parse_args()
 
-    # 1) Specs structure
-    SPEC_SRC_DIR = os.path.join(
-        PROJECT_ROOT_DIR, "src", "architectum", "cryptotrader_specs"
-    )
-    SPEC_OUTPUT = os.path.join(
-        OUTPUT_DIR, "architectum_specs_structure.md"
-    )
-    spec_tree = generate_directory_tree(
-        SPEC_SRC_DIR, current_depth=0, max_depth=args.depth
-    )
-    with open(SPEC_OUTPUT, "w", encoding="utf-8") as f:
-        f.write("```\n")
-        f.write("cryptotrader_specs/\n")
-        f.write(spec_tree)
-        f.write("\n```")
-    print(f"✅ Specs directory structure written to {SPEC_OUTPUT}!")
+    args.out_dir.mkdir(parents=True, exist_ok=True)
 
-    # 2) App structure
-    APP_SRC_DIR = os.path.join(PROJECT_ROOT_DIR, "src", "cryptotrader")
-    APP_OUTPUT = os.path.join(OUTPUT_DIR, "app_structure.md")
-    app_tree = generate_directory_tree(
-        APP_SRC_DIR, current_depth=0, max_depth=args.depth
+    # Specs
+    spec_md = args.out_dir / "architectum_specs_structure.md"
+    spec_content = (
+        "```\ncryptotrader_specs/\n"
+        + generate_tree(args.spec_dir, max_depth=args.depth)
+        + "\n```"
     )
-    with open(APP_OUTPUT, "w", encoding="utf-8") as f:
-        f.write("```\n")
-        f.write("cryptotrader/\n")
-        f.write(app_tree)
-        f.write("\n```")
-    print(f"✅ App directory structure written to {APP_OUTPUT}!")
+    spec_md.write_text(spec_content, encoding="utf-8")
+    print(f"✅ {spec_md}")
+
+    # App
+    app_md = args.out_dir / "app_structure.md"
+    app_content = (
+        "```\ncryptotrader/\n"
+        + generate_tree(args.app_dir, max_depth=args.depth)
+        + "\n```"
+    )
+    app_md.write_text(app_content, encoding="utf-8")
+    print(f"✅ {app_md}")
 
 
 if __name__ == "__main__":
