@@ -11,6 +11,7 @@ dependencies = [
     "matplotlib>=3.10.1",
     "numpy>=2.2.5",
     "python-dotenv>=1.1.0",
+    "pyyaml>=6.0.2",
     "questionary>=2.1.0",
     "ruff>=0.9.7",
     "sqlalchemy>=2.0.38",
@@ -40,3 +41,5 @@ file-structure-to-md         = "architectum.scripts.file_structure_to_md:main"
 sync-folder-structure        = "architectum.scripts.sync_folder_structure:main"
 create-arch-files            = "architectum.scripts.create_arch_files:main"
 script-manager               = "architectum.scripts.script_manager:main"
+build-manifest        = "architectum.scripts.manifest_builder:main"
+
