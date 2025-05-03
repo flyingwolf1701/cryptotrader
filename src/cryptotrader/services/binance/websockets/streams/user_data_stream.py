@@ -11,7 +11,6 @@ import time
 import hmac
 import hashlib
 import asyncio
-import logging
 from typing import Dict, List, Optional, Any, Callable, Awaitable, Union
 
 import httpx

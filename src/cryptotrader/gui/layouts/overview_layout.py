@@ -1,26 +1,11 @@
-"""
-Overview Layout Component
-
-This module implements a simple grid layout with four panels
-for the Overview tab of the CryptoTrader dashboard.
-"""
-
 import tkinter as tk
 from tkinter import ttk
-import logging
 
-from cryptotrader.config import get_logger  # Use when integrating with the main app
-from gui.components.watchlist_component import WatchlistWidget
+from cryptotrader.config import get_logger
+from cryptotrader.gui.components.ui import watchlist_widget
 
-# Configure basic logging (use this for standalone testing)
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)  # Use this for standalone testing
-
-# Uncomment when integrating with the main app
-# logger = get_logger(__name__)
-
+# Set up logger through centralized system
+logger = get_logger(__name__)
 
 class OverviewLayout(ttk.Frame):
     """A grid layout with four panels for the Overview tab."""
@@ -46,14 +31,11 @@ class OverviewLayout(ttk.Frame):
 
         logger.info("Overview layout initialized with four panels")
 
-    # Place holder for panels
     def _create_panel(self, row, column, title):
         """Create a panel with a title and placeholder content."""
-        # Create a frame with a border
         panel = ttk.LabelFrame(self, text=title, padding=10)
         panel.grid(row=row, column=column, padx=10, pady=10, sticky="nsew")
 
-        # Add a placeholder label
         label = ttk.Label(panel, text=f"Content for {title}")
         label.pack(pady=40, padx=40)
 
@@ -61,28 +43,26 @@ class OverviewLayout(ttk.Frame):
 
     def _create_watchlist_panel(self, row, column, title):
         """Create the watchlist panel with the WatchlistWidget."""
-        # Create a frame with a border
         panel = ttk.LabelFrame(self, text=title, padding=10)
         panel.grid(row=row, column=column, padx=10, pady=10, sticky="nsew")
 
-        # Add the watchlist widget (no market_client needed anymore)
-        self.watchlist = WatchlistWidget(panel)
+        # Add the watchlist widget (uses centralized WatchlistWidget)
+        self.watchlist = watchlist_widget.WatchlistWidget(panel)
         self.watchlist.pack(fill=tk.BOTH, expand=True)
 
         # Set available symbols
         available_symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT"]
         self.watchlist.set_available_symbols(available_symbols)
 
-        return panel
+        logger.info("Watchlist panel initialized")
 
-
-# For testing this component individually
-def main():
+# Optional standalone test harness
+if __name__ == "__main__":
     root = tk.Tk()
     root.title("Overview Layout Test")
     root.geometry("800x600")
 
-    # Set a dark theme for testing
+    # Apply a simple dark theme
     root.configure(bg="#1e1e1e")
     style = ttk.Style()
     style.theme_use("clam")
@@ -91,12 +71,8 @@ def main():
     style.configure("TLabelframe.Label", background="#1e1e1e", foreground="#d4d4d4")
     style.configure("TLabel", background="#1e1e1e", foreground="#d4d4d4")
 
-    # Create and pack the overview layout
-    overview = OverviewLayout(root)
+    fonts = {}
+    overview = OverviewLayout(root, fonts)
     overview.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
     root.mainloop()
-
-
-if __name__ == "__main__":
-    main()

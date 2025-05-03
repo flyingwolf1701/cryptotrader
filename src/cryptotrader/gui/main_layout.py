@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 CryptoTrader Application with Complete Tab Structure
 
@@ -12,7 +13,7 @@ from tkinter import ttk
 from cryptotrader.config import get_logger
 from cryptotrader.gui.components.styles import Colors, apply_theme
 from cryptotrader.gui.layouts.overview_layout import OverviewLayout
-from cryptotrader.gui.components.watchlist_component import WatchlistWidget
+from cryptotrader.gui.components.ui.watchlist_widget import WatchlistWidget
 
 # Set up logging through the centralized system
 logger = get_logger(__name__)
@@ -119,13 +120,12 @@ class MainLayout(tk.Tk):
             TradeHistoryWidget,
         )
 
-        self.trade_history_widget = TradeHistoryWidget(self.trade_history_tab)
+        self.trade_history_widget = TradeHistoryWidget(self.logging_tab)
         self.trade_history_widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
 
 def main():
     """Application entry point."""
-    # Log application startup
     logger.info("Starting CryptoTrader Dashboard")
 
     # Create and show the main window
