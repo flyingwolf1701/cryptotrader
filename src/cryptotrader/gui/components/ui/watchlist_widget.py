@@ -74,7 +74,7 @@ class WatchlistWidget(ttk.Frame):
         exch_combo = ttk.Combobox(
             self,
             textvariable=self.exchange_var,
-            values=["Binance"],
+            values=["Binance", "Crypto.com"],
             state="readonly",
             width=12,
         )

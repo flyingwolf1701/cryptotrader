@@ -1,4 +1,7 @@
-# architectum/scripts/create_arch_files.py
+#!/usr/bin/env python3
+"""
+Create empty spec/doc files in your Architectum docs tree based on app structure.
+"""
 
 import os
 import argparse
@@ -30,7 +33,7 @@ def open_file(path: str):
 
 def create_files(doc_root: str, rel: str, selected: list) -> list:
     """
-    Given a doc_root (specs folder), a relative path, and a list of templates,
+    Given a doc_root (docs folder), a relative path, and a list of templates,
     create empty files if they don't exist and return the list of full paths.
     """
     created = []
@@ -42,7 +45,7 @@ def create_files(doc_root: str, rel: str, selected: list) -> list:
         full_path = os.path.join(folder, filename)
         rel_path = os.path.relpath(full_path, doc_root).replace("\\", "/")
         if not os.path.exists(full_path):
-            # touch the file
+            # create empty file
             with open(full_path, "w", encoding="utf-8"):
                 pass
             print(f"✅ Created: {rel_path}")
@@ -54,17 +57,17 @@ def create_files(doc_root: str, rel: str, selected: list) -> list:
 
 def main():
     cwd = os.getcwd()
-    default_doc = os.path.join(cwd, "src", "architectum", "cryptotrader_specs")
+    default_doc = os.path.join(cwd, "src", "architectum", "project_overview")
     default_app = os.path.join(cwd, "src", "cryptotrader")
 
     parser = argparse.ArgumentParser(
-        description="Create empty spec/doc files in your Architectum specs tree."
+        description="Create empty spec/doc files in your Architectum docs tree."
     )
     parser.add_argument(
         "--doc-root",
         type=str,
         default=default_doc,
-        help="Path to your specs folder (e.g. src/architectum/cryptotrader_specs)",
+        help="Path to your docs folder (e.g. src/architectum/project_overview)",
     )
     parser.add_argument(
         "--app-root",
@@ -74,27 +77,34 @@ def main():
     )
     args = parser.parse_args()
 
-    # 1) Ask for the relative path under your app tree
-    while True:
-        rel = questionary.text(
-            "Paste the relative path inside your app (e.g. utils/helpers or utils/helpers/file.py):"
-        ).ask()
-        if not rel:
-            print("❌ No path provided. Exiting.")
-            sys.exit(1)
+    # Ask for the relative path under your app tree once
+    rel = questionary.text(
+        "Paste the relative path inside your app (e.g. utils/helpers or utils/helpers/file.py), or 'q' to quit:"
+    ).ask()
+    # Graceful exit on quit command
+    if rel and rel.lower() in ("q", "quit"):
+        print("❌ Quit command received. Exiting.")
+        sys.exit(0)
+    if not rel:
+        print("❌ No path provided. Exiting.")
+        sys.exit(1)
 
-        rel = rel.replace("\\", "/")
-        # strip any leading "src/" if present
-        if rel.startswith("src/"):
-            rel = rel.split("/", 1)[1]
+    # Normalize path separators and strip leading prefixes
+    rel = rel.replace("\\", "/")
+    # strip any leading "src/" if present
+    if rel.startswith("src/"):
+        rel = rel.split("/", 1)[1]
+    # strip leading app folder name if included
+    app_name = os.path.basename(args.app_root)
+    if rel.startswith(f"{app_name}/"):
+        rel = rel.split("/", 1)[1]
 
-        full_app = os.path.join(args.app_root, rel)
-        if not os.path.exists(full_app):
-            print(f"⚠️ Path not found in app: {full_app}")
-            continue
-        break
+    full_app = os.path.join(args.app_root, rel)
+    if not os.path.exists(full_app):
+        print(f"⚠️ Path not found in app: {full_app}. Exiting.")
+        sys.exit(1)
 
-    # 2) Ask which templates to instantiate
+    # Ask which templates to instantiate
     selected = questionary.checkbox(
         "Select file types to generate:",
         choices=TEMPLATES,
@@ -103,10 +113,10 @@ def main():
         print("❌ No file types selected. Exiting.")
         sys.exit(1)
 
-    # 3) Create the files
+    # Create the files
     created = create_files(args.doc_root, rel, selected)
 
-    # 4) Optionally open them
+    # Optionally open them
     if created and questionary.confirm("Would you like me to open those files?").ask():
         for fpath in created:
             open_file(fpath)
