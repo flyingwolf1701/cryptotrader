@@ -1,22 +1,22 @@
+#!/usr/bin/env python3
 """
-CryptoTrader Application with Complete Tab Structure
-
-This module initializes the application with all tabs requested,
-applying the dark theme styling from the styles component.
+Main layout for the CryptoTrader application with complete tab structure,
+now streamlined: removed "Trading View", and added Strategy and Logging tabs.
 """
 
 import tkinter as tk
 from tkinter import ttk
 
-# Import centralized configuration and styling
 from cryptotrader.config import get_logger
-from cryptotrader.gui.components.styles import Colors, apply_theme
+from cryptotrader.gui.app_styles import apply_theme
 from cryptotrader.gui.layouts.overview_layout import OverviewLayout
-from cryptotrader.gui.components.watchlist_component import WatchlistWidget
+from cryptotrader.gui.components.ui.watchlist_widget import WatchlistWidget
+from cryptotrader.gui.components.trades_component import TradesWatch
+from cryptotrader.gui.components.ui.strategy_widget import StrategyWidget
+from cryptotrader.gui.components.ui.logging_widget import LoggingWidget
 
-# Set up logging through the centralized system
+# Initialize logger for this module
 logger = get_logger(__name__)
-
 
 class MainLayout(tk.Tk):
     """Main window for the application with all required tabs."""
@@ -24,116 +24,97 @@ class MainLayout(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        # Setup window
+        # Window setup
         self.title("CryptoTrader Dashboard")
         self.geometry("1024x768")
 
-        # Apply custom theme using the existing styling module
+        # Apply theme and get fonts
         self.fonts = apply_theme(self)
 
-        # Create main container with notebook (tabs)
+        # Create notebook (tabs)
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Create tabs for different views in the specified order
-        self.overview_tab = ttk.Frame(self.notebook)
-        self.watchlist_tab = ttk.Frame(self.notebook)
-        self.market_tab = ttk.Frame(self.notebook)
-        self.trading_tab = ttk.Frame(self.notebook)
-        self.logging_tab = ttk.Frame(self.notebook)
-        self.strategy_tab = ttk.Frame(self.notebook)
-        self.charts_tab = ttk.Frame(self.notebook)
-        self.settings_tab = ttk.Frame(self.notebook)
+        # Define tabs (removed "Trading View")
+        tabs = [
+            ("Overview",   ttk.Frame(self.notebook)),
+            ("Watchlist",  ttk.Frame(self.notebook)),
+            ("Market View",ttk.Frame(self.notebook)),
+            ("Trades",     ttk.Frame(self.notebook)),
+            ("Logging",    ttk.Frame(self.notebook)),
+            ("Strategy",   ttk.Frame(self.notebook)),
+            ("Charts",     ttk.Frame(self.notebook)),
+            ("Settings",   ttk.Frame(self.notebook)),
+        ]
+        for name, frame in tabs:
+            setattr(self, f"{name.lower().replace(' ', '_')}_tab", frame)
+            self.notebook.add(frame, text=name)
 
-        # Add tabs to notebook in the specified order
-        self.notebook.add(self.overview_tab, text="Overview")
-        self.notebook.add(self.watchlist_tab, text="Watchlist")
-        self.notebook.add(self.market_tab, text="Market View")
-        self.notebook.add(self.trading_tab, text="Trading View")
-        self.notebook.add(self.logging_tab, text="Logging")
-        self.notebook.add(self.strategy_tab, text="Strategy")
-        self.notebook.add(self.charts_tab, text="Charts")
-        self.notebook.add(self.settings_tab, text="Settings")
-
-        # Add content to each tab
+        # Populate tabs
         self._setup_overview_tab()
         self._setup_watchlist_tab()
-        self._setup_placeholder_tab(self.market_tab, "Market View")
-        self._setup_placeholder_tab(self.trading_tab, "Trading View")
-        self._setup_placeholder_tab(self.logging_tab, "Logging")
-        self._setup_placeholder_tab(self.strategy_tab, "Strategy")
-        self._setup_placeholder_tab(self.charts_tab, "Charts")
-        self._setup_placeholder_tab(self.settings_tab, "Settings")
+        self._setup_trades_tab()
+        self._setup_logging_tab()
+        self._setup_strategy_tab()
+        # Placeholder for remaining tabs
+        for name in ["Market View", "Charts", "Settings"]:
+            tab = getattr(self, f"{name.lower().replace(' ', '_')}_tab")
+            self._setup_placeholder_tab(tab, name)
 
         logger.info("Main layout initialized with all tabs")
 
-    def _setup_placeholder_tab(self, tab, tab_name):
-        """Helper method to set up basic content for a tab."""
+    def _setup_placeholder_tab(self, tab, title):
+        """Add placeholder content for tabs not yet implemented."""
         frame = ttk.Frame(tab, padding=20)
         frame.pack(fill=tk.BOTH, expand=True)
-
         label = ttk.Label(
             frame,
-            text=f"{tab_name} Content Will Be Added Here",
-            font=self.fonts["large"],
+            text=f"{title} Content Will Be Added Here",
+            font=self.fonts.get("large")
         )
         label.pack(pady=50)
-
-        button = ttk.Button(
+        ttk.Button(
             frame,
-            text=f"{tab_name} Action",
-            command=lambda: logger.info(f"{tab_name} button clicked"),
-        )
-        button.pack(pady=10)
-
-        logger.info(f"{tab_name} tab initialized with placeholder")
+            text=f"{title} Action",
+            command=lambda: logger.info(f"{title} button clicked")
+        ).pack(pady=10)
 
     def _setup_overview_tab(self):
-        """Set up the Overview tab with the OverviewLayout."""
-        # Create the overview layout and pack it to fill the tab
-        self.overview_layout = OverviewLayout(self.overview_tab, self.fonts)
-        self.overview_layout.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        """Initialize the Overview tab with the grid overview layout."""
+        layout = OverviewLayout(self.overview_tab, self.fonts)
+        layout.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         logger.info("Overview tab initialized with grid layout")
 
     def _setup_watchlist_tab(self):
-        """Set up the Watchlist tab with the WatchlistWidget."""
-        # Create and configure the watchlist widget
-        self.watchlist_widget = WatchlistWidget(self.watchlist_tab)
-        self.watchlist_widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        # Set available symbols
-        available_symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "ADAUSDT", "DOGEUSDT"]
-        self.watchlist_widget.set_available_symbols(available_symbols)
-
+        """Initialize the Watchlist tab with the watchlist widget."""
+        widget = WatchlistWidget(self.watchlist_tab)
+        widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         logger.info("Watchlist tab initialized")
 
-    def _setup_trading_tab(self):
-        """Set up the Trading tab (placeholder)."""
-        # TODO: Hook TradingWidget here when ready
-        label = ttk.Label(self.trading_tab, text="Trading functionality coming soon.")
-        label.pack(padx=20, pady=20)
+    def _setup_trades_tab(self):
+        """Initialize the Trades tab with the TradesWatch component."""
+        widget = TradesWatch(self.trades_tab)
+        widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        logger.info("Trades tab initialized with TradesWatch component")
 
-    def _setup_trade_history_tab(self):
-        """Set up the Trade History tab."""
-        from cryptotrader.gui.components.ui.trade_history_widget import (
-            TradeHistoryWidget,
-        )
+    def _setup_logging_tab(self):
+        """Initialize the Logging tab with the logging widget."""
+        widget = LoggingWidget(self.logging_tab)
+        widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        logger.info("Logging tab initialized with LoggingWidget")
 
-        self.trade_history_widget = TradeHistoryWidget(self.trade_history_tab)
-        self.trade_history_widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+    def _setup_strategy_tab(self):
+        """Initialize the Strategy tab with the strategy widget."""
+        widget = StrategyWidget(self.strategy_tab)
+        widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        logger.info("Strategy tab initialized with StrategyWidget")
 
 
 def main():
     """Application entry point."""
-    # Log application startup
     logger.info("Starting CryptoTrader Dashboard")
-
-    # Create and show the main window
     window = MainLayout()
-
-    # Start the event loop
     window.mainloop()
-
 
 if __name__ == "__main__":
     main()

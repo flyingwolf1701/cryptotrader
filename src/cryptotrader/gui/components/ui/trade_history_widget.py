@@ -1,104 +1,119 @@
-# File: src/gui/components/ui/trade_history_widget.py
+# File: src/cryptotrader/gui/components/ui/trade_history_widget.py
+#!/usr/bin/env python3
 """
-Trade History Widget
+TradeHistoryWidget
 
-Displays user's past trades for a selected symbol, with PNL calculation.
+Displays executed trades in a grid layout with add, clear, and mock methods.
 """
-
 import tkinter as tk
 from tkinter import ttk
-from typing import Optional, List
+from datetime import datetime
+import typing
 
 from cryptotrader.config import get_logger
-from cryptotrader.gui.components.ui.symbol_search_widget import SymbolSearchWidget
+from cryptotrader.gui.components.styles import Colors
 from cryptotrader.gui.components.logic.trade_history_logic import TradeHistoryLogic
-from cryptotrader.services.unified_clients.binanceRestUnifiedClient import (
-    BinanceRestUnifiedClient,
-)
 
 logger = get_logger(__name__)
-
 
 class TradeHistoryWidget(ttk.Frame):
     """UI component for displaying historical trades and PNL."""
 
     def __init__(self, parent: tk.Widget):
         super().__init__(parent)
-
-        self.unified_client = BinanceRestUnifiedClient()
-        self.logic = TradeHistoryLogic(self.unified_client)
-
-        self.selected_symbol: Optional[str] = None
-        self.trades: List[dict] = []
+        self.logic = TradeHistoryLogic()
+        self.trades: typing.List[dict] = []
 
         self._init_ui()
+        # Optionally populate with mock trades:
+        # self.add_mock_trades()
 
     def _init_ui(self):
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(1, weight=1)
+        """Initialize UI: header, table, scrollbar, and buttons."""
+        # Header
+        header = ttk.Frame(self)
+        header.pack(side=tk.TOP, fill=tk.X, pady=(0, 5))
+        ttk.Label(header, text="Trades", font=("Segoe UI", 10, "bold")).pack(side=tk.LEFT)
+        clear_btn = ttk.Button(header, text="Clear", command=self.clear_trades)
+        clear_btn.pack(side=tk.RIGHT)
 
-        # Top frame for symbol search
-        top_frame = ttk.Frame(self)
-        top_frame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+        # Treeview for trades
+        columns = ("time", "symbol", "strategy", "side", "price", "quantity", "status")
+        self.trades_tree = ttk.Treeview(self, columns=columns, show="headings", height=15)
+        self.trades_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.symbol_search = SymbolSearchWidget(
-            top_frame,
-            on_select=self._on_symbol_selected,
-            width=30,
-            client=self.unified_client,
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.trades_tree.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.trades_tree.configure(yscrollcommand=scrollbar.set)
+
+        # Configure columns and headings
+        widths = {
+            "time": 150, "symbol": 100, "strategy": 100,
+            "side": 80, "price": 120, "quantity": 100, "status": 100
+        }
+        for col in columns:
+            self.trades_tree.heading(col, text=col.capitalize())
+            self.trades_tree.column(col, width=widths[col], anchor=tk.CENTER)
+
+        # Color tags
+        self.trades_tree.tag_configure("buy", foreground=Colors.BUY)
+        self.trades_tree.tag_configure("sell", foreground=Colors.SELL)
+
+    def add_trade(self, data: typing.Dict):
+        """
+        Add a single trade record to the treeview.
+        """
+        # Format timestamp
+        ts = data.get("time", "")
+        if isinstance(ts, (int, float)):
+            ts = datetime.fromtimestamp(ts / 1000).strftime("%Y-%m-%d %H:%M:%S")
+
+        # Format price & quantity
+        price = data.get("price", 0)
+        price_str = f"{float(price):.8f}" if isinstance(price, (int, float)) else str(price)
+        qty = data.get("quantity", 0)
+        qty_str = f"{float(qty):.8f}" if isinstance(qty, (int, float)) else str(qty)
+
+        values = (
+            ts,
+            data.get("symbol", "N/A"),
+            data.get("strategy", "Manual"),
+            data.get("side", "BUY"),
+            price_str,
+            qty_str,
+            data.get("status", "FILLED"),
         )
-        self.symbol_search.pack(fill=tk.X, padx=5, pady=5)
+        tag = "buy" if data.get("side", "BUY") == "BUY" else "sell"
+        self.trades_tree.insert("", "end", values=values, tags=(tag,))
 
-        # Table
-        self._table = ttk.Treeview(
-            self, columns=("side", "qty", "price", "time"), show="headings"
-        )
-        for col in ("side", "qty", "price", "time"):
-            self._table.heading(col, text=col.capitalize())
-            self._table.column(col, anchor="center")
+        logger.info(f"Added trade: {data.get('symbol')} {data.get('side')}")
 
-        self._table.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
+    def clear_trades(self):
+        """Clear all entries from the treeview."""
+        for item in self.trades_tree.get_children():
+            self.trades_tree.delete(item)
+        logger.info("Cleared all trades")
 
-        # PNL label
-        self.pnl_var = tk.StringVar(value="PNL: -")
-        self.pnl_label = ttk.Label(
-            self, textvariable=self.pnl_var, font=("Segoe UI", 10, "bold")
-        )
-        self.pnl_label.pack(side=tk.TOP, pady=5)
+    def add_mock_trades(self, count: int = 10):
+        """
+        Populate the treeview with mock trades for testing.
+        """
+        import time, random
 
-        # Refresh button
-        self.refresh_button = ttk.Button(
-            self, text="Refresh", command=self._refresh_trades
-        )
-        self.refresh_button.pack(side=tk.TOP, pady=5)
+        symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "ADAUSDT"]
+        strategies = ["Breakout", "MACD", "Manual", "Grid"]
+        sides = ["BUY", "SELL"]
+        statuses = ["FILLED", "PARTIALLY_FILLED", "CANCELED"]
 
-    def _on_symbol_selected(self, symbol: str):
-        self.selected_symbol = symbol
-        self._refresh_trades()
-
-    def _refresh_trades(self):
-        if not self.selected_symbol:
-            return
-
-        self.trades = self.logic.fetch_trades(self.selected_symbol)
-        self._update_table()
-        self._update_pnl()
-
-    def _update_table(self):
-        self._table.delete(*self._table.get_children())
-
-        for trade in self.trades:
-            self._table.insert(
-                "",
-                "end",
-                values=(
-                    trade["side"],
-                    f"{float(trade['qty']):.6f}",
-                    f"{float(trade['price']):.2f}",
-                    trade["time"],
-                ),
-            )
-
-    def _update_pnl(self):
-        pnl = self.logic.calculate_pnl(self.trades)
-        self.pnl_var.set(f"PNL: {pnl:.2f}")
+        for _ in range(count):
+            trade = {
+                "time": int(time.time() * 1000) - random.randint(0, 1_000_000),
+                "symbol": random.choice(symbols),
+                "strategy": random.choice(strategies),
+                "side": random.choice(sides),
+                "price": random.uniform(100, 50_000),
+                "quantity": random.uniform(0.01, 2),
+                "status": random.choice(statuses),
+            }
+            self.add_trade(trade)

@@ -1,0 +1,26 @@
+{
+    "base_model":{
+        "Instrument": {
+            "instrument_name": "string",
+            "quote_currency": "string",
+            "base_currency": "string",
+            "price_decimals": "integer",
+            "quantity_decimals": "integer"
+        },
+        "AccountBalance": {
+            "currency": "string",
+            "total": "number",
+            "available": "number"
+        },
+        "Trade": {
+            "trade_id": "string",
+            "instrument_name": "string",
+            "side": "string",
+            "price": "number",
+            "quantity": "number",
+            "fee": "number",
+            "fee_currency": "string",
+            "timestamp": "integer (ms)"
+        }
+    }
+}

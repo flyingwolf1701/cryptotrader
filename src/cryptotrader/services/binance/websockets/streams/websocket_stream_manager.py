@@ -7,7 +7,6 @@ It handles subscribing, unsubscribing, and processing messages from Binance WebS
 
 import json
 import asyncio
-import logging
 from typing import Dict, List, Optional, Any, Callable, Awaitable, Union
 
 import websockets
