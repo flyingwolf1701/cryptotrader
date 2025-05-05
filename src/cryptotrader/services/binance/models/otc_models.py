@@ -6,9 +6,9 @@ It provides strongly-typed models for OTC trading operations including coin pair
 quotes, and order information.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 
 
 class OtcOrderStatus(str, Enum):
