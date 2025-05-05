@@ -12,11 +12,9 @@ It handles:
 import time
 import hmac
 import hashlib
-import json
 import urllib.parse
-from typing import Dict, List, Optional, Any, Union, Tuple
-
 import httpx
+from typing import Dict, Optional, Any
 
 from cryptotrader.config import get_logger, Secrets
 from cryptotrader.services.binance.models import (

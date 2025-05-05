@@ -9,6 +9,8 @@ import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
 import typing
+import time
+import random
 
 from cryptotrader.config import get_logger
 from cryptotrader.gui.components.styles import Colors
@@ -99,7 +101,6 @@ class TradeHistoryWidget(ttk.Frame):
         """
         Populate the treeview with mock trades for testing.
         """
-        import time, random
 
         symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "ADAUSDT"]
         strategies = ["Breakout", "MACD", "Manual", "Grid"]

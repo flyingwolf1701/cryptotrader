@@ -16,7 +16,7 @@ consistent handling of Binance API data across the application.
 """
 
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum
 from typing import Dict, List, Optional, Any
 
 
