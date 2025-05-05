@@ -45,4 +45,4 @@ sync-folder-structure        = "architectum.scripts.sync_folder_structure:main"
 create-arch-files            = "architectum.scripts.create_arch_files:main"
 script-manager               = "architectum.scripts.script_manager:main"
 build-manifest               = "architectum.scripts.manifest_builder:main"
-
+diagnostic-manager    = "architectum.scripts.diagnostic_manager:main"

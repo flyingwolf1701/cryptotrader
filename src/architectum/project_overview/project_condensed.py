@@ -924,16 +924,14 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from cryptotrader.config import get_logger
-from .base_operations import CryptoBaseOperations
+from cryptotrader.services.crypto.restAPI.crypto_api_request import CryptoBaseOperations
 
 logger = get_logger(__name__)
 
 class CryptoRestUnifiedClient(CryptoBaseOperations):
     """Subset of endpoints required by existing app logic."""
 
-    # ------------------------------------------------------------------
-    # Market data
-    # ------------------------------------------------------------------
+  
     def get_exchange_info(self) -> Dict[str, Any]:
         """Return symbol metadata (mirror Binance get_exchange_info)."""
         # Crypto.com: /public/get-instruments

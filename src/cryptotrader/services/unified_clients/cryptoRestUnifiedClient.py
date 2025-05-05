@@ -1,33 +1,48 @@
-"""High‑level unified client mirroring BinanceRestUnifiedClient surface."""
-from __future__ import annotations
-
+"""
+Unified client for Crypto.com REST API.
+Follows the BinanceRestUnifiedClient composition pattern: uses CryptoBaseOperations and free API functions.
+"""
 from typing import Any, Dict, List, Optional
-
-from cryptotrader.config import get_logger
-from .base_operations import CryptoBaseOperations
+from cryptotrader.config import get_logger, Secrets
+from cryptotrader.services.crypto.restAPI.crypto_api_request import CryptoBaseOperations
+from cryptotrader.services.crypto.restAPI.crypto_api import (
+    get_exchange_info,
+    get_ticker_24h,
+    get_account_summary,
+    place_order,
+    cancel_order,
+    get_my_trades,
+)
 
 logger = get_logger(__name__)
 
-class CryptoRestUnifiedClient(CryptoBaseOperations):
-    """Subset of endpoints required by existing app logic."""
+class CryptoRestUnifiedClient:
+    """High-level unified client for Crypto.com REST API."""
 
-    # ------------------------------------------------------------------
-    # Market data
-    # ------------------------------------------------------------------
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        api_secret: Optional[str] = None,
+        testnet: bool = False
+    ):
+        """
+        :param api_key: Crypto.com API key (defaults to Secrets.CRYPTO_API_KEY)
+        :param api_secret: Crypto.com API secret (defaults to Secrets.CRYPTO_API_SECRET)
+        :param testnet: If True, use the testnet endpoint
+        """
+        self.logger = get_logger(__name__)
+        key = api_key or Secrets.CRYPTO_API_KEY
+        secret = api_secret or Secrets.CRYPTO_API_SECRET
+        self.client = CryptoBaseOperations(key, secret, testnet=testnet)
+
     def get_exchange_info(self) -> Dict[str, Any]:
-        """Return symbol metadata (mirror Binance get_exchange_info)."""
-        # Crypto.com: /public/get-instruments
-        return self._request("GET", "/public/get-instruments")
+        return get_exchange_info(self.client)
 
     def get_ticker_24h(self, instrument_name: str) -> Dict[str, Any]:
-        """24h stats; instrument_name like "BTC_USDT"."""
-        return self._request("GET", "/public/get-ticker", instrument_name=instrument_name)
+        return get_ticker_24h(self.client, instrument_name)
 
-    # ------------------------------------------------------------------
-    # Account / Orders (minimal for watchlist & PnL)
-    # ------------------------------------------------------------------
     def get_account_summary(self) -> Dict[str, Any]:
-        return self._request("POST", "/private/get-account-summary")
+        return get_account_summary(self.client)
 
     def place_order(
         self,
@@ -37,21 +52,14 @@ class CryptoRestUnifiedClient(CryptoBaseOperations):
         quantity: float,
         price: Optional[float] = None,
     ) -> Dict[str, Any]:
-        """Simple order placement (LIMIT or MARKET)."""
-        return self._request(
-            "POST",
-            "/private/create-order",
-            instrument_name=instrument_name,
-            side=side,
-            type=type_,
-            price=price,
-            quantity=quantity,
+        return place_order(
+            self.client, instrument_name, side, type_, quantity, price
         )
 
     def cancel_order(self, order_id: str) -> Dict[str, Any]:
-        return self._request("POST", "/private/cancel-order", order_id=order_id)
+        return cancel_order(self.client, order_id)
 
-    def get_my_trades(self, instrument_name: str, **kwargs) -> List[Dict[str, Any]]:
-        """Mirror Binance `get_my_trades`."""
-        res = self._request("POST", "/private/get-trades", instrument_name=instrument_name, **kwargs)
-        return res.get("data", [])
+    def get_my_trades(
+        self, instrument_name: str, **kwargs
+    ) -> List[Dict[str, Any]]:
+        return get_my_trades(self.client, instrument_name, **kwargs)
